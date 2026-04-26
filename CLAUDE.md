@@ -60,9 +60,8 @@ There are no tests yet. `astro check` is used for type-checking in `/web`; `tsc 
 ### /studio — Sanity Studio v3
 
 - **Config:** `studio/sanity.config.ts` — registers plugins and schema. Project ID `tusnc4rf`, dataset `production` are hardcoded here (not secrets).
-- **Schemas:** `studio/schemaTypes/` — currently empty (`schemaTypes/index.ts` exports `[]`). All content types will be defined here in Phase 2.
-- **Path alias:** `~/schemas/*` → `schemaTypes/*` (configured in `studio/tsconfig.json`).
-- **Note on folder name:** Sanity CLI scaffolded `schemaTypes/` but the PRD calls it `schemas/`. The alias bridges this. Rename with caution — requires updating the import in `sanity.config.ts`.
+- **Schemas:** `studio/schemas/` — currently empty (`schemas/index.ts` exports `[]`). All content types will be defined here in Phase 2.
+- **Path alias:** `~/schemas/*` → `schemas/*` (configured in `studio/tsconfig.json`).
 
 ### ESLint / Prettier
 
@@ -85,12 +84,12 @@ There are no tests yet. `astro check` is used for type-checking in `/web`; `tsc 
 
 ## Off limits
 
-- **`studio/schemaTypes/`** (the PRD calls it `schemas/`) requires **Plan Mode review before any change** once Phase 2 is locked. Do not edit schema files directly without entering Plan Mode first.
+- **`studio/schemas/`** requires **Plan Mode review before any change** once Phase 2 is locked. Do not edit schema files directly without entering Plan Mode first.
 - **Do not run `sanity deploy`** (or `pnpm --filter studio deploy`) without explicit instruction from the user.
 
 ## Phase status
 
 - Phase 0 (decisions): complete
 - Phase 1 (repo + framework scaffold): complete
-- Phase 2 (schemas + data layer): **next** — implement schemas in `studio/schemaTypes/`, wire Sanity client in `web/src/lib/`, write GROQ queries, seed dummy content, verify with a temporary `web/src/pages/test.astro`
+- Phase 2 (schemas + data layer): **next** — implement schemas in `studio/schemas/`, wire Sanity client in `web/src/lib/`, write GROQ queries, seed dummy content, verify with a temporary `web/src/pages/test.astro`
 - Phase 3 (UI): not started

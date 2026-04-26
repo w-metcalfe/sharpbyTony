@@ -13,7 +13,7 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "~/schemas/*": ["schemaTypes/*"]
+      "~/schemas/*": ["schemas/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],
