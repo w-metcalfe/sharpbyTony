@@ -1,0 +1,49 @@
+---
+// DELETE THIS FILE BEFORE PHASE 3.
+import {sanityFetch} from '~/lib/sanity'
+import {
+  siteSettingsQuery,
+  allProjectsQuery,
+  allServicesQuery,
+  featuredClientsQuery,
+  featuredTestimonialsQuery,
+  type SiteSettings,
+  type ProjectCard,
+  type Service,
+  type FeaturedClient,
+  type FeaturedTestimonial,
+} from '~/lib/queries'
+
+const [siteSettings, allProjects, allServices, featuredClients, featuredTestimonials] =
+  await Promise.all([
+    sanityFetch<SiteSettings>(siteSettingsQuery),
+    sanityFetch<ProjectCard[]>(allProjectsQuery),
+    sanityFetch<Service[]>(allServicesQuery),
+    sanityFetch<FeaturedClient[]>(featuredClientsQuery),
+    sanityFetch<FeaturedTestimonial[]>(featuredTestimonialsQuery),
+  ])
+
+const sections = [
+  {label: 'siteSettingsQuery', data: siteSettings},
+  {label: 'allProjectsQuery', data: allProjects},
+  {label: 'allServicesQuery', data: allServices},
+  {label: 'featuredClientsQuery', data: featuredClients},
+  {label: 'featuredTestimonialsQuery', data: featuredTestimonials},
+]
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>test — DELETE BEFORE PHASE 3</title>
+  </head>
+  <body>
+    {sections.map(({label, data}) => (
+      <section>
+        <h2>{label}</h2>
+        <pre>{JSON.stringify(data, null, 2)}</pre>
+      </section>
+    ))}
+  </body>
+</html>

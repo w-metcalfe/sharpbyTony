@@ -1,0 +1,28 @@
+# Netlify configuration for the /web Astro workspace.
+# Real env var values are set in Netlify → Site settings → Environment variables.
+# Never commit secrets to this file.
+
+[build]
+  # Install all workspace deps from the monorepo root, then build /web only.
+  command = "pnpm install && pnpm --filter web build"
+  publish = "web/dist"
+
+[build.environment]
+  # Pin to the same Node version as .nvmrc.
+  NODE_VERSION = "22"
+  # Netlify derives the pnpm version from the `packageManager` field in
+  # the root package.json (pnpm@10.33.2) via corepack — no override needed.
+
+  # ── Required env vars (set values in the Netlify dashboard) ──────────────
+  # PUBLIC_SANITY_PROJECT_ID  — Sanity project ID (manage.sanity.io)
+  # PUBLIC_SANITY_DATASET     — "production" or "development"
+  # SANITY_API_READ_TOKEN     — read-only token (manage.sanity.io → API → Tokens)
+  # ─────────────────────────────────────────────────────────────────────────
+
+# Deploy previews run automatically for every pull request.
+[context.deploy-preview]
+  command = "pnpm install && pnpm --filter web build"
+
+# Branch deploys run for every push to a non-main branch.
+[context.branch-deploy]
+  command = "pnpm install && pnpm --filter web build"
