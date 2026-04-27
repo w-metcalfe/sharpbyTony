@@ -19,6 +19,10 @@
   # SANITY_API_READ_TOKEN     — read-only token (manage.sanity.io → API → Tokens)
   # ─────────────────────────────────────────────────────────────────────────
 
+  # These two vars are intentionally public (Astro PUBLIC_ prefix exposes them
+  # to the browser). Their values appear in Studio config and docs by design.
+  SECRETS_SCAN_OMIT_KEYS = "PUBLIC_SANITY_PROJECT_ID,PUBLIC_SANITY_DATASET"
+
 # Deploy previews run automatically for every pull request.
 [context.deploy-preview]
   command = "pnpm install && pnpm --filter web build"
