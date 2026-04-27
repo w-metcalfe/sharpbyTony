@@ -1,0 +1,83 @@
+---
+import { WIX } from '~/lib/imageUrl'
+import type { SiteSettings } from '~/lib/queries'
+
+interface Props {
+  settings?: SiteSettings | null
+}
+
+const { settings } = Astro.props
+
+const BG_IMAGE = `${WIX}/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg/v1/fill/w_1920,h_800,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg`
+const LOGO = `${WIX}/c8520e_301b1a02bee3443a800790e3226eea74~mv2.png/v1/crop/x_0,y_107,w_500,h_287/fill/w_230,h_132,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Colour%20on%20Black.png`
+---
+
+<section class="relative min-h-[560px] md:min-h-[680px] overflow-hidden bg-black">
+  <!-- Background image -->
+  <img
+    src={BG_IMAGE}
+    alt="Antonio Martinez – Sharp by Tony"
+    fetchpriority="high"
+    class="absolute inset-0 w-full h-full object-cover object-center"
+    width="1920"
+    height="800"
+  />
+
+  <!-- Dark gradient left overlay -->
+  <div
+    class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"
+    aria-hidden="true"
+  ></div>
+
+  <!-- Content card -->
+  <div class="relative z-10 h-full flex items-center px-6">
+    <div
+      class="bg-black/85 border border-neutral-800 rounded-sm p-8 max-w-[300px] shadow-xl"
+    >
+      <!-- Logo -->
+      <img
+        src={LOGO}
+        alt={settings?.title ?? 'Sharp by Tony'}
+        width="115"
+        height="66"
+        class="mb-5 w-[115px] h-auto"
+      />
+
+      <!-- Services tag line -->
+      <p
+        class="text-[11px] font-normal tracking-[0.25em] uppercase mb-2"
+        style="color: #F5C645; text-shadow: rgba(0,0,0,0.4) 0px 4px 5px;"
+      >
+        VIDEO&nbsp;|&nbsp;PHOTO&nbsp;|&nbsp;DESIGN
+      </p>
+
+      <!-- Tagline -->
+      <p
+        class="text-white text-[12px] font-bold tracking-widest uppercase mb-6"
+        style="text-shadow: rgba(0,0,0,0.4) 0px 4px 5px;"
+      >
+        {settings?.tagline ?? 'Sharp & Strategic Visuals.'}
+      </p>
+
+      <!-- CTA -->
+      <a
+        href="/contact"
+        class="inline-block bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase px-6 py-3 transition-opacity hover:opacity-90"
+      >
+        Get Started
+      </a>
+    </div>
+  </div>
+
+  <!-- Bottom diagonal divider — yellow fills into the clients section -->
+  <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0]" aria-hidden="true">
+    <svg
+      viewBox="0 0 1200 40"
+      preserveAspectRatio="none"
+      xmlns="http://www.w3.org/2000/svg"
+      class="block w-full h-[40px]"
+    >
+      <polygon points="0,40 1200,0 1200,40" fill="#F5C645"></polygon>
+    </svg>
+  </div>
+</section>

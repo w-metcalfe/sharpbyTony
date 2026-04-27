@@ -1,0 +1,123 @@
+---
+import type { FeaturedTestimonial } from '~/lib/queries'
+
+interface Props {
+  testimonials?: FeaturedTestimonial[]
+}
+
+const { testimonials } = Astro.props
+
+const FALLBACK_TESTIMONIALS: FeaturedTestimonial[] = [
+  {
+    _id: '1',
+    quote:
+      'Great company to work with to create digital video assets. They quickly understood our goals and planned and created some great promotional videos for us within a short period of time. Will definitely use again when the need arises.',
+    authorName: 'Mark Brunnenmeir',
+    authorRole: 'Owner',
+    authorCompany: 'Opportunity Bridal',
+  },
+  {
+    _id: '2',
+    quote:
+      "I've worked extensively with this company and have had great experiences every time. They are professional, prompt and creative. I would definitely recommend them.",
+    authorName: 'Anthony Dickson',
+    authorRole: 'Host',
+    authorCompany: 'Line of Sight TV',
+  },
+  {
+    _id: '3',
+    quote:
+      'Antonio made us some great ad videos that we have used for social media and websites as well as YouTube.',
+    authorName: 'Andrew Crook',
+    authorRole: 'Broker of Record & CFO',
+    authorCompany: 'PC275 Realty',
+  },
+  {
+    _id: '4',
+    quote:
+      'Always such a pleasure working with Antonio! He’s collaborated with me on both photo and video projects — on my own productions, social media content as well as co-producing projects together. Antonio thinks through every step, every shot, and always finds ways to elevate the visuals.',
+    authorName: 'Willi Van Deven',
+    authorRole: undefined,
+    authorCompany: "Designer's Edge / Covers Canada",
+  },
+  {
+    _id: '5',
+    quote:
+      'We are very pleased with the videos Antonio produced for us. He was flexible and easy to work with. Thank you for the great job.',
+    authorName: 'Matt Soroka',
+    authorRole: 'Marketing Rep',
+    authorCompany: 'T-BO',
+  },
+  {
+    _id: '6',
+    quote:
+      'Great experience. Attentive and always follow ups. The final product was as expected and we were happy.',
+    authorName: 'Ramzi Zain',
+    authorRole: 'Owner',
+    authorCompany: 'Zain Brands',
+  },
+  {
+    _id: '7',
+    quote:
+      'I had an amazing experience working with Antonio! This was my first time getting professional photos for my business, and he made the entire process so smooth and enjoyable. Antonio was professional, friendly, and made me feel completely at ease throughout the shoot.',
+    authorName: 'Vanessa Eedy',
+    authorRole: 'Doctor of Naturopathy',
+    authorCompany: undefined,
+  },
+  {
+    _id: '8',
+    quote: 'Great prices and brilliant at what he does!',
+    authorName: 'Ammar Bukhari',
+    authorRole: 'Owner',
+    authorCompany: 'Saltus Paralegal Services',
+  },
+  {
+    _id: '9',
+    quote: 'Absolutely miraculous and delivers exactly as per your vision.',
+    authorName: 'Client',
+    authorRole: undefined,
+    authorCompany: undefined,
+  },
+]
+
+const items =
+  testimonials && testimonials.length > 0 ? testimonials : FALLBACK_TESTIMONIALS
+---
+
+<section class="bg-black py-20">
+  <div class="max-w-5xl mx-auto px-6">
+    <h2
+      class="text-[#F5C645] text-[32px] md:text-[40px] font-bold tracking-tight text-center mb-14"
+    >
+      Testimonials
+    </h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+      {
+        items.map((t) => (
+          <div class="flex flex-col">
+            {/* Decorative quotation mark */}
+            <div
+              class="text-[56px] leading-none font-serif mb-2 select-none"
+              style="color: #F5C645; font-family: Georgia, serif; line-height: 1;"
+              aria-hidden="true"
+            >
+              &ldquo;
+            </div>
+
+            <p class="text-white text-[13px] leading-[1.8] mb-5 flex-1">{t.quote}</p>
+
+            <div>
+              <p class="text-white font-bold text-[13px] tracking-wide">{t.authorName}</p>
+              {(t.authorRole || t.authorCompany) && (
+                <p class="text-neutral-400 text-[11px] mt-0.5">
+                  {[t.authorRole, t.authorCompany].filter(Boolean).join(' | ')}
+                </p>
+              )}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

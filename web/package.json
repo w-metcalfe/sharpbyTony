@@ -16,12 +16,13 @@
   },
   "dependencies": {
     "@sanity/client": "^7.22.0",
+    "@tailwindcss/vite": "^4.2.4",
     "astro": "^6.1.9",
-    "groq": "^5.22.0"
+    "groq": "^5.22.0",
+    "tailwindcss": "^4.2.4"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "@astrojs/tailwind": "^6.0.2",
     "eslint": "^9.28.0",
     "typescript": "^5.8.3"
   }

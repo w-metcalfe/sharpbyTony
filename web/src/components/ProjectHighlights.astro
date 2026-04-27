@@ -1,0 +1,133 @@
+---
+import { imageUrl, WIX } from '~/lib/imageUrl'
+import type { ProjectCard } from '~/lib/queries'
+
+interface Props {
+  projects?: ProjectCard[]
+}
+
+const { projects } = Astro.props
+
+/* Fallback project thumbnails from Wix CDN */
+const FALLBACK_PROJECTS: Array<{ title: string; src: string; href: string }> = [
+  {
+    title: 'Construction Project',
+    src: `${WIX}/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg/v1/fill/w_480,h_270,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg`,
+    href: '/videos',
+  },
+  {
+    title: 'Lifestyle Shoot',
+    src: `${WIX}/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg/v1/fill/w_480,h_270,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg`,
+    href: '/videos',
+  },
+  {
+    title: 'Brand Video',
+    src: `${WIX}/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg/v1/fill/w_480,h_270,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg`,
+    href: '/videos',
+  },
+]
+
+const hasProjects = projects && projects.length > 0
+---
+
+<section class="bg-black py-20">
+  <div class="max-w-5xl mx-auto px-6">
+    <h2
+      class="text-[#F5C645] text-[32px] md:text-[40px] font-bold tracking-tight mb-3 text-center"
+    >
+      Project Highlights.
+    </h2>
+    <p class="text-neutral-400 text-[13px] text-center mb-12 max-w-xl mx-auto leading-relaxed">
+      A selection of work across video, photo, and design for clients in
+      construction, lifestyle, and luxury.
+    </p>
+
+    <!-- Project grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      {
+        hasProjects
+          ? projects!.map((p) => (
+              <a
+                href={`/projects/${p.slug.current}`}
+                class="group relative overflow-hidden bg-neutral-900 aspect-video block"
+              >
+                <img
+                  src={imageUrl(p.thumbnail, { width: 480, height: 270 })}
+                  alt={p.thumbnail.alt || p.title}
+                  width="480"
+                  height="270"
+                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <!-- Hover overlay -->
+                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                  <div class="w-12 h-12 rounded-full bg-[#F5C645] flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="black"
+                      class="w-6 h-6 translate-x-0.5"
+                      aria-hidden="true"
+                    >
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
+                {/* Title caption */}
+                <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                  <p class="text-white text-[11px] font-bold tracking-wide uppercase truncate">
+                    {p.title}
+                  </p>
+                  {p.client && (
+                    <p class="text-neutral-400 text-[10px] truncate">{p.client.name}</p>
+                  )}
+                </div>
+              </a>
+            ))
+          : FALLBACK_PROJECTS.map((p) => (
+              <a
+                href={p.href}
+                class="group relative overflow-hidden bg-neutral-900 aspect-video block"
+              >
+                <img
+                  src={p.src}
+                  alt={p.title}
+                  width="480"
+                  height="270"
+                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                  <div class="w-12 h-12 rounded-full bg-[#F5C645] flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="black"
+                      class="w-6 h-6 translate-x-0.5"
+                      aria-hidden="true"
+                    >
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                  <p class="text-white text-[11px] font-bold tracking-wide uppercase truncate">
+                    {p.title}
+                  </p>
+                </div>
+              </a>
+            ))
+      }
+    </div>
+
+    <!-- View all -->
+    <div class="text-center mt-10">
+      <a
+        href="/videos"
+        class="inline-block border border-[#F5C645] text-[#F5C645] text-[12px] font-bold tracking-widest uppercase px-8 py-3 transition-colors hover:bg-[#F5C645] hover:text-black"
+      >
+        View All Work
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,194 @@
+---
+import type { SiteSettings } from '~/lib/queries'
+
+interface Props {
+  settings?: SiteSettings | null
+}
+
+const { settings } = Astro.props
+
+const email = settings?.contactEmail ?? 'TONY@SHARPBYTONY.COM'
+const rawPhone = settings?.contactPhone ?? '5199027253'
+// Format as 519 . 902 . 7253
+const phone = rawPhone.replace(/(\d{3})(\d{3})(\d{4})/, '$1 . $2 . $3')
+
+const socials = settings?.socialLinks ?? [
+  { platform: 'facebook', url: 'https://www.facebook.com/sharpbytony' },
+  { platform: 'instagram', url: 'https://www.instagram.com/therealmexipino/' },
+  { platform: 'linkedin', url: 'https://www.linkedin.com/in/antonio-martinez-b44b2b195/' },
+]
+---
+
+<section class="bg-black py-0">
+  <div class="grid md:grid-cols-2">
+    <!-- Left: contact info on white card -->
+    <div class="bg-white px-10 py-16 flex flex-col justify-center">
+      <h2 class="text-[28px] font-bold tracking-tight mb-6 text-black">
+        Let's Get To Work
+      </h2>
+
+      <a
+        href={`mailto:${email}`}
+        class="text-[12px] font-bold tracking-widest uppercase text-black hover:text-[#F5C645] transition-colors mb-5 block"
+      >
+        {email.toUpperCase()}
+      </a>
+
+      <a
+        href={`tel:${rawPhone}`}
+        class="text-[28px] font-bold text-black hover:text-[#F5C645] transition-colors block mb-8"
+      >
+        {phone}
+      </a>
+
+      <!-- Social icons -->
+      <div class="flex gap-3" aria-label="Social links">
+        {
+          socials.map(({ platform, url }) => (
+            <a
+              href={url}
+              target="_blank"
+              rel="noreferrer noopener"
+              aria-label={platform}
+              class="w-8 h-8 bg-black text-white flex items-center justify-center rounded-sm hover:bg-[#F5C645] hover:text-black transition-colors"
+            >
+              {platform === 'facebook' && (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  class="w-4 h-4"
+                  aria-hidden="true"
+                >
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                </svg>
+              )}
+              {platform === 'instagram' && (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="w-4 h-4"
+                  aria-hidden="true"
+                >
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                </svg>
+              )}
+              {platform === 'linkedin' && (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  class="w-4 h-4"
+                  aria-hidden="true"
+                >
+                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                  <rect x="2" y="9" width="4" height="12" />
+                  <circle cx="4" cy="4" r="2" />
+                </svg>
+              )}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- Right: contact form on dark background -->
+    <div class="bg-[#111111] px-10 py-16">
+      <form
+        name="contact"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        class="flex flex-col gap-5"
+      >
+        <input type="hidden" name="form-name" value="contact" />
+        <p class="hidden">
+          <label>Don't fill this: <input name="bot-field" /></label>
+        </p>
+
+        <div>
+          <label
+            for="contact-name"
+            class="block text-[13px] font-bold tracking-wide text-white mb-2"
+          >
+            Name
+          </label>
+          <input
+            id="contact-name"
+            name="name"
+            type="text"
+            placeholder="Enter your name"
+            required
+            maxlength="100"
+            class="w-full bg-transparent border border-neutral-600 text-white placeholder-neutral-500 text-[13px] px-4 py-3 focus:outline-none focus:border-[#F5C645] transition-colors"
+          />
+        </div>
+
+        <div>
+          <label
+            for="contact-email"
+            class="block text-[13px] font-bold tracking-wide text-white mb-2"
+          >
+            Email
+          </label>
+          <input
+            id="contact-email"
+            name="email"
+            type="email"
+            placeholder="Enter your email"
+            required
+            maxlength="250"
+            class="w-full bg-transparent border border-neutral-600 text-white placeholder-neutral-500 text-[13px] px-4 py-3 focus:outline-none focus:border-[#F5C645] transition-colors"
+          />
+        </div>
+
+        <div>
+          <label
+            for="contact-phone"
+            class="block text-[13px] font-bold tracking-wide text-white mb-2"
+          >
+            Phone
+          </label>
+          <input
+            id="contact-phone"
+            name="phone"
+            type="tel"
+            placeholder="Enter your phone number"
+            maxlength="50"
+            class="w-full bg-transparent border border-neutral-600 text-white placeholder-neutral-500 text-[13px] px-4 py-3 focus:outline-none focus:border-[#F5C645] transition-colors"
+          />
+        </div>
+
+        <div>
+          <label
+            for="contact-message"
+            class="block text-[13px] font-bold tracking-wide text-white mb-2"
+          >
+            Tell us more about your project
+          </label>
+          <textarea
+            id="contact-message"
+            name="message"
+            placeholder="Type your message here..."
+            rows="5"
+            class="w-full bg-transparent border border-neutral-600 text-white placeholder-neutral-500 text-[13px] px-4 py-3 focus:outline-none focus:border-[#F5C645] transition-colors resize-none"
+          ></textarea>
+        </div>
+
+        <button
+          type="submit"
+          class="bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase py-3 px-8 w-full transition-opacity hover:opacity-90 mt-1"
+        >
+          Submit
+        </button>
+      </form>
+    </div>
+  </div>
+</section>

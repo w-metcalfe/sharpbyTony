@@ -1,0 +1,79 @@
+---
+import type { SiteSettings } from '~/lib/queries'
+
+interface Props {
+  settings?: SiteSettings | null
+}
+
+const { settings } = Astro.props
+
+const reel = settings?.primaryReelVideo
+let embedUrl: string | null = null
+
+if (reel) {
+  if (reel.provider === 'youtube') {
+    const id = reel.url.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1]
+    if (id) embedUrl = `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`
+  } else if (reel.provider === 'vimeo') {
+    const id = reel.url.match(/vimeo\.com\/(\d+)/)?.[1]
+    if (id) embedUrl = `https://player.vimeo.com/video/${id}?dnt=1`
+  }
+}
+
+---
+
+<section class="bg-black py-20 relative">
+  <div class="max-w-5xl mx-auto px-6 text-center">
+    <h2 class="text-[#F5C645] text-[28px] font-bold tracking-tight mb-3">
+      DEMO REEL
+    </h2>
+
+    {
+      embedUrl ? (
+        <div class="relative w-full aspect-video max-w-3xl mx-auto mt-8 bg-neutral-900 shadow-2xl">
+          <iframe
+            src={embedUrl}
+            title="Sharp by Tony – Demo Reel"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            class="absolute inset-0 w-full h-full border-0"
+          />
+        </div>
+      ) : (
+        /* Placeholder card when no video is configured in Sanity */
+        <div class="relative w-full aspect-video max-w-3xl mx-auto mt-8 bg-neutral-900 shadow-2xl flex items-center justify-center group cursor-pointer">
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-full bg-[#F5C645] flex items-center justify-center mx-auto mb-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="black"
+                class="w-7 h-7 translate-x-0.5"
+                aria-hidden="true"
+              >
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+            <p class="text-white text-[13px] tracking-widest uppercase font-bold">Demo Reel 2025</p>
+            <p class="text-neutral-400 text-[11px] mt-1">Video coming soon</p>
+          </div>
+        </div>
+      )
+    }
+
+    <div class="mt-8 flex justify-center gap-4">
+      <a
+        href="/demo-reel"
+        class="inline-block bg-[#F5C645] text-black text-[12px] font-bold tracking-widest uppercase px-6 py-3 transition-opacity hover:opacity-85"
+      >
+        Demo Reel
+      </a>
+      <a
+        href="/videos"
+        class="inline-block border border-white text-white text-[12px] font-bold tracking-widest uppercase px-6 py-3 transition-colors hover:bg-white hover:text-black"
+      >
+        All Videos
+      </a>
+    </div>
+  </div>
+</section>

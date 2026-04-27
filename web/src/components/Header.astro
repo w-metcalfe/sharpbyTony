@@ -1,0 +1,128 @@
+---
+import { WIX } from '~/lib/imageUrl'
+
+interface Props {
+  logoUrl?: string
+  currentPath?: string
+}
+
+const { logoUrl, currentPath = '/' } = Astro.props
+
+const LOGO_FALLBACK = `${WIX}/c8520e_301b1a02bee3443a800790e3226eea74~mv2.png/v1/crop/x_107,y_180,w_268,h_154/fill/w_110,h_63,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_301b1a02bee3443a800790e3226eea74~mv2.png`
+
+const logo = logoUrl ?? LOGO_FALLBACK
+
+const navLinks = [
+  { label: 'HOME', href: '/' },
+  { label: 'ABOUT', href: '/about' },
+  { label: 'CONTACT', href: '/contact' },
+  { label: 'VIDEO', href: '/videos' },
+  { label: 'PHOTO', href: '/photography' },
+  { label: 'DEMO REEL', href: '/demo-reel' },
+]
+---
+
+<header class="bg-black sticky top-0 z-50">
+  <div class="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between gap-6">
+    <!-- Logo + tagline -->
+    <div class="flex items-center gap-4 shrink-0">
+      <a href="/" aria-label="Sharp by Tony – home">
+        <img
+          src={logo}
+          alt="Sharp by Tony"
+          width="110"
+          height="63"
+          class="h-[42px] w-auto object-contain"
+        />
+      </a>
+      <p class="hidden lg:block text-white text-[9px] leading-tight tracking-wide max-w-[180px]">
+        Sharp, strategic visuals for construction, lifestyle and luxury.
+      </p>
+    </div>
+
+    <!-- Desktop nav -->
+    <nav aria-label="Site" class="hidden md:block">
+      <ul class="flex items-center gap-6">
+        {
+          navLinks.map(({ label, href }) => (
+            <li>
+              <a
+                href={href}
+                class:list={[
+                  'text-[11px] font-bold tracking-widest uppercase transition-colors duration-150',
+                  currentPath === href
+                    ? 'text-[#F5C645]'
+                    : 'text-white hover:text-[#F5C645]',
+                ]}
+                aria-current={currentPath === href ? 'page' : undefined}
+              >
+                {label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <!-- Mobile hamburger -->
+    <button
+      id="mobile-menu-btn"
+      class="md:hidden text-white p-1"
+      aria-label="Open navigation menu"
+      aria-expanded="false"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile nav drawer -->
+  <div
+    id="mobile-menu"
+    class="md:hidden hidden bg-black border-t border-neutral-800 px-6 pb-4"
+  >
+    <nav aria-label="Mobile site navigation">
+      <ul class="flex flex-col gap-4 pt-4">
+        {
+          navLinks.map(({ label, href }) => (
+            <li>
+              <a
+                href={href}
+                class:list={[
+                  'text-[13px] font-bold tracking-widest uppercase block',
+                  currentPath === href ? 'text-[#F5C645]' : 'text-white',
+                ]}
+                aria-current={currentPath === href ? 'page' : undefined}
+              >
+                {label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn')
+  const menu = document.getElementById('mobile-menu')
+  btn?.addEventListener('click', () => {
+    const open = menu?.classList.toggle('hidden') === false
+    btn.setAttribute('aria-expanded', String(open))
+  })
+</script>

@@ -1,0 +1,107 @@
+---
+import { WIX } from '~/lib/imageUrl'
+import type { SiteSettings } from '~/lib/queries'
+
+interface Props {
+  settings?: SiteSettings | null
+}
+
+const { settings } = Astro.props
+
+const rawPhone = settings?.contactPhone ?? '5199027253'
+const phone = rawPhone.replace(/(\d{3})(\d{3})(\d{4})/, '$1 . $2 . $3')
+
+const socials = settings?.socialLinks ?? [
+  { platform: 'facebook', url: 'https://www.facebook.com/sharpbytony' },
+  { platform: 'instagram', url: 'https://www.instagram.com/therealmexipino/' },
+  { platform: 'linkedin', url: 'https://www.linkedin.com/in/antonio-martinez-b44b2b195/' },
+]
+
+const FOOTER_IMAGE = `${WIX}/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg/v1/fill/w_1920,h_510,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg`
+---
+
+<!-- Decorative image strip -->
+<div class="relative h-[200px] md:h-[320px] overflow-hidden bg-neutral-900">
+  <img
+    src={FOOTER_IMAGE}
+    alt=""
+    aria-hidden="true"
+    width="1920"
+    height="510"
+    class="w-full h-full object-cover object-center"
+    loading="lazy"
+  />
+</div>
+
+<!-- Footer bar -->
+<footer class="bg-black py-6">
+  <div class="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <!-- Social icons -->
+    <div class="flex items-center gap-3" aria-label="Social links">
+      {
+        socials.map(({ platform, url }) => (
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer noopener"
+            aria-label={platform}
+            class="text-white hover:text-[#F5C645] transition-colors"
+          >
+            {platform === 'facebook' && (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="w-5 h-5"
+                aria-hidden="true"
+              >
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+              </svg>
+            )}
+            {platform === 'instagram' && (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="w-5 h-5"
+                aria-hidden="true"
+              >
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+              </svg>
+            )}
+            {platform === 'linkedin' && (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="w-5 h-5"
+                aria-hidden="true"
+              >
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                <rect x="2" y="9" width="4" height="12" />
+                <circle cx="4" cy="4" r="2" />
+              </svg>
+            )}
+          </a>
+        ))
+      }
+    </div>
+
+    <!-- Phone -->
+    <a
+      href={`tel:${rawPhone}`}
+      class="text-white text-[13px] tracking-widest hover:text-[#F5C645] transition-colors"
+    >
+      {phone}
+    </a>
+
+    <!-- Copyright -->
+    <p class="text-neutral-500 text-[11px]">&copy;{new Date().getFullYear()} SharpByTony</p>
+  </div>
+</footer>

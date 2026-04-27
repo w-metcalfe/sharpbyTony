@@ -1,17 +1,57 @@
 ---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import Header from '~/components/Header.astro'
+import HeroSection from '~/components/HeroSection.astro'
+import ClientsSection from '~/components/ClientsSection.astro'
+import AboutSection from '~/components/AboutSection.astro'
+import DemoReelSection from '~/components/DemoReelSection.astro'
+import ProjectHighlights from '~/components/ProjectHighlights.astro'
+import TestimonialsSection from '~/components/TestimonialsSection.astro'
+import ContactSection from '~/components/ContactSection.astro'
+import Footer from '~/components/Footer.astro'
 
+import { sanityFetch } from '~/lib/sanity'
+import {
+  siteSettingsQuery,
+  featuredClientsQuery,
+  featuredProjectsQuery,
+  featuredTestimonialsQuery,
+  type SiteSettings,
+  type FeaturedClient,
+  type ProjectCard,
+  type FeaturedTestimonial,
+} from '~/lib/queries'
+
+// Fetch all data in parallel; any individual failure returns null and the
+// component falls back to hardcoded placeholder content.
+const [settings, clients, projects, testimonials] = await Promise.all([
+  sanityFetch<SiteSettings | null>(siteSettingsQuery).catch(() => null),
+  sanityFetch<FeaturedClient[]>(featuredClientsQuery).catch(() => []),
+  sanityFetch<ProjectCard[]>(featuredProjectsQuery).catch(() => []),
+  sanityFetch<FeaturedTestimonial[]>(featuredTestimonialsQuery).catch(() => []),
+])
+
+const title = settings
+  ? `${settings.title} | Video · Photo · Design`
+  : 'Sharp by Tony | Video · Photo · Design'
+
+const description =
+  settings?.description ??
+  'Sharp, strategic visuals for construction, lifestyle and luxury. Video, photo, and design by Antonio Martinez.'
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
-  </head>
-  <body>
-    <h1>Astro</h1>
-  </body>
-</html>
+<BaseLayout title={title} description={description}>
+  <Header currentPath="/" />
+
+  <main>
+    <HeroSection settings={settings} />
+    <ClientsSection clients={clients} />
+    <AboutSection settings={settings} />
+    <DemoReelSection settings={settings} />
+    <ProjectHighlights projects={projects} />
+    <TestimonialsSection testimonials={testimonials} />
+    <ContactSection settings={settings} />
+  </main>
+
+  <Footer settings={settings} />
+</BaseLayout>

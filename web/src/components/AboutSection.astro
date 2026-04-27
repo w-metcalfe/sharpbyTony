@@ -1,0 +1,93 @@
+---
+import { WIX } from '~/lib/imageUrl'
+import type { Page, SiteSettings } from '~/lib/queries'
+
+interface Props {
+  page?: Page | null
+  settings?: SiteSettings | null
+}
+
+const { page: _page, settings: _settings } = Astro.props
+
+const PORTRAIT = `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/crop/x_0,y_171,w_3648,h_5130/fill/w_448,h_630,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/CapturedByThea_Antonio-66.jpg`
+const PORTRAIT_SMALL = `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/crop/x_0,y_171,w_3648,h_5130/fill/w_224,h_315,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/CapturedByThea_Antonio-66.jpg`
+---
+
+<section class="bg-white relative pt-16 pb-20">
+  <div class="max-w-5xl mx-auto px-6">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+
+      <!-- Left: text content -->
+      <div>
+        <h2 class="text-[28px] font-bold tracking-tight mb-6 text-black">About Me</h2>
+
+        <p class="text-[15px] leading-[1.875] text-neutral-700 mb-5">
+          I provides high-quality, yet true-to-life visual content for individuals,
+          businesses and agencies alike. That led to his marketing strategies and
+          optimizing their own digital presence.
+        </p>
+
+        <p class="text-[15px] leading-[1.875] text-neutral-700 mb-8">
+          By providing powerful visuals, I help businesses to tell powerful stories
+          that sell and change minds. My goal to create an emotional connection that
+          lasts beyond their initial experience.
+        </p>
+
+        <!-- Small portrait + CTA row -->
+        <div class="flex items-center gap-6">
+          <img
+            src={PORTRAIT_SMALL}
+            alt="Antonio Martinez"
+            width="80"
+            height="112"
+            class="rounded-sm object-cover shadow-md shrink-0"
+            loading="lazy"
+          />
+          <div class="flex flex-col gap-3">
+            <a
+              href="/demo-reel"
+              class="inline-block bg-black text-white text-[12px] font-bold tracking-widest uppercase px-5 py-2.5 transition-colors hover:bg-[#F5C645] hover:text-black"
+            >
+              Demo Reel
+            </a>
+            <a
+              href="/videos"
+              class="inline-block border border-black text-black text-[12px] font-bold tracking-widest uppercase px-5 py-2.5 transition-colors hover:bg-black hover:text-white"
+            >
+              All Videos
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: portrait -->
+      <div class="relative">
+        <img
+          src={PORTRAIT}
+          alt="Antonio Martinez – Sharp by Tony"
+          width="448"
+          height="630"
+          class="w-full max-w-[380px] mx-auto object-cover shadow-lg"
+          loading="lazy"
+        />
+        <!-- Yellow accent block -->
+        <div
+          class="absolute -bottom-4 -left-4 w-16 h-16 bg-[#F5C645] -z-10 hidden md:block"
+          aria-hidden="true"
+        ></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom divider → into dark demo reel section -->
+  <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0]" aria-hidden="true">
+    <svg
+      viewBox="0 0 1200 36"
+      preserveAspectRatio="none"
+      xmlns="http://www.w3.org/2000/svg"
+      class="block w-full h-[36px]"
+    >
+      <polygon points="0,0 1200,36 0,36" fill="#000000"></polygon>
+    </svg>
+  </div>
+</section>

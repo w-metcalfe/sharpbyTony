@@ -1,0 +1,116 @@
+---
+import { imageUrl, WIX } from '~/lib/imageUrl'
+import type { FeaturedClient } from '~/lib/queries'
+
+interface Props {
+  clients?: FeaturedClient[]
+}
+
+const { clients } = Astro.props
+
+/* Fallback clients from the original Wix site */
+const FALLBACK_CLIENTS: Array<{ name: string; src: string; w: number; h: number }> = [
+  {
+    name: 'TBO',
+    src: `${WIX}/c8520e_297850f26c354a8ab0d1a47e4809e617~mv2.png/v1/fill/w_234,h_99,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/TBO.png`,
+    w: 234,
+    h: 99,
+  },
+  {
+    name: 'Nash Jewellers',
+    src: `${WIX}/c8520e_e578a99112d346fc9334144b9195b237~mv2.png/v1/fill/w_177,h_105,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/nashjewellers_since1918_logo_blue_edited.png`,
+    w: 177,
+    h: 105,
+  },
+  {
+    name: 'Opportunity Bridal',
+    src: `${WIX}/c8520e_20697536c1fc47d595824158f3072a82~mv2.png/v1/crop/x_9,y_0,w_1583,h_451/fill/w_215,h_61,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/opportunity-bridal-logo-black-noTag-1600px.png`,
+    w: 215,
+    h: 61,
+  },
+  {
+    name: 'Magna',
+    src: `${WIX}/c8520e_a7c34ce2fecb4858be9741c8aa536304~mv2.png/v1/fill/w_221,h_52,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/2560px-Magna_logo_svg.png`,
+    w: 221,
+    h: 52,
+  },
+  {
+    name: 'Covers Canada',
+    src: `${WIX}/c8520e_8a345c92f42b4a1083d0364b96f46123~mv2.png/v1/fill/w_217,h_105,al_c,lg_1,q_85,enc_avif,quality_auto/logo_edited.png`,
+    w: 217,
+    h: 105,
+  },
+  {
+    name: 'Fernlea',
+    src: `${WIX}/c8520e_b87519360e1f4c0dbc167f4dd1386af5~mv2.jpg/v1/fill/w_187,h_126,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Fernlea-10_edited.jpg`,
+    w: 187,
+    h: 126,
+  },
+  {
+    name: 'Bath Expert',
+    src: `${WIX}/c8520e_cdb6a2a9124f40bca1bb446d8ed83de2~mv2.png/v1/fill/w_187,h_52,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/bath-expert-logo_edited.png`,
+    w: 187,
+    h: 52,
+  },
+  {
+    name: 'Skyline',
+    src: `${WIX}/c8520e_dc88c0f3cf9f4d96b941bb760e70f10e~mv2.png/v1/fill/w_157,h_83,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Gradient-with-slogan_edited.png`,
+    w: 157,
+    h: 83,
+  },
+]
+---
+
+<section class="bg-[#F5C645] py-10 relative">
+  <!-- Top diagonal cap (from hero divider) — yellow already, so no extra shape needed -->
+
+  <div class="max-w-5xl mx-auto px-6">
+    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:flex lg:flex-wrap lg:justify-center items-center gap-x-8 gap-y-6">
+      {
+        clients && clients.length > 0
+          ? clients.map((c) => (
+              <a
+                href={c.website ?? '#'}
+                target={c.website ? '_blank' : undefined}
+                rel={c.website ? 'noreferrer noopener' : undefined}
+                class="flex items-center justify-center"
+              >
+                <img
+                  src={imageUrl(c.logo, { width: 180, height: 90 })}
+                  alt={c.name}
+                  width="180"
+                  height="90"
+                  class="max-h-[70px] w-auto object-contain mix-blend-multiply"
+                  loading="lazy"
+                />
+              </a>
+            ))
+          : FALLBACK_CLIENTS.map((c) => (
+              <div class="flex items-center justify-center">
+                <img
+                  src={c.src}
+                  alt={c.name}
+                  width={c.w}
+                  height={c.h}
+                  class="max-h-[70px] w-auto object-contain mix-blend-multiply"
+                  loading="lazy"
+                />
+              </div>
+            ))
+      }
+    </div>
+  </div>
+
+  <!-- Bottom diagonal divider — transition into white about section -->
+  <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0]" aria-hidden="true">
+    <svg
+      viewBox="0 0 1200 50"
+      preserveAspectRatio="none"
+      xmlns="http://www.w3.org/2000/svg"
+      class="block w-full h-[50px]"
+    >
+      <!-- arrow / chevron pointing up into yellow from white -->
+      <polygon points="0,50 400,0 1200,50" fill="#ffffff"></polygon>
+    </svg>
+  </div>
+</section>
