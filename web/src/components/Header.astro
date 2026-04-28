@@ -26,18 +26,15 @@ const navLinks = [
   <div class="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between gap-6">
     <!-- Logo + tagline -->
     <div class="flex items-center gap-4 shrink-0">
-      <a href="/" aria-label="Sharp by Tony – home">
+      <a href="/" aria-label="Sharp by Tony – home" class="focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm">
         <img
           src={logo}
           alt="Sharp by Tony"
           width="110"
           height="63"
-          class="h-[42px] w-auto object-contain"
+          class="h-[84px] w-auto object-contain"
         />
       </a>
-      <p class="hidden lg:block text-white text-[9px] leading-tight tracking-wide max-w-[180px]">
-        Sharp, strategic visuals for construction, lifestyle and luxury.
-      </p>
     </div>
 
     <!-- Desktop nav -->
@@ -49,7 +46,7 @@ const navLinks = [
               <a
                 href={href}
                 class:list={[
-                  'text-[11px] font-bold tracking-widest uppercase transition-colors duration-150',
+                  'text-[14px] font-bold tracking-widest uppercase transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm',
                   currentPath === href
                     ? 'text-[#F5C645]'
                     : 'text-white hover:text-[#F5C645]',
@@ -64,14 +61,25 @@ const navLinks = [
       </ul>
     </nav>
 
-    <!-- Mobile hamburger -->
+    <!-- CTA -->
+    <a
+      href="/contact"
+      class="hidden md:inline-block bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase px-5 py-2.5 transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black shrink-0"
+    >
+      Get Started
+    </a>
+
+    <!-- Mobile hamburger — minimum 44×44px touch target -->
     <button
       id="mobile-menu-btn"
-      class="md:hidden text-white p-1"
+      class="md:hidden text-white p-[10px] focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm"
       aria-label="Open navigation menu"
       aria-expanded="false"
+      aria-controls="mobile-menu"
     >
+      <!-- Hamburger icon (shown when closed) -->
       <svg
+        id="icon-hamburger"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
@@ -87,23 +95,42 @@ const navLinks = [
         <line x1="3" y1="12" x2="21" y2="12"></line>
         <line x1="3" y1="18" x2="21" y2="18"></line>
       </svg>
+      <!-- X icon (shown when open) -->
+      <svg
+        id="icon-close"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        class="hidden"
+      >
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
     </button>
   </div>
 
-  <!-- Mobile nav drawer -->
+  <!-- Mobile nav drawer — animated via max-height -->
   <div
     id="mobile-menu"
-    class="md:hidden hidden bg-black border-t border-neutral-800 px-6 pb-4"
+    class="md:hidden overflow-hidden max-h-0 transition-[max-height] duration-300 ease-in-out bg-black border-t border-neutral-800"
+    aria-hidden="true"
   >
     <nav aria-label="Mobile site navigation">
-      <ul class="flex flex-col gap-4 pt-4">
+      <ul class="flex flex-col gap-4 px-6 py-4">
         {
           navLinks.map(({ label, href }) => (
             <li>
               <a
                 href={href}
                 class:list={[
-                  'text-[13px] font-bold tracking-widest uppercase block',
+                  'text-[13px] font-bold tracking-widest uppercase block focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm',
                   currentPath === href ? 'text-[#F5C645]' : 'text-white',
                 ]}
                 aria-current={currentPath === href ? 'page' : undefined}
@@ -121,8 +148,34 @@ const navLinks = [
 <script>
   const btn = document.getElementById('mobile-menu-btn')
   const menu = document.getElementById('mobile-menu')
+  const iconHamburger = document.getElementById('icon-hamburger')
+  const iconClose = document.getElementById('icon-close')
+
+  function openMenu() {
+    menu!.style.maxHeight = menu!.scrollHeight + 'px'
+    menu!.setAttribute('aria-hidden', 'false')
+    btn!.setAttribute('aria-expanded', 'true')
+    btn!.setAttribute('aria-label', 'Close navigation menu')
+    iconHamburger!.classList.add('hidden')
+    iconClose!.classList.remove('hidden')
+  }
+
+  function closeMenu() {
+    menu!.style.maxHeight = '0'
+    menu!.setAttribute('aria-hidden', 'true')
+    btn!.setAttribute('aria-expanded', 'false')
+    btn!.setAttribute('aria-label', 'Open navigation menu')
+    iconHamburger!.classList.remove('hidden')
+    iconClose!.classList.add('hidden')
+  }
+
   btn?.addEventListener('click', () => {
-    const open = menu?.classList.toggle('hidden') === false
-    btn.setAttribute('aria-expanded', String(open))
+    const isOpen = btn.getAttribute('aria-expanded') === 'true'
+    isOpen ? closeMenu() : openMenu()
+  })
+
+  // Close menu when a nav link is tapped
+  menu?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', closeMenu)
   })
 </script>

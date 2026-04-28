@@ -29,14 +29,14 @@ const socials = settings?.socialLinks ?? [
 
       <a
         href={`mailto:${email}`}
-        class="text-[12px] font-bold tracking-widest uppercase text-black hover:text-[#F5C645] transition-colors mb-5 block"
+        class="text-[12px] font-bold tracking-widest uppercase text-black hover:text-[#F5C645] transition-colors mb-5 block focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 rounded-sm"
       >
         {email.toUpperCase()}
       </a>
 
       <a
         href={`tel:${rawPhone}`}
-        class="text-[28px] font-bold text-black hover:text-[#F5C645] transition-colors block mb-8"
+        class="text-[28px] font-bold text-black hover:text-[#F5C645] transition-colors block mb-8 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 rounded-sm"
       >
         {phone}
       </a>
@@ -49,8 +49,8 @@ const socials = settings?.socialLinks ?? [
               href={url}
               target="_blank"
               rel="noreferrer noopener"
-              aria-label={platform}
-              class="w-8 h-8 bg-black text-white flex items-center justify-center rounded-sm hover:bg-[#F5C645] hover:text-black transition-colors"
+              aria-label={`Sharp by Tony on ${platform}`}
+              class="w-10 h-10 bg-black text-white flex items-center justify-center rounded-sm hover:bg-[#F5C645] hover:text-black transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 cursor-pointer"
             >
               {platform === 'facebook' && (
                 <svg
@@ -101,12 +101,30 @@ const socials = settings?.socialLinks ?? [
 
     <!-- Right: contact form on dark background -->
     <div class="bg-[#111111] px-10 py-16">
+      <!-- Success message (hidden until form submits) -->
+      <div
+        id="form-success"
+        class="hidden flex-col items-center justify-center h-full text-center"
+        role="status"
+        aria-live="polite"
+      >
+        <div class="w-12 h-12 rounded-full bg-[#F5C645] flex items-center justify-center mx-auto mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" class="w-6 h-6" aria-hidden="true">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke="black" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="text-white text-[15px] font-bold tracking-wide mb-2">Thanks! We'll be in touch.</p>
+        <p class="text-neutral-400 text-[13px]">Expect a reply within 1–2 business days.</p>
+      </div>
+
       <form
+        id="contact-form"
         name="contact"
         method="POST"
         data-netlify="true"
         netlify-honeypot="bot-field"
         class="flex flex-col gap-5"
+        novalidate
       >
         <input type="hidden" name="form-name" value="contact" />
         <p class="hidden">
@@ -127,7 +145,8 @@ const socials = settings?.socialLinks ?? [
             placeholder="Enter your name"
             required
             maxlength="100"
-            class="w-full bg-transparent border border-neutral-600 text-white placeholder-neutral-500 text-[13px] px-4 py-3 focus:outline-none focus:border-[#F5C645] transition-colors"
+            autocomplete="name"
+            class="w-full bg-transparent border border-neutral-600 text-white placeholder-neutral-500 text-[13px] px-4 py-3 focus:outline-none focus:border-[#F5C645] focus:ring-1 focus:ring-[#F5C645] transition-colors"
           />
         </div>
 
@@ -145,7 +164,8 @@ const socials = settings?.socialLinks ?? [
             placeholder="Enter your email"
             required
             maxlength="250"
-            class="w-full bg-transparent border border-neutral-600 text-white placeholder-neutral-500 text-[13px] px-4 py-3 focus:outline-none focus:border-[#F5C645] transition-colors"
+            autocomplete="email"
+            class="w-full bg-transparent border border-neutral-600 text-white placeholder-neutral-500 text-[13px] px-4 py-3 focus:outline-none focus:border-[#F5C645] focus:ring-1 focus:ring-[#F5C645] transition-colors"
           />
         </div>
 
@@ -162,7 +182,8 @@ const socials = settings?.socialLinks ?? [
             type="tel"
             placeholder="Enter your phone number"
             maxlength="50"
-            class="w-full bg-transparent border border-neutral-600 text-white placeholder-neutral-500 text-[13px] px-4 py-3 focus:outline-none focus:border-[#F5C645] transition-colors"
+            autocomplete="tel"
+            class="w-full bg-transparent border border-neutral-600 text-white placeholder-neutral-500 text-[13px] px-4 py-3 focus:outline-none focus:border-[#F5C645] focus:ring-1 focus:ring-[#F5C645] transition-colors"
           />
         </div>
 
@@ -178,13 +199,15 @@ const socials = settings?.socialLinks ?? [
             name="message"
             placeholder="Type your message here..."
             rows="5"
-            class="w-full bg-transparent border border-neutral-600 text-white placeholder-neutral-500 text-[13px] px-4 py-3 focus:outline-none focus:border-[#F5C645] transition-colors resize-none"
+            autocomplete="off"
+            class="w-full bg-transparent border border-neutral-600 text-white placeholder-neutral-500 text-[13px] px-4 py-3 focus:outline-none focus:border-[#F5C645] focus:ring-1 focus:ring-[#F5C645] transition-colors resize-none"
           ></textarea>
         </div>
 
         <button
+          id="contact-submit"
           type="submit"
-          class="bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase py-3 px-8 w-full transition-opacity hover:opacity-90 mt-1"
+          class="bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase py-3 px-8 w-full transition-opacity hover:opacity-90 mt-1 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-[#111111] disabled:opacity-60 disabled:cursor-not-allowed"
         >
           Submit
         </button>
@@ -192,3 +215,38 @@ const socials = settings?.socialLinks ?? [
     </div>
   </div>
 </section>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement | null
+  const submitBtn = document.getElementById('contact-submit') as HTMLButtonElement | null
+  const successMsg = document.getElementById('form-success') as HTMLElement | null
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    if (!submitBtn || !form || !successMsg) return
+
+    submitBtn.textContent = 'Sending…'
+    submitBtn.disabled = true
+
+    try {
+      const data = new FormData(form)
+      const res = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(data as unknown as Record<string, string>).toString(),
+      })
+
+      if (res.ok) {
+        form.classList.add('hidden')
+        successMsg.classList.remove('hidden')
+        successMsg.classList.add('flex')
+      } else {
+        submitBtn.textContent = 'Submit'
+        submitBtn.disabled = false
+      }
+    } catch {
+      submitBtn.textContent = 'Submit'
+      submitBtn.disabled = false
+    }
+  })
+</script>

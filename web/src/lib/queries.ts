@@ -61,6 +61,7 @@ export type PortableTextBlock = {
 export type SiteSettings = {
   title: string
   tagline: string
+  heroBody?: string
   description: string
   logo: SanityImage
   favicon: SanityImage
@@ -161,6 +162,7 @@ export const siteSettingsQuery = groq`
   *[_type == "siteSettings" && _id == "siteSettings"][0] {
     title,
     tagline,
+    heroBody,
     description,
     logo { asset, alt },
     favicon { asset, alt },

@@ -38,8 +38,21 @@ const {
       href="https://static.wixstatic.com/media/c8520e_0cc463bf259b4cdc9725834f491af291~mv2.jpg/v1/fill/w_32,h_32,lg_1,usm_0.66_1.00_0.01/c8520e_0cc463bf259b4cdc9725834f491af291~mv2.jpg"
       type="image/jpeg"
     />
+
+    <!-- Twitter / X card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
   </head>
   <body class="bg-white text-black">
+    <!-- Skip navigation for keyboard users (WCAG 2.4.1) -->
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-[#F5C645] focus:text-black focus:px-4 focus:py-2 focus:font-bold focus:text-[13px] focus:tracking-widest focus:uppercase focus:outline-none"
+    >
+      Skip to content
+    </a>
     <slot />
   </body>
 </html>

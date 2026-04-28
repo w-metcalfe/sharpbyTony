@@ -12,13 +12,13 @@ const BG_IMAGE = `${WIX}/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg/v1/fill
 const LOGO = `${WIX}/c8520e_301b1a02bee3443a800790e3226eea74~mv2.png/v1/crop/x_0,y_107,w_500,h_287/fill/w_230,h_132,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Colour%20on%20Black.png`
 ---
 
-<section class="relative min-h-[560px] md:min-h-[680px] overflow-hidden bg-black">
+<section class="relative overflow-hidden bg-black" style="min-height: max(560px, calc(100svh - 220px));">
   <!-- Background image -->
   <img
     src={BG_IMAGE}
     alt="Antonio Martinez – Sharp by Tony"
     fetchpriority="high"
-    class="absolute inset-0 w-full h-full object-cover object-center"
+    class="absolute inset-0 w-full h-full object-cover object-[70%_center]"
     width="1920"
     height="800"
   />
@@ -30,22 +30,13 @@ const LOGO = `${WIX}/c8520e_301b1a02bee3443a800790e3226eea74~mv2.png/v1/crop/x_0
   ></div>
 
   <!-- Content card -->
-  <div class="relative z-10 h-full flex items-center px-6">
+  <div class="relative z-10 h-full flex items-center px-6 lg:px-[120px]" style="min-height: inherit;">
     <div
-      class="bg-black/85 border border-neutral-800 rounded-sm p-8 max-w-[300px] shadow-xl"
+      class="hero-card bg-black/85 border border-neutral-800 rounded-sm p-8 max-w-[600px] shadow-xl"
     >
-      <!-- Logo -->
-      <img
-        src={LOGO}
-        alt={settings?.title ?? 'Sharp by Tony'}
-        width="115"
-        height="66"
-        class="mb-5 w-[115px] h-auto"
-      />
-
       <!-- Services tag line -->
       <p
-        class="text-[11px] font-normal tracking-[0.25em] uppercase mb-2"
+        class="text-[14px] font-normal tracking-[0.25em] uppercase mb-2"
         style="color: #F5C645; text-shadow: rgba(0,0,0,0.4) 0px 4px 5px;"
       >
         VIDEO&nbsp;|&nbsp;PHOTO&nbsp;|&nbsp;DESIGN
@@ -53,16 +44,21 @@ const LOGO = `${WIX}/c8520e_301b1a02bee3443a800790e3226eea74~mv2.png/v1/crop/x_0
 
       <!-- Tagline -->
       <p
-        class="text-white text-[12px] font-bold tracking-widest uppercase mb-6"
+        class="text-white text-[24px] font-bold tracking-widest uppercase mb-6"
         style="text-shadow: rgba(0,0,0,0.4) 0px 4px 5px;"
       >
         {settings?.tagline ?? 'Sharp & Strategic Visuals.'}
       </p>
 
+      <!-- Body copy -->
+      <p class="text-white/80 text-[18px] leading-relaxed mb-6">
+        {settings?.heroBody ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.'}
+      </p>
+
       <!-- CTA -->
       <a
         href="/contact"
-        class="inline-block bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase px-6 py-3 transition-opacity hover:opacity-90"
+        class="inline-block bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase px-6 py-3 transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black cursor-pointer"
       >
         Get Started
       </a>
@@ -72,12 +68,31 @@ const LOGO = `${WIX}/c8520e_301b1a02bee3443a800790e3226eea74~mv2.png/v1/crop/x_0
   <!-- Bottom diagonal divider — yellow fills into the clients section -->
   <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0]" aria-hidden="true">
     <svg
-      viewBox="0 0 1200 40"
+      viewBox="0 0 1200 100"
       preserveAspectRatio="none"
       xmlns="http://www.w3.org/2000/svg"
-      class="block w-full h-[40px]"
+      class="block w-full h-[100px]"
     >
-      <polygon points="0,40 1200,0 1200,40" fill="#F5C645"></polygon>
+      <polygon points="0,100 1200,0 1200,100" fill="#F5C645"></polygon>
     </svg>
   </div>
 </section>
+
+<style>
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-card {
+      animation: fade-up 0.6s ease-out both;
+    }
+  }
+</style>

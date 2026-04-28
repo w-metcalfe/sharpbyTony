@@ -30,7 +30,7 @@ const FALLBACK_PROJECTS: Array<{ title: string; src: string; href: string }> = [
 const hasProjects = projects && projects.length > 0
 ---
 
-<section class="bg-black py-20">
+<section id="project-highlights" class="bg-black py-20">
   <div class="max-w-5xl mx-auto px-6">
     <h2
       class="text-[#F5C645] text-[32px] md:text-[40px] font-bold tracking-tight mb-3 text-center"
@@ -46,10 +46,12 @@ const hasProjects = projects && projects.length > 0
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {
         hasProjects
-          ? projects!.map((p) => (
+          ? projects!.map((p, i) => (
               <a
                 href={`/projects/${p.slug.current}`}
-                class="group relative overflow-hidden bg-neutral-900 aspect-video block"
+                class="group relative overflow-hidden bg-neutral-900 aspect-video block cursor-pointer"
+                data-animate
+                data-delay={i * 100}
               >
                 <img
                   src={imageUrl(p.thumbnail, { width: 480, height: 270 })}
@@ -59,8 +61,10 @@ const hasProjects = projects && projects.length > 0
                   class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   loading="lazy"
                 />
-                <!-- Hover overlay -->
-                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                {/* Always-visible bottom gradient for mobile legibility */}
+                <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-200" />
+                {/* Play button — visible on hover (desktop) / always dim on touch */}
+                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   <div class="w-12 h-12 rounded-full bg-[#F5C645] flex items-center justify-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -84,10 +88,12 @@ const hasProjects = projects && projects.length > 0
                 </div>
               </a>
             ))
-          : FALLBACK_PROJECTS.map((p) => (
+          : FALLBACK_PROJECTS.map((p, i) => (
               <a
                 href={p.href}
-                class="group relative overflow-hidden bg-neutral-900 aspect-video block"
+                class="group relative overflow-hidden bg-neutral-900 aspect-video block cursor-pointer"
+                data-animate
+                data-delay={i * 100}
               >
                 <img
                   src={p.src}
@@ -97,7 +103,10 @@ const hasProjects = projects && projects.length > 0
                   class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   loading="lazy"
                 />
-                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                {/* Always-visible overlay */}
+                <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-200" />
+                {/* Play button on hover */}
+                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   <div class="w-12 h-12 rounded-full bg-[#F5C645] flex items-center justify-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -124,10 +133,55 @@ const hasProjects = projects && projects.length > 0
     <div class="text-center mt-10">
       <a
         href="/videos"
-        class="inline-block border border-[#F5C645] text-[#F5C645] text-[12px] font-bold tracking-widest uppercase px-8 py-3 transition-colors hover:bg-[#F5C645] hover:text-black"
+        class="inline-block border border-[#F5C645] text-[#F5C645] text-[12px] font-bold tracking-widest uppercase px-8 py-3 transition-colors hover:bg-[#F5C645] hover:text-black focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black cursor-pointer"
       >
         View All Work
       </a>
     </div>
   </div>
 </section>
+
+<style>
+  #project-highlights [data-animate] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  #project-highlights [data-animate].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #project-highlights [data-animate] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (!prefersReduced) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement
+            const delay = el.dataset.delay ? parseInt(el.dataset.delay) : 0
+            setTimeout(() => el.classList.add('is-visible'), delay)
+            observer.unobserve(el)
+          }
+        })
+      },
+      { threshold: 0.1 }
+    )
+
+    document
+      .querySelectorAll('#project-highlights [data-animate]')
+      .forEach((el) => observer.observe(el))
+  }
+</script>

@@ -35,7 +35,7 @@ const FALLBACK_TESTIMONIALS: FeaturedTestimonial[] = [
   {
     _id: '4',
     quote:
-      'Always such a pleasure working with Antonio! He’s collaborated with me on both photo and video projects — on my own productions, social media content as well as co-producing projects together. Antonio thinks through every step, every shot, and always finds ways to elevate the visuals.',
+      "Always such a pleasure working with Antonio! He's collaborated with me on both photo and video projects — on my own productions, social media content as well as co-producing projects together. Antonio thinks through every step, every shot, and always finds ways to elevate the visuals.",
     authorName: 'Willi Van Deven',
     authorRole: undefined,
     authorCompany: "Designer's Edge / Covers Canada",
@@ -84,7 +84,7 @@ const items =
   testimonials && testimonials.length > 0 ? testimonials : FALLBACK_TESTIMONIALS
 ---
 
-<section class="bg-black py-20">
+<section id="testimonials-section" class="bg-black py-20">
   <div class="max-w-5xl mx-auto px-6">
     <h2
       class="text-[#F5C645] text-[32px] md:text-[40px] font-bold tracking-tight text-center mb-14"
@@ -92,13 +92,17 @@ const items =
       Testimonials
     </h2>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {
-        items.map((t) => (
-          <div class="flex flex-col">
+        items.map((t, i) => (
+          <div
+            class="flex flex-col bg-neutral-900 border border-neutral-800 rounded-sm p-6"
+            data-animate
+            data-delay={Math.min(i, 5) * 80}
+          >
             {/* Decorative quotation mark */}
             <div
-              class="text-[56px] leading-none font-serif mb-2 select-none"
+              class="text-[48px] leading-none font-serif mb-2 select-none"
               style="color: #F5C645; font-family: Georgia, serif; line-height: 1;"
               aria-hidden="true"
             >
@@ -121,3 +125,48 @@ const items =
     </div>
   </div>
 </section>
+
+<style>
+  #testimonials-section [data-animate] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  #testimonials-section [data-animate].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #testimonials-section [data-animate] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (!prefersReduced) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement
+            const delay = el.dataset.delay ? parseInt(el.dataset.delay) : 0
+            setTimeout(() => el.classList.add('is-visible'), delay)
+            observer.unobserve(el)
+          }
+        })
+      },
+      { threshold: 0.08 }
+    )
+
+    document
+      .querySelectorAll('#testimonials-section [data-animate]')
+      .forEach((el) => observer.observe(el))
+  }
+</script>

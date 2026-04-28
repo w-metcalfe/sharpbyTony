@@ -13,12 +13,12 @@ const PORTRAIT = `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/crop
 const PORTRAIT_SMALL = `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/crop/x_0,y_171,w_3648,h_5130/fill/w_224,h_315,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/CapturedByThea_Antonio-66.jpg`
 ---
 
-<section class="bg-white relative pt-16 pb-20">
+<section id="about-section" class="bg-white relative pt-16 pb-20">
   <div class="max-w-5xl mx-auto px-6">
     <div class="grid md:grid-cols-2 gap-12 items-center">
 
       <!-- Left: text content -->
-      <div>
+      <div data-animate>
         <h2 class="text-[28px] font-bold tracking-tight mb-6 text-black">About Me</h2>
 
         <p class="text-[15px] leading-[1.875] text-neutral-700 mb-5">
@@ -33,48 +33,33 @@ const PORTRAIT_SMALL = `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v
           lasts beyond their initial experience.
         </p>
 
-        <!-- Small portrait + CTA row -->
-        <div class="flex items-center gap-6">
-          <img
-            src={PORTRAIT_SMALL}
-            alt="Antonio Martinez"
-            width="80"
-            height="112"
-            class="rounded-sm object-cover shadow-md shrink-0"
-            loading="lazy"
-          />
-          <div class="flex flex-col gap-3">
-            <a
-              href="/demo-reel"
-              class="inline-block bg-black text-white text-[12px] font-bold tracking-widest uppercase px-5 py-2.5 transition-colors hover:bg-[#F5C645] hover:text-black"
-            >
-              Demo Reel
-            </a>
-            <a
-              href="/videos"
-              class="inline-block border border-black text-black text-[12px] font-bold tracking-widest uppercase px-5 py-2.5 transition-colors hover:bg-black hover:text-white"
-            >
-              All Videos
-            </a>
-          </div>
+        <!-- CTA row -->
+        <div class="flex items-center gap-3">
+          <a
+            href="/demo-reel"
+            class="inline-block bg-black text-white text-[12px] font-bold tracking-widest uppercase px-5 py-2.5 transition-colors hover:bg-[#F5C645] hover:text-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 cursor-pointer"
+          >
+            Demo Reel
+          </a>
+          <a
+            href="/videos"
+            class="inline-block border border-black text-black text-[12px] font-bold tracking-widest uppercase px-5 py-2.5 transition-colors hover:bg-black hover:text-white focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 cursor-pointer"
+          >
+            All Videos
+          </a>
         </div>
       </div>
 
       <!-- Right: portrait -->
-      <div class="relative">
+      <div class="relative" data-animate data-delay="150">
         <img
           src={PORTRAIT}
           alt="Antonio Martinez – Sharp by Tony"
           width="448"
           height="630"
-          class="w-full max-w-[380px] mx-auto object-cover shadow-lg"
+          class="w-full max-w-[380px] mx-auto object-cover"
           loading="lazy"
         />
-        <!-- Yellow accent block -->
-        <div
-          class="absolute -bottom-4 -left-4 w-16 h-16 bg-[#F5C645] -z-10 hidden md:block"
-          aria-hidden="true"
-        ></div>
       </div>
     </div>
   </div>
@@ -91,3 +76,46 @@ const PORTRAIT_SMALL = `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v
     </svg>
   </div>
 </section>
+
+<style>
+  [data-animate] {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  [data-animate].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-animate] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (!prefersReduced) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement
+            const delay = el.dataset.delay ? parseInt(el.dataset.delay) : 0
+            setTimeout(() => el.classList.add('is-visible'), delay)
+            observer.unobserve(el)
+          }
+        })
+      },
+      { threshold: 0.15 }
+    )
+
+    document.querySelectorAll('#about-section [data-animate]').forEach((el) => observer.observe(el))
+  }
+</script>

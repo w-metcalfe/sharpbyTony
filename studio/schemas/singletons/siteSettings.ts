@@ -146,6 +146,13 @@ export const siteSettingsType = defineType({
       ],
     }),
     defineField({
+      name: 'heroBody',
+      title: 'Hero Body Copy',
+      type: 'text',
+      rows: 3,
+      description: 'Short paragraph displayed in the hero card, below the tagline.',
+    }),
+    defineField({
       name: 'primaryReelVideo',
       title: 'Primary Reel Video',
       type: 'videoEmbed',
