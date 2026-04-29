@@ -23,7 +23,7 @@ const socials = settings?.socialLinks ?? [
   <div class="grid md:grid-cols-2">
     <!-- Left: contact info on white card -->
     <div class="bg-white px-10 py-16 flex flex-col justify-center">
-      <h2 class="text-[28px] font-bold tracking-tight mb-6 text-black">
+      <h2 class="text-[48px] font-bold tracking-tight mb-6 text-black">
         Let's Get To Work
       </h2>
 
@@ -131,12 +131,16 @@ const socials = settings?.socialLinks ?? [
           <label>Don't fill this: <input name="bot-field" /></label>
         </p>
 
+        <p class="text-neutral-400 text-[12px] tracking-wide">
+          <span style="color: #F5C645;" aria-hidden="true">*</span> indicates required field
+        </p>
+
         <div>
           <label
             for="contact-name"
             class="block text-[13px] font-bold tracking-wide text-white mb-2"
           >
-            Name
+            Name <span style="color: #F5C645;" aria-hidden="true">*</span>
           </label>
           <input
             id="contact-name"
@@ -155,7 +159,7 @@ const socials = settings?.socialLinks ?? [
             for="contact-email"
             class="block text-[13px] font-bold tracking-wide text-white mb-2"
           >
-            Email
+            Email <span style="color: #F5C645;" aria-hidden="true">*</span>
           </label>
           <input
             id="contact-email"
@@ -174,13 +178,14 @@ const socials = settings?.socialLinks ?? [
             for="contact-phone"
             class="block text-[13px] font-bold tracking-wide text-white mb-2"
           >
-            Phone
+            Phone <span style="color: #F5C645;" aria-hidden="true">*</span>
           </label>
           <input
             id="contact-phone"
             name="phone"
             type="tel"
             placeholder="Enter your phone number"
+            required
             maxlength="50"
             autocomplete="tel"
             class="w-full bg-transparent border border-neutral-600 text-white placeholder-neutral-500 text-[13px] px-4 py-3 focus:outline-none focus:border-[#F5C645] focus:ring-1 focus:ring-[#F5C645] transition-colors"

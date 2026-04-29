@@ -109,12 +109,21 @@ const items =
               &ldquo;
             </div>
 
-            <p class="text-white text-[13px] leading-[1.8] mb-5 flex-1">{t.quote}</p>
+            <p class="text-white text-[18px] leading-[1.8] mb-5 flex-1">{t.quote}</p>
+
+            {/* 5-star rating */}
+            <div class="flex gap-1 mb-4" aria-label="5 out of 5 stars">
+              {Array.from({ length: 5 }).map(() => (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#F5C645" class="w-5 h-5" aria-hidden="true">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              ))}
+            </div>
 
             <div>
-              <p class="text-white font-bold text-[13px] tracking-wide">{t.authorName}</p>
+              <p class="text-white font-bold text-[18px] tracking-wide">{t.authorName}</p>
               {(t.authorRole || t.authorCompany) && (
-                <p class="text-neutral-400 text-[11px] mt-0.5">
+                <p class="text-neutral-400 text-[14px] mt-0.5">
                   {[t.authorRole, t.authorCompany].filter(Boolean).join(' | ')}
                 </p>
               )}

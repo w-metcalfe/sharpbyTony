@@ -19,60 +19,66 @@ if (reel) {
     if (id) embedUrl = `https://player.vimeo.com/video/${id}?dnt=1`
   }
 }
-
 ---
 
-<section class="bg-black py-20 relative">
-  <div class="max-w-5xl mx-auto px-6 text-center">
-    <h2 class="text-[#F5C645] text-[28px] font-bold tracking-tight mb-3">
-      DEMO REEL
-    </h2>
-
+<section class="relative w-full bg-black">
+  <!-- Full-bleed video / placeholder -->
+  <div class="relative w-full aspect-video">
     {
       embedUrl ? (
-        <div class="relative w-full aspect-video max-w-3xl mx-auto mt-8 bg-neutral-900 shadow-2xl">
-          <iframe
-            src={embedUrl}
-            title="Sharp by Tony – Demo Reel"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-            class="absolute inset-0 w-full h-full border-0"
-          />
-        </div>
+        <iframe
+          src={embedUrl}
+          title="Sharp by Tony – Demo Reel"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          class="absolute inset-0 w-full h-full border-0"
+        />
       ) : (
-        /* Placeholder card when no video is configured in Sanity */
-        <div class="relative w-full aspect-video max-w-3xl mx-auto mt-8 bg-neutral-900 shadow-2xl flex items-center justify-center group cursor-pointer">
-          <div class="text-center">
-            <div class="w-16 h-16 rounded-full bg-[#F5C645] flex items-center justify-center mx-auto mb-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="black"
-                class="w-7 h-7 translate-x-0.5"
-                aria-hidden="true"
-              >
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </div>
-            <p class="text-white text-[13px] tracking-widest uppercase font-bold">Demo Reel 2025</p>
-            <p class="text-neutral-400 text-[11px] mt-1">Video coming soon</p>
-          </div>
-        </div>
+        /* Dark background only — overlay below handles all UI */
+        <div class="absolute inset-0 bg-neutral-900" aria-hidden="true" />
       )
     }
 
-    <div class="mt-8 flex justify-center gap-4">
+    <!-- Overlay: title top · play middle · CTA bottom -->
+    <div class="absolute inset-0 flex flex-col items-center justify-between py-12 bg-black/30">
+      <!-- Title -->
+      <h2
+        class="text-white text-[28px] font-bold tracking-widest uppercase"
+        style="text-shadow: rgba(0,0,0,0.6) 0px 2px 8px;"
+      >
+        DEMO REEL
+      </h2>
+
+      <!-- Play button -->
       <a
         href="/demo-reel"
-        class="inline-block bg-[#F5C645] text-black text-[12px] font-bold tracking-widest uppercase px-6 py-3 transition-opacity hover:opacity-85"
+        class="flex items-center gap-3 text-white hover:text-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
+        aria-label="Watch demo reel"
       >
-        Demo Reel
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          class="w-14 h-14"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none" />
+        </svg>
+        <span class="text-[15px] font-bold tracking-widest uppercase underline underline-offset-4">
+          Play Video
+        </span>
       </a>
+
+      <!-- All Videos CTA -->
       <a
         href="/videos"
-        class="inline-block border border-white text-white text-[12px] font-bold tracking-widest uppercase px-6 py-3 transition-colors hover:bg-white hover:text-black"
+        class="inline-flex items-center gap-2 border border-white text-white text-[13px] font-bold tracking-widest uppercase px-8 py-3 transition-colors hover:bg-white hover:text-black focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
       >
         All Videos
+        <span aria-hidden="true">+</span>
       </a>
     </div>
   </div>

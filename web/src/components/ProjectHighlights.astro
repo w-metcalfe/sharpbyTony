@@ -12,132 +12,173 @@ const { projects } = Astro.props
 const FALLBACK_PROJECTS: Array<{ title: string; src: string; href: string }> = [
   {
     title: 'Construction Project',
-    src: `${WIX}/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg/v1/fill/w_480,h_270,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg`,
+    src: `${WIX}/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg/v1/fill/w_640,h_360,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg`,
     href: '/videos',
   },
   {
     title: 'Lifestyle Shoot',
-    src: `${WIX}/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg/v1/fill/w_480,h_270,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg`,
+    src: `${WIX}/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg/v1/fill/w_640,h_360,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg`,
     href: '/videos',
   },
   {
     title: 'Brand Video',
-    src: `${WIX}/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg/v1/fill/w_480,h_270,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg`,
+    src: `${WIX}/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg/v1/fill/w_640,h_360,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg`,
+    href: '/videos',
+  },
+  {
+    title: 'Luxury Brand',
+    src: `${WIX}/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg/v1/fill/w_640,h_360,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg`,
+    href: '/videos',
+  },
+  {
+    title: 'Corporate Event',
+    src: `${WIX}/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg/v1/fill/w_640,h_360,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg`,
+    href: '/videos',
+  },
+  {
+    title: 'Product Shoot',
+    src: `${WIX}/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg/v1/fill/w_640,h_360,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg`,
     href: '/videos',
   },
 ]
 
 const hasProjects = projects && projects.length > 0
+const items = hasProjects ? projects! : FALLBACK_PROJECTS
+const totalPages = Math.ceil(items.length / 3)
+const multiPage = totalPages > 1
 ---
 
-<section id="project-highlights" class="bg-black py-20">
-  <div class="max-w-5xl mx-auto px-6">
+<section id="project-highlights" class="bg-black py-16">
+  <!-- Heading — constrained -->
+  <div class="max-w-5xl mx-auto px-6 mb-10">
     <h2
       class="text-[#F5C645] text-[32px] md:text-[40px] font-bold tracking-tight mb-3 text-center"
     >
       Project Highlights.
     </h2>
-    <p class="text-neutral-400 text-[13px] text-center mb-12 max-w-xl mx-auto leading-relaxed">
+    <p class="text-neutral-400 text-[13px] text-center max-w-xl mx-auto leading-relaxed">
       A selection of work across video, photo, and design for clients in
       construction, lifestyle, and luxury.
     </p>
+  </div>
 
-    <!-- Project grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {
-        hasProjects
-          ? projects!.map((p, i) => (
-              <a
-                href={`/projects/${p.slug.current}`}
-                class="group relative overflow-hidden bg-neutral-900 aspect-video block cursor-pointer"
-                data-animate
-                data-delay={i * 100}
-              >
-                <img
-                  src={imageUrl(p.thumbnail, { width: 480, height: 270 })}
-                  alt={p.thumbnail.alt || p.title}
-                  width="480"
-                  height="270"
-                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  loading="lazy"
-                />
-                {/* Always-visible bottom gradient for mobile legibility */}
-                <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-200" />
-                {/* Play button — visible on hover (desktop) / always dim on touch */}
-                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <div class="w-12 h-12 rounded-full bg-[#F5C645] flex items-center justify-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="black"
-                      class="w-6 h-6 translate-x-0.5"
-                      aria-hidden="true"
-                    >
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                </div>
-                {/* Title caption */}
-                <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-                  <p class="text-white text-[11px] font-bold tracking-wide uppercase truncate">
-                    {p.title}
-                  </p>
-                  {p.client && (
-                    <p class="text-neutral-400 text-[10px] truncate">{p.client.name}</p>
-                  )}
-                </div>
-              </a>
-            ))
-          : FALLBACK_PROJECTS.map((p, i) => (
-              <a
-                href={p.href}
-                class="group relative overflow-hidden bg-neutral-900 aspect-video block cursor-pointer"
-                data-animate
-                data-delay={i * 100}
-              >
-                <img
-                  src={p.src}
-                  alt={p.title}
-                  width="480"
-                  height="270"
-                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  loading="lazy"
-                />
-                {/* Always-visible overlay */}
-                <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-200" />
-                {/* Play button on hover */}
-                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <div class="w-12 h-12 rounded-full bg-[#F5C645] flex items-center justify-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="black"
-                      class="w-6 h-6 translate-x-0.5"
-                      aria-hidden="true"
-                    >
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                </div>
-                <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-                  <p class="text-white text-[11px] font-bold tracking-wide uppercase truncate">
-                    {p.title}
-                  </p>
-                </div>
-              </a>
-            ))
-      }
-    </div>
-
-    <!-- View all -->
-    <div class="text-center mt-10">
-      <a
-        href="/videos"
-        class="inline-block border border-[#F5C645] text-[#F5C645] text-[12px] font-bold tracking-widest uppercase px-8 py-3 transition-colors hover:bg-[#F5C645] hover:text-black focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black cursor-pointer"
+  <!-- Carousel — full width -->
+  <div class="relative w-full" id="ph-carousel">
+    <!-- Track -->
+    <div class="overflow-hidden w-full">
+      <div
+        id="ph-track"
+        class="flex transition-transform duration-500 ease-in-out"
+        style="will-change: transform;"
       >
-        View All Work
-      </a>
+        {
+          hasProjects
+            ? projects!.map((p, i) => (
+                <a
+                  href={`/projects/${p.slug.current}`}
+                  class="group relative shrink-0 w-1/3 aspect-video overflow-hidden bg-neutral-900 block cursor-pointer"
+                  data-animate
+                  data-delay={i * 80}
+                >
+                  <img
+                    src={imageUrl(p.thumbnail, { width: 640, height: 360 })}
+                    alt={p.thumbnail.alt || p.title}
+                    width="640"
+                    height="360"
+                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-200" />
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true">
+                      <circle cx="24" cy="24" r="24" fill="#F5C645" />
+                      <polygon points="19,14 19,34 35,24" fill="black" />
+                    </svg>
+                  </div>
+                  <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                    <p class="text-white text-[11px] font-bold tracking-wide uppercase truncate">{p.title}</p>
+                    {p.client && <p class="text-neutral-400 text-[10px] truncate">{p.client.name}</p>}
+                  </div>
+                </a>
+              ))
+            : FALLBACK_PROJECTS.map((p, i) => (
+                <a
+                  href={p.href}
+                  class="group relative shrink-0 w-1/3 aspect-video overflow-hidden bg-neutral-900 block cursor-pointer"
+                  data-animate
+                  data-delay={i * 80}
+                >
+                  <img
+                    src={p.src}
+                    alt={p.title}
+                    width="640"
+                    height="360"
+                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-200" />
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true">
+                      <circle cx="24" cy="24" r="24" fill="#F5C645" />
+                      <polygon points="19,14 19,34 35,24" fill="black" />
+                    </svg>
+                  </div>
+                  <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                    <p class="text-white text-[11px] font-bold tracking-wide uppercase truncate">{p.title}</p>
+                  </div>
+                </a>
+              ))
+        }
+      </div>
     </div>
+
+    <!-- Chevron buttons (only shown when more than one page) -->
+    {multiPage && (
+      <>
+        <button
+          id="ph-prev"
+          aria-label="Previous projects"
+          class="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+
+        <button
+          id="ph-next"
+          aria-label="Next projects"
+          class="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+      </>
+    )}
+
+    <!-- Page dots -->
+    {multiPage && (
+      <div id="ph-dots" class="flex justify-center gap-2 mt-6">
+        {Array.from({ length: totalPages }).map((_, i) => (
+          <button
+            class="ph-dot w-2 h-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
+            data-page={i}
+            aria-label={`Go to page ${i + 1}`}
+          />
+        ))}
+      </div>
+    )}
+  </div>
+
+  <!-- View all -->
+  <div class="text-center mt-10">
+    <a
+      href="/videos"
+      class="inline-block border border-[#F5C645] text-[#F5C645] text-[12px] font-bold tracking-widest uppercase px-8 py-3 transition-colors hover:bg-[#F5C645] hover:text-black focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black cursor-pointer"
+    >
+      View All Work
+    </a>
   </div>
 </section>
 
@@ -147,12 +188,10 @@ const hasProjects = projects && projects.length > 0
     transform: translateY(16px);
     transition: opacity 0.4s ease, transform 0.4s ease;
   }
-
   #project-highlights [data-animate].is-visible {
     opacity: 1;
     transform: translateY(0);
   }
-
   @media (prefers-reduced-motion: reduce) {
     #project-highlights [data-animate] {
       opacity: 1;
@@ -160,11 +199,18 @@ const hasProjects = projects && projects.length > 0
       transition: none;
     }
   }
+
+  .ph-dot {
+    background-color: rgba(255,255,255,0.3);
+  }
+  .ph-dot.active {
+    background-color: #F5C645;
+  }
 </style>
 
 <script>
+  // ── Scroll-in animation ─────────────────────────────────────────────────────
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
   if (!prefersReduced) {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -179,9 +225,52 @@ const hasProjects = projects && projects.length > 0
       },
       { threshold: 0.1 }
     )
+    document.querySelectorAll('#project-highlights [data-animate]').forEach((el) => observer.observe(el))
+  }
 
-    document
-      .querySelectorAll('#project-highlights [data-animate]')
-      .forEach((el) => observer.observe(el))
+  // ── Carousel ────────────────────────────────────────────────────────────────
+  const track    = document.getElementById('ph-track') as HTMLElement | null
+  const prevBtn  = document.getElementById('ph-prev')  as HTMLButtonElement | null
+  const nextBtn  = document.getElementById('ph-next')  as HTMLButtonElement | null
+  const dots     = document.querySelectorAll<HTMLButtonElement>('.ph-dot')
+
+  if (track) {
+    const totalItems = track.children.length
+    const totalPages = Math.ceil(totalItems / 3)
+    let currentPage  = 0
+
+    function goTo(page: number) {
+      // Wrap around for infinite looping
+      currentPage = ((page % totalPages) + totalPages) % totalPages
+      const containerWidth = track!.parentElement!.offsetWidth
+      track!.style.transform = `translateX(${-currentPage * containerWidth}px)`
+
+      // Update dots
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === currentPage))
+    }
+
+    // Init
+    goTo(0)
+
+    prevBtn?.addEventListener('click', () => goTo(currentPage - 1))
+    nextBtn?.addEventListener('click', () => goTo(currentPage + 1))
+
+    dots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        const page = parseInt(dot.dataset.page ?? '0')
+        goTo(page)
+      })
+    })
+
+    // Re-calculate on resize
+    window.addEventListener('resize', () => goTo(currentPage), { passive: true })
+
+    // Dot click via parent (delegation)
+    document.getElementById('ph-dots')?.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement
+      if (target.classList.contains('ph-dot')) {
+        goTo(parseInt(target.dataset.page ?? '0'))
+      }
+    })
   }
 </script>
