@@ -29,14 +29,14 @@ const socials = settings?.socialLinks ?? [
 
       <a
         href={`mailto:${email}`}
-        class="text-[12px] font-bold tracking-widest uppercase text-black hover:text-[#F5C645] transition-colors mb-5 block focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 rounded-sm"
+        class="text-[12px] font-bold tracking-widest uppercase text-black hover:text-[#F5C645] transition-colors mb-5 inline-block focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 rounded-sm"
       >
         {email.toUpperCase()}
       </a>
 
       <a
         href={`tel:${rawPhone}`}
-        class="text-[28px] font-bold text-black hover:text-[#F5C645] transition-colors block mb-8 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 rounded-sm"
+        class="text-[28px] font-bold text-black hover:text-[#F5C645] transition-colors inline-block mb-8 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 rounded-sm"
       >
         {phone}
       </a>

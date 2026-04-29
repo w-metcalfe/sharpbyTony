@@ -44,8 +44,7 @@ const FALLBACK_PROJECTS: Array<{ title: string; src: string; href: string }> = [
 
 const hasProjects = projects && projects.length > 0
 const items = hasProjects ? projects! : FALLBACK_PROJECTS
-const totalPages = Math.ceil(items.length / 3)
-const multiPage = totalPages > 1
+const multiPage = items.length > 1
 ---
 
 <section id="project-highlights" class="bg-black py-16">
@@ -56,7 +55,7 @@ const multiPage = totalPages > 1
     >
       Project Highlights.
     </h2>
-    <p class="text-neutral-400 text-[13px] text-center max-w-xl mx-auto leading-relaxed">
+    <p class="text-neutral-400 text-[18px] text-center max-w-xl mx-auto leading-relaxed">
       A selection of work across video, photo, and design for clients in
       construction, lifestyle, and luxury.
     </p>
@@ -64,8 +63,8 @@ const multiPage = totalPages > 1
 
   <!-- Carousel — full width -->
   <div class="relative w-full" id="ph-carousel">
-    <!-- Track -->
-    <div class="overflow-hidden w-full">
+    <!-- Track + chevrons scoped to the video strip -->
+    <div class="relative overflow-hidden w-full">
       <div
         id="ph-track"
         class="flex transition-transform duration-500 ease-in-out"
@@ -76,7 +75,7 @@ const multiPage = totalPages > 1
             ? projects!.map((p, i) => (
                 <a
                   href={`/projects/${p.slug.current}`}
-                  class="group relative shrink-0 w-1/3 aspect-video overflow-hidden bg-neutral-900 block cursor-pointer"
+                  class="group relative shrink-0 w-full md:w-1/3 aspect-video overflow-hidden bg-neutral-900 block cursor-pointer"
                   data-animate
                   data-delay={i * 80}
                 >
@@ -90,21 +89,17 @@ const multiPage = totalPages > 1
                   />
                   <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-200" />
                   <div class="absolute inset-0 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true" class="transition-transform duration-300 lg:group-hover:scale-125">
                       <circle cx="24" cy="24" r="24" fill="#F5C645" />
                       <polygon points="19,14 19,34 35,24" fill="black" />
                     </svg>
-                  </div>
-                  <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-                    <p class="text-white text-[11px] font-bold tracking-wide uppercase truncate">{p.title}</p>
-                    {p.client && <p class="text-neutral-400 text-[10px] truncate">{p.client.name}</p>}
                   </div>
                 </a>
               ))
             : FALLBACK_PROJECTS.map((p, i) => (
                 <a
                   href={p.href}
-                  class="group relative shrink-0 w-1/3 aspect-video overflow-hidden bg-neutral-900 block cursor-pointer"
+                  class="group relative shrink-0 w-full md:w-1/3 aspect-video overflow-hidden bg-neutral-900 block cursor-pointer"
                   data-animate
                   data-delay={i * 80}
                 >
@@ -118,56 +113,45 @@ const multiPage = totalPages > 1
                   />
                   <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-200" />
                   <div class="absolute inset-0 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true" class="transition-transform duration-300 lg:group-hover:scale-125">
                       <circle cx="24" cy="24" r="24" fill="#F5C645" />
                       <polygon points="19,14 19,34 35,24" fill="black" />
                     </svg>
-                  </div>
-                  <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-                    <p class="text-white text-[11px] font-bold tracking-wide uppercase truncate">{p.title}</p>
                   </div>
                 </a>
               ))
         }
       </div>
+
+      <!-- Chevron buttons — inside the video strip so top-1/2 aligns correctly -->
+      {multiPage && (
+        <>
+          <button
+            id="ph-prev"
+            aria-label="Previous projects"
+            class="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+
+          <button
+            id="ph-next"
+            aria-label="Next projects"
+            class="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </>
+      )}
     </div>
 
-    <!-- Chevron buttons (only shown when more than one page) -->
+    <!-- Page dots — built by JS so count matches responsive perPage -->
     {multiPage && (
-      <>
-        <button
-          id="ph-prev"
-          aria-label="Previous projects"
-          class="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
-
-        <button
-          id="ph-next"
-          aria-label="Next projects"
-          class="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </button>
-      </>
-    )}
-
-    <!-- Page dots -->
-    {multiPage && (
-      <div id="ph-dots" class="flex justify-center gap-2 mt-6">
-        {Array.from({ length: totalPages }).map((_, i) => (
-          <button
-            class="ph-dot w-2 h-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
-            data-page={i}
-            aria-label={`Go to page ${i + 1}`}
-          />
-        ))}
-      </div>
+      <div id="ph-dots" class="flex justify-center gap-2 mt-6"></div>
     )}
   </div>
 
@@ -229,48 +213,61 @@ const multiPage = totalPages > 1
   }
 
   // ── Carousel ────────────────────────────────────────────────────────────────
-  const track    = document.getElementById('ph-track') as HTMLElement | null
-  const prevBtn  = document.getElementById('ph-prev')  as HTMLButtonElement | null
-  const nextBtn  = document.getElementById('ph-next')  as HTMLButtonElement | null
-  const dots     = document.querySelectorAll<HTMLButtonElement>('.ph-dot')
+  const track   = document.getElementById('ph-track') as HTMLElement | null
+  const prevBtn = document.getElementById('ph-prev')  as HTMLButtonElement | null
+  const nextBtn = document.getElementById('ph-next')  as HTMLButtonElement | null
+  const dotsEl  = document.getElementById('ph-dots')
 
   if (track) {
     const totalItems = track.children.length
-    const totalPages = Math.ceil(totalItems / 3)
+    let perPage      = getPerPage()
+    let totalPages   = Math.ceil(totalItems / perPage)
     let currentPage  = 0
 
+    function getPerPage() {
+      return window.innerWidth >= 768 ? 3 : 1
+    }
+
+    function buildDots() {
+      if (!dotsEl) return
+      dotsEl.innerHTML = ''
+      for (let i = 0; i < totalPages; i++) {
+        const btn = document.createElement('button')
+        btn.className = 'ph-dot w-2 h-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]'
+        btn.setAttribute('aria-label', `Go to page ${i + 1}`)
+        btn.addEventListener('click', () => goTo(i))
+        dotsEl.appendChild(btn)
+      }
+    }
+
     function goTo(page: number) {
-      // Wrap around for infinite looping
       currentPage = ((page % totalPages) + totalPages) % totalPages
       const containerWidth = track!.parentElement!.offsetWidth
       track!.style.transform = `translateX(${-currentPage * containerWidth}px)`
-
-      // Update dots
-      dots.forEach((dot, i) => dot.classList.toggle('active', i === currentPage))
+      dotsEl?.querySelectorAll('.ph-dot').forEach((dot, i) =>
+        dot.classList.toggle('active', i === currentPage)
+      )
     }
 
-    // Init
+    function handleResize() {
+      const newPerPage = getPerPage()
+      if (newPerPage !== perPage) {
+        perPage    = newPerPage
+        totalPages = Math.ceil(totalItems / perPage)
+        currentPage = 0
+        buildDots()
+      }
+      goTo(currentPage)
+    }
+
+    buildDots()
     goTo(0)
+
+    // Show all items immediately — the slide transition is the animation
+    track.querySelectorAll<HTMLElement>('[data-animate]').forEach(el => el.classList.add('is-visible'))
 
     prevBtn?.addEventListener('click', () => goTo(currentPage - 1))
     nextBtn?.addEventListener('click', () => goTo(currentPage + 1))
-
-    dots.forEach((dot) => {
-      dot.addEventListener('click', () => {
-        const page = parseInt(dot.dataset.page ?? '0')
-        goTo(page)
-      })
-    })
-
-    // Re-calculate on resize
-    window.addEventListener('resize', () => goTo(currentPage), { passive: true })
-
-    // Dot click via parent (delegation)
-    document.getElementById('ph-dots')?.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement
-      if (target.classList.contains('ph-dot')) {
-        goTo(parseInt(target.dataset.page ?? '0'))
-      }
-    })
+    window.addEventListener('resize', handleResize, { passive: true })
   }
 </script>

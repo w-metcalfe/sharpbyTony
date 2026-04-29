@@ -40,7 +40,7 @@ if (reel) {
     }
 
     <!-- Overlay: title top · play middle · CTA bottom -->
-    <div class="absolute inset-0 flex flex-col items-center justify-between py-12 bg-black/30">
+    <div class="absolute inset-0 flex flex-col items-center justify-center gap-8 py-12 bg-black/30 lg:justify-between lg:gap-0">
       <!-- Title -->
       <h2
         class="text-white text-[28px] font-bold tracking-widest uppercase"
@@ -67,7 +67,7 @@ if (reel) {
           <circle cx="12" cy="12" r="10" />
           <polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none" />
         </svg>
-        <span class="text-[15px] font-bold tracking-widest uppercase underline underline-offset-4">
+        <span class="hidden lg:inline text-[15px] font-bold tracking-widest uppercase underline underline-offset-4">
           Play Video
         </span>
       </a>
@@ -75,7 +75,7 @@ if (reel) {
       <!-- All Videos CTA -->
       <a
         href="/videos"
-        class="inline-flex items-center gap-2 border border-white text-white text-[13px] font-bold tracking-widest uppercase px-8 py-3 transition-colors hover:bg-white hover:text-black focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
+        class="hidden lg:inline-flex items-center gap-2 border border-white text-white text-[13px] font-bold tracking-widest uppercase px-8 py-3 transition-colors hover:bg-white hover:text-black focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
       >
         All Videos
         <span aria-hidden="true">+</span>
