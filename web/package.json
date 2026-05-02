@@ -15,14 +15,23 @@
     "typecheck": "astro check"
   },
   "dependencies": {
+    "@astrojs/netlify": "^7.0.8",
+    "@astrojs/react": "^5.0.4",
+    "@sanity/astro": "^3.3.1",
     "@sanity/client": "^7.22.0",
+    "@sanity/preview-url-secret": "^4.0.5",
+    "@sanity/visual-editing": "^5.3.4",
     "@tailwindcss/vite": "^4.2.4",
     "astro": "^6.1.9",
     "groq": "^5.22.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "tailwindcss": "^4.2.4"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "eslint": "^9.28.0",
     "typescript": "^5.8.3"
   }

@@ -153,6 +153,58 @@ export const siteSettingsType = defineType({
       description: 'Short paragraph displayed in the hero card, below the tagline.',
     }),
     defineField({
+      name: 'heroKicker',
+      title: 'Hero Kicker',
+      type: 'string',
+      description: 'Short label above the headline, e.g. "VIDEO | PHOTO | DESIGN"',
+    }),
+    defineField({
+      name: 'heroCta',
+      title: 'CTA Button Label',
+      type: 'string',
+      description: 'Primary call-to-action button label, e.g. "Book Your Shoot"',
+    }),
+    defineField({
+      name: 'aboutHeading',
+      title: 'About Section Heading',
+      type: 'string',
+    }),
+    defineField({
+      name: 'aboutBody',
+      title: 'About Body Copy',
+      type: 'text',
+      rows: 5,
+      description: 'Main body paragraphs for the About section. Separate paragraphs with a blank line.',
+    }),
+    defineField({
+      name: 'aboutQuote',
+      title: 'About Pull Quote',
+      type: 'text',
+      rows: 2,
+      description: 'Blockquote displayed in the About section',
+    }),
+    defineField({
+      name: 'projectsHeading',
+      title: 'Projects Section Heading',
+      type: 'string',
+    }),
+    defineField({
+      name: 'projectsSubheading',
+      title: 'Projects Section Subheading',
+      type: 'text',
+      rows: 2,
+    }),
+    defineField({
+      name: 'testimonialsHeading',
+      title: 'Testimonials Section Heading',
+      type: 'string',
+    }),
+    defineField({
+      name: 'contactHeading',
+      title: 'Contact Section Heading',
+      type: 'string',
+    }),
+    defineField({
       name: 'primaryReelVideo',
       title: 'Primary Reel Video',
       type: 'videoEmbed',

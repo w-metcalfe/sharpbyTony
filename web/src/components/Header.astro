@@ -23,10 +23,11 @@ const navLinks = [
 ---
 
 <header class="bg-black sticky top-0 z-50">
-  <div class="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between gap-6">
-    <!-- Logo + tagline -->
-    <div class="flex items-center gap-4 shrink-0">
-      <a href="/" aria-label="Sharp by Tony – home" class="focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm">
+  <!-- Mobile: flex justify-between | Desktop: 3-col grid (logo | nav | cta) -->
+  <div class="px-6 md:px-[120px] py-3 flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr]">
+    <!-- Col 1 — Logo -->
+    <div class="md:justify-self-start shrink-0">
+      <a href="/" aria-label="Sharp by Tony – home" class="focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm inline-block">
         <img
           src={logo}
           alt="Sharp by Tony"
@@ -37,7 +38,7 @@ const navLinks = [
       </a>
     </div>
 
-    <!-- Desktop nav -->
+    <!-- Col 2 — Desktop nav (truly centred) -->
     <nav aria-label="Site" class="hidden md:block">
       <ul class="flex items-center gap-6">
         {
@@ -61,22 +62,24 @@ const navLinks = [
       </ul>
     </nav>
 
-    <!-- CTA -->
-    <a
-      href="/contact"
-      class="hidden md:inline-block bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase px-5 py-2.5 transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black shrink-0"
-    >
-      Book Your Shoot
-    </a>
+    <!-- Col 3 — CTA (desktop) + hamburger (mobile) -->
+    <div class="md:justify-self-end flex items-center">
+      <!-- CTA -->
+      <a
+        href="/contact"
+        class="hidden md:inline-block bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase px-5 py-2.5 transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
+      >
+        Book Your Shoot
+      </a>
 
-    <!-- Mobile hamburger — minimum 44×44px touch target -->
-    <button
-      id="mobile-menu-btn"
-      class="md:hidden text-white p-[10px] focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm"
-      aria-label="Open navigation menu"
-      aria-expanded="false"
-      aria-controls="mobile-menu"
-    >
+      <!-- Mobile hamburger — minimum 44×44px touch target -->
+      <button
+        id="mobile-menu-btn"
+        class="md:hidden text-white p-[10px] focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
       <!-- Hamburger icon (shown when closed) -->
       <svg
         id="icon-hamburger"
@@ -115,8 +118,9 @@ const navLinks = [
       </svg>
     </button>
   </div>
+</div>
 
-  <!-- Mobile nav drawer — animated via max-height -->
+  <!-- Mobile nav drawer — outside the flex row, animated via max-height -->
   <div
     id="mobile-menu"
     class="md:hidden overflow-hidden max-h-0 transition-[max-height] duration-300 ease-in-out bg-black border-t border-neutral-800"

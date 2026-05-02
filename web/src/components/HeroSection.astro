@@ -1,5 +1,6 @@
 ---
 import { WIX } from '~/lib/imageUrl'
+import { createDataAttribute } from '@sanity/visual-editing'
 import type { SiteSettings } from '~/lib/queries'
 
 interface Props {
@@ -40,20 +41,25 @@ const LOGO = `${WIX}/c8520e_301b1a02bee3443a800790e3226eea74~mv2.png/v1/crop/x_0
       <p
         class="text-[14px] font-normal tracking-[0.25em] uppercase mb-2"
         style="color: #F5C645; text-shadow: rgba(0,0,0,0.4) 0px 4px 5px;"
+        data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'heroKicker'})() : undefined}
       >
-        VIDEO&nbsp;|&nbsp;PHOTO&nbsp;|&nbsp;DESIGN
+        {settings?.heroKicker ?? 'VIDEO | PHOTO | DESIGN'}
       </p>
 
       <!-- Tagline -->
       <p
         class="text-white text-[24px] font-bold tracking-widest uppercase mb-6"
         style="text-shadow: rgba(0,0,0,0.4) 0px 4px 5px;"
+        data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'tagline'})() : undefined}
       >
         {settings?.tagline ?? 'Sharp & Strategic Visuals.'}
       </p>
 
       <!-- Body copy -->
-      <p class="text-white/80 text-[18px] leading-relaxed mb-6">
+      <p
+        class="text-white/80 text-[18px] leading-relaxed mb-6"
+        data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'heroBody'})() : undefined}
+      >
         {settings?.heroBody ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.'}
       </p>
 
@@ -62,7 +68,7 @@ const LOGO = `${WIX}/c8520e_301b1a02bee3443a800790e3226eea74~mv2.png/v1/crop/x_0
         href="/contact"
         class="inline-block bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase px-6 py-3 transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black cursor-pointer"
       >
-        Book Your Shoot
+        {settings?.heroCta ?? 'Book Your Shoot'}
       </a>
     </div>
   </div>

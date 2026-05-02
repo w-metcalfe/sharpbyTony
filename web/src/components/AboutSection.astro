@@ -1,16 +1,24 @@
 ---
 import { WIX } from '~/lib/imageUrl'
-import type { Page, SiteSettings } from '~/lib/queries'
+import { createDataAttribute } from '@sanity/visual-editing'
+import type { SiteSettings } from '~/lib/queries'
 
 interface Props {
-  page?: Page | null
   settings?: SiteSettings | null
 }
 
-const { page: _page, settings: _settings } = Astro.props
+const { settings } = Astro.props
 
 const PORTRAIT = `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/crop/x_0,y_171,w_3648,h_5130/fill/w_448,h_630,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/CapturedByThea_Antonio-66.jpg`
-const PORTRAIT_SMALL = `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/crop/x_0,y_171,w_3648,h_5130/fill/w_224,h_315,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/CapturedByThea_Antonio-66.jpg`
+
+const FALLBACK_BODY =
+  'I provide high-quality, yet true-to-life visual content for individuals, businesses and agencies alike. That led to marketing strategies and optimizing their own digital presence.\n\nBy providing powerful visuals, I help businesses tell powerful stories that sell and change minds. My goal is to create an emotional connection that lasts beyond their initial experience.'
+
+const FALLBACK_QUOTE =
+  'It is my policy to only offer you sharp content that reaches your goals and exceeds your expectations.'
+
+const aboutBody = settings?.aboutBody ?? FALLBACK_BODY
+const paragraphs = aboutBody.split(/\n\n+/).filter(Boolean)
 ---
 
 <section id="about-section" class="bg-white relative pt-16 pb-20">
@@ -19,24 +27,28 @@ const PORTRAIT_SMALL = `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v
 
       <!-- Left: text content -->
       <div data-animate>
-        <h2 class="text-[48px] font-bold tracking-tight mb-6 text-black">About Me</h2>
+        <h2
+          class="text-[48px] font-bold tracking-tight mb-6 text-black"
+          data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'aboutHeading'})() : undefined}
+        >
+          {settings?.aboutHeading ?? 'About Me'}
+        </h2>
 
-        <p class="text-[15px] leading-[1.875] text-neutral-700 mb-5">
-          I provides high-quality, yet true-to-life visual content for individuals,
-          businesses and agencies alike. That led to his marketing strategies and
-          optimizing their own digital presence.
-        </p>
-
-        <p class="text-[15px] leading-[1.875] text-neutral-700 mb-8">
-          By providing powerful visuals, I help businesses to tell powerful stories
-          that sell and change minds. My goal to create an emotional connection that
-          lasts beyond their initial experience.
-        </p>
+        <div
+          data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'aboutBody'})() : undefined}
+        >
+          {paragraphs.map((p) => (
+            <p class="text-[15px] leading-[1.875] text-neutral-700 mb-5">{p}</p>
+          ))}
+        </div>
 
         <!-- Pull quote -->
         <blockquote class="border-l-4 border-[#F5C645] pl-4 mb-8">
-          <p class="text-[15px] leading-[1.875] text-neutral-800 italic">
-            "It is my policy to only offer you sharp content that reaches your goals and exceeds your expectations."
+          <p
+            class="text-[15px] leading-[1.875] text-neutral-800 italic"
+            data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'aboutQuote'})() : undefined}
+          >
+            "{settings?.aboutQuote ?? FALLBACK_QUOTE}"
           </p>
           <footer class="mt-2 text-[12px] font-bold tracking-widest uppercase text-neutral-500">— Tony</footer>
         </blockquote>
@@ -46,7 +58,7 @@ const PORTRAIT_SMALL = `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v
           href="/contact"
           class="inline-block bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase px-6 py-3 transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 cursor-pointer"
         >
-          Book Your Shoot
+          {settings?.heroCta ?? 'Book Your Shoot'}
         </a>
       </div>
 

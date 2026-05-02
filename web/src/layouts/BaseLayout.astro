@@ -1,5 +1,8 @@
 ---
 import '~/styles/global.css'
+import SanityVisualEditing from '~/components/SanityVisualEditing'
+import DisableDraftMode from '~/components/DisableDraftMode'
+import {perspectiveCookieName} from '@sanity/preview-url-secret/constants'
 
 interface Props {
   title?: string
@@ -14,6 +17,8 @@ const {
   ogImage,
   noIndex = false,
 } = Astro.props
+
+const draftMode = Astro.cookies.has(perspectiveCookieName)
 ---
 
 <!doctype html>
@@ -54,5 +59,11 @@ const {
       Skip to content
     </a>
     <slot />
+    {draftMode && (
+      <>
+        <SanityVisualEditing client:only="react" />
+        <DisableDraftMode client:only="react" />
+      </>
+    )}
   </body>
 </html>

@@ -1,11 +1,13 @@
 ---
-import type { FeaturedTestimonial } from '~/lib/queries'
+import { createDataAttribute } from '@sanity/visual-editing'
+import type { FeaturedTestimonial, SiteSettings } from '~/lib/queries'
 
 interface Props {
   testimonials?: FeaturedTestimonial[]
+  settings?: SiteSettings | null
 }
 
-const { testimonials } = Astro.props
+const { testimonials, settings } = Astro.props
 
 const FALLBACK_TESTIMONIALS: FeaturedTestimonial[] = [
   {
@@ -80,16 +82,17 @@ const FALLBACK_TESTIMONIALS: FeaturedTestimonial[] = [
   },
 ]
 
-const items =
-  testimonials && testimonials.length > 0 ? testimonials : FALLBACK_TESTIMONIALS
+const hasSanityTestimonials = testimonials && testimonials.length > 0
+const items = hasSanityTestimonials ? testimonials : FALLBACK_TESTIMONIALS
 ---
 
 <section id="testimonials-section" class="bg-black py-20">
   <div class="max-w-5xl mx-auto px-6">
     <h2
       class="text-[#F5C645] text-[32px] md:text-[40px] font-bold tracking-tight text-center mb-14"
+      data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'testimonialsHeading'})() : undefined}
     >
-      Testimonials
+      {settings?.testimonialsHeading ?? 'Testimonials'}
     </h2>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -99,6 +102,7 @@ const items =
             class="flex flex-col bg-neutral-900 border border-neutral-800 rounded-sm p-6"
             data-animate
             data-delay={Math.min(i, 5) * 80}
+            data-sanity={hasSanityTestimonials ? createDataAttribute({id: t._id, type: 'testimonial', path: 'quote'})() : undefined}
           >
             {/* Decorative quotation mark */}
             <div

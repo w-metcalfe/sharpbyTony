@@ -1,5 +1,6 @@
 ---
 import { imageUrl, WIX } from '~/lib/imageUrl'
+import { createDataAttribute } from '@sanity/visual-editing'
 import type { FeaturedClient } from '~/lib/queries'
 
 interface Props {
@@ -7,6 +8,10 @@ interface Props {
 }
 
 const { clients } = Astro.props
+
+// Only show Sanity clients that have a logo uploaded; fall back to Wix CDN otherwise
+const sanityClients = (clients ?? []).filter((c) => c.logo?.asset)
+const hasSanityClients = sanityClients.length > 0
 
 /* Fallback clients from the original Wix site */
 const FALLBACK_CLIENTS: Array<{ name: string; src: string; w: number; h: number }> = [
@@ -65,13 +70,14 @@ const FALLBACK_CLIENTS: Array<{ name: string; src: string; w: number; h: number 
   <div class="max-w-7xl mx-auto px-6">
     <div class="flex flex-wrap justify-center items-center gap-x-10 gap-y-4">
       {
-        clients && clients.length > 0
-          ? clients.map((c) => (
+        hasSanityClients
+          ? sanityClients.map((c) => (
               <a
                 href={c.website ?? '#'}
                 target={c.website ? '_blank' : undefined}
                 rel={c.website ? 'noreferrer noopener' : undefined}
                 class="flex items-center justify-center"
+                data-sanity={createDataAttribute({id: c._id, type: 'client', path: 'logo'})()}
               >
                 <img
                   src={imageUrl(c.logo, { width: 180, height: 72 })}

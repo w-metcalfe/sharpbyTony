@@ -62,6 +62,8 @@ export type SiteSettings = {
   title: string
   tagline: string
   heroBody?: string
+  heroKicker?: string
+  heroCta?: string
   description: string
   logo: SanityImage
   favicon: SanityImage
@@ -72,6 +74,13 @@ export type SiteSettings = {
   socialLinks?: Array<{platform: string; url: string}>
   primaryReelVideo?: VideoEmbed
   serviceArea?: string[]
+  aboutHeading?: string
+  aboutBody?: string
+  aboutQuote?: string
+  projectsHeading?: string
+  projectsSubheading?: string
+  testimonialsHeading?: string
+  contactHeading?: string
 }
 
 export type ProjectCard = {
@@ -163,6 +172,8 @@ export const siteSettingsQuery = groq`
     title,
     tagline,
     heroBody,
+    heroKicker,
+    heroCta,
     description,
     logo { asset, alt },
     favicon { asset, alt },
@@ -172,7 +183,14 @@ export const siteSettingsQuery = groq`
     address { locality, region },
     socialLinks[] { platform, url },
     primaryReelVideo { provider, url, posterFrame { asset, alt, hotspot, crop } },
-    serviceArea
+    serviceArea,
+    aboutHeading,
+    aboutBody,
+    aboutQuote,
+    projectsHeading,
+    projectsSubheading,
+    testimonialsHeading,
+    contactHeading
   }
 `
 

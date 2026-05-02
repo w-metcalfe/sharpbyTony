@@ -10,7 +10,8 @@ import TestimonialsSection from '~/components/TestimonialsSection.astro'
 import ContactSection from '~/components/ContactSection.astro'
 import Footer from '~/components/Footer.astro'
 
-import { sanityFetch } from '~/lib/sanity'
+import {loadQuery} from '~/lib/load-query'
+import {getDraftModeProps} from '~/lib/draft-mode'
 import {
   siteSettingsQuery,
   featuredClientsQuery,
@@ -22,13 +23,20 @@ import {
   type FeaturedTestimonial,
 } from '~/lib/queries'
 
+const draftProps = getDraftModeProps(Astro.cookies)
+
 // Fetch all data in parallel; any individual failure returns null and the
 // component falls back to hardcoded placeholder content.
-const [settings, clients, projects, testimonials] = await Promise.all([
-  sanityFetch<SiteSettings | null>(siteSettingsQuery).catch(() => null),
-  sanityFetch<FeaturedClient[]>(featuredClientsQuery).catch(() => []),
-  sanityFetch<ProjectCard[]>(featuredProjectsQuery).catch(() => []),
-  sanityFetch<FeaturedTestimonial[]>(featuredTestimonialsQuery).catch(() => []),
+const [
+  {data: settings},
+  {data: clients},
+  {data: projects},
+  {data: testimonials},
+] = await Promise.all([
+  loadQuery<SiteSettings | null>({query: siteSettingsQuery, ...draftProps}).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
+  loadQuery<FeaturedClient[]>({query: featuredClientsQuery, ...draftProps}).catch(() => ({data: [], sourceMap: undefined, perspective: 'published' as const})),
+  loadQuery<ProjectCard[]>({query: featuredProjectsQuery, ...draftProps}).catch(() => ({data: [], sourceMap: undefined, perspective: 'published' as const})),
+  loadQuery<FeaturedTestimonial[]>({query: featuredTestimonialsQuery, ...draftProps}).catch(() => ({data: [], sourceMap: undefined, perspective: 'published' as const})),
 ])
 
 const title = settings
@@ -48,8 +56,8 @@ const description =
     <ClientsSection clients={clients} />
     <AboutSection settings={settings} />
     <DemoReelSection settings={settings} />
-    <ProjectHighlights projects={projects} />
-    <TestimonialsSection testimonials={testimonials} />
+    <ProjectHighlights projects={projects} settings={settings} />
+    <TestimonialsSection testimonials={testimonials} settings={settings} />
     <ContactSection settings={settings} />
   </main>
 

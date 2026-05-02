@@ -1,4 +1,6 @@
 ---
+import { stegaClean } from '@sanity/client/stega'
+import { createDataAttribute } from '@sanity/visual-editing'
 import type { SiteSettings } from '~/lib/queries'
 
 interface Props {
@@ -8,9 +10,12 @@ interface Props {
 const { settings } = Astro.props
 
 const email = settings?.contactEmail ?? 'TONY@SHARPBYTONY.COM'
+// stegaClean strips invisible stega chars so href and regex aren't broken
+const emailHref = stegaClean(email)
 const rawPhone = settings?.contactPhone ?? '5199027253'
+const phoneHref = stegaClean(rawPhone)
 // Format as 519 . 902 . 7253
-const phone = rawPhone.replace(/(\d{3})(\d{3})(\d{4})/, '$1 . $2 . $3')
+const phone = phoneHref.replace(/(\d{3})(\d{3})(\d{4})/, '$1 . $2 . $3')
 
 const socials = settings?.socialLinks ?? [
   { platform: 'facebook', url: 'https://www.facebook.com/sharpbytony' },
@@ -23,20 +28,25 @@ const socials = settings?.socialLinks ?? [
   <div class="grid md:grid-cols-2">
     <!-- Left: contact info on white card -->
     <div class="bg-white px-10 py-16 flex flex-col justify-center">
-      <h2 class="text-[48px] font-bold tracking-tight mb-6 text-black">
-        Let's Get To Work
+      <h2
+        class="text-[48px] font-bold tracking-tight mb-6 text-black"
+        data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'contactHeading'})() : undefined}
+      >
+        {settings?.contactHeading ?? "Let's Get To Work"}
       </h2>
 
       <a
-        href={`mailto:${email}`}
+        href={`mailto:${emailHref}`}
         class="text-[12px] font-bold tracking-widest uppercase text-black hover:text-[#F5C645] transition-colors mb-5 inline-block focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 rounded-sm"
+        data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'contactEmail'})() : undefined}
       >
         {email.toUpperCase()}
       </a>
 
       <a
-        href={`tel:${rawPhone}`}
+        href={`tel:${phoneHref}`}
         class="text-[28px] font-bold text-black hover:text-[#F5C645] transition-colors inline-block mb-8 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 rounded-sm"
+        data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'contactPhone'})() : undefined}
       >
         {phone}
       </a>
@@ -46,7 +56,7 @@ const socials = settings?.socialLinks ?? [
         {
           socials.map(({ platform, url }) => (
             <a
-              href={url}
+              href={stegaClean(url)}
               target="_blank"
               rel="noreferrer noopener"
               aria-label={`Sharp by Tony on ${platform}`}
