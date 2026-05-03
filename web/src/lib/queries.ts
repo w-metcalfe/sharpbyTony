@@ -317,6 +317,24 @@ export const featuredClientsQuery = groq`
   }
 `
 
+/** All video-type projects sorted by manual order then newest first. */
+export const videoProjectsQuery = groq`
+  *[_type == "project" && mediaType == "video"] | order(order asc, publishedAt desc) {
+    _id,
+    title,
+    slug,
+    vertical,
+    mediaType,
+    thumbnail { asset, alt, hotspot, crop },
+    shortDescription,
+    featured,
+    featuredOnReel,
+    publishedAt,
+    client->{ name },
+    service->{ title, slug }
+  }
+`
+
 /** Testimonials flagged as featured, sorted by manual order. */
 export const featuredTestimonialsQuery = groq`
   *[_type == "testimonial" && featured == true] | order(order asc) {

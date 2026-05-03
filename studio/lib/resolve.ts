@@ -8,6 +8,7 @@ export const resolve: PresentationPluginOptions['resolve'] = {
         locations: [
           {title: 'Home', href: '/'},
           {title: 'About', href: '/about'},
+          {title: 'Video', href: '/videos'},
         ],
       }),
     }),
