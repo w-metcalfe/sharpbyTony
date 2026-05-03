@@ -44,6 +44,9 @@ const draftMode = Astro.cookies.has(perspectiveCookieName)
       type="image/jpeg"
     />
 
+    <!-- Canonical -->
+    <link rel="canonical" href={new URL(Astro.url.pathname, 'https://sharpbytony.com').href} />
+
     <!-- Twitter / X card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />

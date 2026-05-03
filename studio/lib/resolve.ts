@@ -5,7 +5,10 @@ export const resolve: PresentationPluginOptions['resolve'] = {
     siteSettings: defineLocations({
       select: {title: 'title'},
       resolve: () => ({
-        locations: [{title: 'Home', href: '/'}],
+        locations: [
+          {title: 'Home', href: '/'},
+          {title: 'About', href: '/about'},
+        ],
       }),
     }),
     project: defineLocations({

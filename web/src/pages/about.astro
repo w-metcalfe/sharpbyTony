@@ -1,0 +1,259 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import Header from '~/components/Header.astro'
+import ContactSection from '~/components/ContactSection.astro'
+import Footer from '~/components/Footer.astro'
+
+import {loadQuery} from '~/lib/load-query'
+import {getDraftModeProps} from '~/lib/draft-mode'
+import {imageUrl, WIX} from '~/lib/imageUrl'
+import {createDataAttribute} from '@sanity/visual-editing'
+import {
+  siteSettingsQuery,
+  pageBySlugQuery,
+  type SiteSettings,
+  type Page,
+  type PortableTextBlock,
+} from '~/lib/queries'
+
+const draftProps = getDraftModeProps(Astro.cookies)
+
+const [{data: settings}, {data: page}] = await Promise.all([
+  loadQuery<SiteSettings | null>({query: siteSettingsQuery, ...draftProps}).catch(() => ({
+    data: null,
+    sourceMap: undefined,
+    perspective: 'published' as const,
+  })),
+  loadQuery<Page | null>({
+    query: pageBySlugQuery,
+    params: {slug: 'about'},
+    ...draftProps,
+  }).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
+])
+
+// SEO
+const pageTitle =
+  page?.seo?.metaTitle ?? `About | ${settings?.title ?? 'Sharp by Tony'}`
+const pageDescription =
+  page?.seo?.metaDescription ??
+  settings?.description ??
+  'Antonio Martinez is a video director, photographer, and designer based in London, Ontario.'
+const ogImageUrl = page?.seo?.ogImage?.asset
+  ? imageUrl(page.seo.ogImage, {width: 1200, height: 630, quality: 85})
+  : undefined
+const noIndex = page?.seo?.noIndex ?? false
+
+// Bio
+const PORTRAIT = `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/crop/x_0,y_171,w_3648,h_5130/fill/w_448,h_630,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/CapturedByThea_Antonio-66.jpg`
+
+const FALLBACK_BIO_HEADING = "I'm Antonio, a creative problem solver."
+const FALLBACK_BIO_PARAGRAPHS = [
+  'From creative planning to final delivery, I work with anyone — from businesses to agencies to even individuals — to ensure every project is executed with both technical precision and creative intent. I work across a range of formats and platforms, using everything from FPV drones to cinema cameras, and have experience leading smaller crews on a variety of shoots.',
+  'My background includes hands-on experience as a rental technician, where I helped manage a warehouse of high-end gear, as well as working as a grip and lighting technician on a range of high-end commercial sets, documentaries, and short films. These roles taught me the importance of gear QC, lighting setups, and working efficiently on fast-paced sets.',
+  'I studied Advanced Filmmaking at Fanshawe College and completed the Camera Assistant program at Sheridan College. Outside of work, I\'m passionate about endurance challenges like long-distance cycling and winter camping, and enjoy learning intricate skills like grafting, solving a Rubik\'s Cube, or mastering 12-hour Tonkotsu ramen recipes.',
+  'A big part of who I am is a love for delicate and intricate processes that combine technical details and creativity!',
+]
+
+// Minimal portable text → HTML renderer.
+// Handles the decorators and link annotation declared in studio/schemas/documents/page.ts.
+// Content originates from Sanity (trusted), so set:html is safe here.
+function renderBlocks(blocks: PortableTextBlock[]): string {
+  return blocks
+    .map((block) => {
+      if (block._type !== 'block') return ''
+
+      const children = block.children ?? []
+      const inner = children
+        .map((child) => {
+          if (child._type !== 'span') return ''
+          let text = child.text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+
+          const markDefs = block.markDefs ?? []
+          const marks = child.marks ?? []
+
+          // Apply annotations first (links)
+          for (const mark of marks) {
+            const def = markDefs.find((d) => d._key === mark)
+            if (def?._type === 'link') {
+              const href = def.href ?? '#'
+              const target = def.blank ? ' target="_blank" rel="noreferrer noopener"' : ''
+              text = `<a href="${href}"${target} class="text-[#F5C645] underline hover:opacity-80">${text}</a>`
+            }
+          }
+          // Apply decorators
+          if (marks.includes('strong')) text = `<strong>${text}</strong>`
+          if (marks.includes('em')) text = `<em>${text}</em>`
+          if (marks.includes('underline')) text = `<u>${text}</u>`
+          if (marks.includes('strike-through')) text = `<s>${text}</s>`
+          if (marks.includes('code')) text = `<code class="font-mono text-sm bg-neutral-100 px-1 rounded">${text}</code>`
+          return text
+        })
+        .join('')
+
+      const style = block.style ?? 'normal'
+      if (style === 'h2') return `<h2 class="bio-heading text-[32px] font-bold tracking-tight mt-8 mb-4">${inner}</h2>`
+      if (style === 'h3') return `<h3 class="bio-heading text-[24px] font-bold tracking-tight mt-6 mb-3">${inner}</h3>`
+      if (style === 'h4') return `<h4 class="bio-heading text-[18px] font-bold tracking-tight mt-4 mb-2">${inner}</h4>`
+      if (block.listItem === 'bullet') return `<li class="ml-4 list-disc text-[15px] leading-[1.875]">${inner}</li>`
+      return `<p class="text-[15px] leading-[1.875] mb-5">${inner}</p>`
+    })
+    .join('\n')
+}
+
+const bodyHtml = page?.body?.length ? renderBlocks(page.body) : null
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  ogImage={ogImageUrl}
+  noIndex={noIndex}
+>
+  <Header currentPath="/about" />
+
+  <main id="main-content">
+    <!-- ───────────────────────────── BIO SECTION ───────────────────────────── -->
+    <section id="about-bio" class="bg-black relative pt-20 pb-24">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="grid md:grid-cols-2 gap-12 items-start">
+
+          <!-- Left: text -->
+          <div data-animate>
+            <!-- Yellow kicker -->
+            <p
+              class="text-[13px] font-bold tracking-[0.25em] uppercase mb-4"
+              style="color: #F5C645;"
+              data-sanity={settings
+                ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'aboutHeading'})()
+                : undefined}
+            >
+              {settings?.aboutHeading ?? 'About Me'}
+            </p>
+
+            <h1
+              class="text-white text-[32px] md:text-[40px] font-bold tracking-tight mb-6 leading-tight"
+              data-sanity={page
+                ? createDataAttribute({id: page._id, type: 'page', path: 'heroHeading'})()
+                : undefined}
+            >
+              {page?.heroHeading ?? FALLBACK_BIO_HEADING}
+            </h1>
+
+            <!-- Portable text body or fallback paragraphs -->
+            <div
+              class="bio-body"
+              data-sanity={page
+                ? createDataAttribute({id: page._id, type: 'page', path: 'body'})()
+                : undefined}
+            >
+              {bodyHtml ? (
+                <Fragment set:html={bodyHtml} />
+              ) : (
+                FALLBACK_BIO_PARAGRAPHS.map((p) => (
+                  <p class="text-[15px] leading-[1.875] mb-5">{p}</p>
+                ))
+              )}
+            </div>
+
+            <!-- Pull quote accent -->
+            <blockquote class="border-l-4 border-[#F5C645] pl-4 mb-8 mt-2">
+              <p class="text-[15px] leading-[1.875] text-neutral-200 italic">
+                "It is my policy to only offer you sharp content that reaches your goals and exceeds your expectations."
+              </p>
+              <footer class="mt-2 text-[12px] font-bold tracking-widest uppercase text-neutral-500">— Tony</footer>
+            </blockquote>
+
+            <!-- CTA -->
+            <a
+              href="/contact"
+              class="inline-block bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase px-6 py-3 transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black cursor-pointer"
+            >
+              Book Your Shoot
+            </a>
+          </div>
+
+          <!-- Right: portrait -->
+          <div class="relative" data-animate data-delay="150">
+            <img
+              src={PORTRAIT}
+              alt="Antonio Martinez – Sharp by Tony"
+              width="448"
+              height="630"
+              class="w-full max-w-[380px] mx-auto object-cover"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────────────── CONTACT ───────────────────────────── -->
+    <ContactSection settings={settings} />
+  </main>
+
+  <Footer settings={settings} />
+</BaseLayout>
+
+<style>
+  /* set:html-injected elements don't get Astro's scope hash, so use :global() */
+  .bio-body :global(p),
+  .bio-body :global(li) {
+    color: rgb(212 212 212); /* neutral-300 */
+  }
+
+  .bio-body :global(.bio-heading) {
+    color: #ffffff;
+  }
+
+  blockquote p {
+    color: rgb(229 229 229); /* neutral-200 */
+  }
+
+  blockquote footer {
+    color: rgb(115 115 115); /* neutral-500 */
+  }
+
+  [data-animate] {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  [data-animate].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-animate] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (!prefersReduced) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement
+            const delay = el.dataset.delay ? parseInt(el.dataset.delay) : 0
+            setTimeout(() => el.classList.add('is-visible'), delay)
+            observer.unobserve(el)
+          }
+        })
+      },
+      {threshold: 0.15},
+    )
+
+    document.querySelectorAll('#about-bio [data-animate]').forEach((el) => observer.observe(el))
+  }
+</script>
