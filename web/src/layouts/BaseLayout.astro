@@ -62,11 +62,7 @@ const draftMode = Astro.cookies.has(perspectiveCookieName)
       Skip to content
     </a>
     <slot />
-    {draftMode && (
-      <>
-        <SanityVisualEditing client:only="react" />
-        <DisableDraftMode client:only="react" />
-      </>
-    )}
+    <SanityVisualEditing client:only="react" />
+    {draftMode && <DisableDraftMode client:only="react" />}
   </body>
 </html>

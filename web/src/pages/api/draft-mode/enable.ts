@@ -21,10 +21,12 @@ export const GET: APIRoute = async ({request, cookies, redirect}) => {
     return new Response('Invalid preview secret', {status: 401})
   }
 
+  const isLocalhost = new URL(request.url).hostname === 'localhost'
+
   cookies.set(perspectiveCookieName, studioPreviewPerspective ?? 'drafts', {
     httpOnly: false,
-    sameSite: 'none',
-    secure: true,
+    sameSite: isLocalhost ? 'lax' : 'none',
+    secure: !isLocalhost,
     path: '/',
   })
 

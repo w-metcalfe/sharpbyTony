@@ -317,6 +317,23 @@ export const featuredClientsQuery = groq`
   }
 `
 
+/** All photo-type projects sorted by manual order then newest first. */
+export const photoProjectsQuery = groq`
+  *[_type == "project" && mediaType == "photo"] | order(order asc, publishedAt desc) {
+    _id,
+    title,
+    slug,
+    vertical,
+    mediaType,
+    thumbnail { asset, alt, hotspot, crop },
+    shortDescription,
+    featured,
+    publishedAt,
+    client->{ name },
+    service->{ title, slug }
+  }
+`
+
 /** All video-type projects sorted by manual order then newest first. */
 export const videoProjectsQuery = groq`
   *[_type == "project" && mediaType == "video"] | order(order asc, publishedAt desc) {

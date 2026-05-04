@@ -9,6 +9,8 @@ export const resolve: PresentationPluginOptions['resolve'] = {
           {title: 'Home', href: '/'},
           {title: 'About', href: '/about'},
           {title: 'Video', href: '/videos'},
+          {title: 'Demo Reel', href: '/demo-reel'},
+          {title: 'Photo', href: '/photography'},
         ],
       }),
     }),

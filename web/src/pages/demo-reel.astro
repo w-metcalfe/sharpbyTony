@@ -1,0 +1,144 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import Header from '~/components/Header.astro'
+import ContactSection from '~/components/ContactSection.astro'
+import Footer from '~/components/Footer.astro'
+
+import {loadQuery} from '~/lib/load-query'
+import {getDraftModeProps} from '~/lib/draft-mode'
+import {imageUrl} from '~/lib/imageUrl'
+import {createDataAttribute} from '@sanity/visual-editing'
+import {
+  siteSettingsQuery,
+  pageBySlugQuery,
+  type SiteSettings,
+  type Page,
+} from '~/lib/queries'
+
+const draftProps = getDraftModeProps(Astro.cookies)
+
+const [{data: settings}, {data: page}] = await Promise.all([
+  loadQuery<SiteSettings | null>({query: siteSettingsQuery, ...draftProps}).catch(() => ({
+    data: null,
+    sourceMap: undefined,
+    perspective: 'published' as const,
+  })),
+  loadQuery<Page | null>({
+    query: pageBySlugQuery,
+    params: {slug: 'demo-reel'},
+    ...draftProps,
+  }).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
+])
+
+// SEO
+const pageTitle = page?.seo?.metaTitle ?? `Demo Reel | ${settings?.title ?? 'Sharp by Tony'}`
+const pageDescription =
+  page?.seo?.metaDescription ??
+  'Watch the Sharp by Tony demo reel — sharp, strategic video production in London, Ontario.'
+const ogImageUrl = page?.seo?.ogImage?.asset
+  ? imageUrl(page.seo.ogImage, {width: 1200, height: 630, quality: 85})
+  : undefined
+const noIndex = page?.seo?.noIndex ?? false
+
+// Hero video embed
+const reel = settings?.primaryReelVideo
+let embedUrl: string | null = null
+if (reel) {
+  if (reel.provider === 'youtube') {
+    const id = reel.url.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1]
+    if (id) embedUrl = `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`
+  } else if (reel.provider === 'vimeo') {
+    const id = reel.url.match(/vimeo\.com\/(\d+)/)?.[1]
+    if (id) embedUrl = `https://player.vimeo.com/video/${id}?dnt=1`
+  }
+}
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  ogImage={ogImageUrl}
+  noIndex={noIndex}
+>
+  <Header currentPath="/demo-reel" />
+
+  <main id="main-content">
+
+    <!-- ─────────────────────────── VIDEO HERO ─────────────────────────── -->
+    <section class="relative w-full bg-black" aria-label="Demo reel hero">
+      <!-- 16:9 video or dark placeholder -->
+      <div class="relative w-full aspect-video">
+        {embedUrl ? (
+          <iframe
+            src={embedUrl}
+            title="Sharp by Tony – Demo Reel"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            class="absolute inset-0 w-full h-full border-0"
+          />
+        ) : (
+          <div class="absolute inset-0 bg-neutral-900" aria-hidden="true" />
+        )}
+
+        <!-- Overlay: kicker + title + play link -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-black/40">
+          <div class="hero-text text-center px-6">
+            <p
+              class="text-[12px] font-bold tracking-[0.3em] uppercase mb-3"
+              style="color: #F5C645;"
+            >
+              DEMO REEL | SHARP BY TONY
+            </p>
+            <h1
+              class="text-white text-[48px] md:text-[72px] font-bold tracking-tight leading-none"
+              data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'title'})() : undefined}
+            >
+              {page?.title ?? 'DEMO REEL.'}
+            </h1>
+          </div>
+
+          <!-- Play button -->
+          <a
+            href="#"
+            class="flex items-center gap-3 text-white hover:text-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
+            aria-label="Watch demo reel"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              class="w-14 h-14"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none" />
+            </svg>
+            <span class="hidden md:inline text-[13px] font-bold tracking-widest uppercase underline underline-offset-4">
+              Watch Reel
+            </span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────── CONTACT ──────────────────────── -->
+    <ContactSection settings={settings} />
+  </main>
+
+  <Footer settings={settings} />
+</BaseLayout>
+
+<style>
+  /* Hero fade-up */
+  @keyframes fade-up {
+    from {opacity: 0; transform: translateY(24px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-text {
+      animation: fade-up 0.6s ease-out both;
+    }
+  }
+</style>

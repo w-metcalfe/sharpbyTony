@@ -1,0 +1,493 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import Header from '~/components/Header.astro'
+import ContactSection from '~/components/ContactSection.astro'
+import Footer from '~/components/Footer.astro'
+
+import {loadQuery} from '~/lib/load-query'
+import {getDraftModeProps} from '~/lib/draft-mode'
+import {imageUrl, WIX} from '~/lib/imageUrl'
+import {createDataAttribute} from '@sanity/visual-editing'
+import {
+  siteSettingsQuery,
+  pageBySlugQuery,
+  photoProjectsQuery,
+  type SiteSettings,
+  type Page,
+  type ProjectCard,
+} from '~/lib/queries'
+
+const draftProps = getDraftModeProps(Astro.cookies)
+
+const [{data: settings}, {data: page}, {data: photoProjects}] = await Promise.all([
+  loadQuery<SiteSettings | null>({query: siteSettingsQuery, ...draftProps}).catch(() => ({
+    data: null,
+    sourceMap: undefined,
+    perspective: 'published' as const,
+  })),
+  loadQuery<Page | null>({
+    query: pageBySlugQuery,
+    params: {slug: 'photography'},
+    ...draftProps,
+  }).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
+  loadQuery<ProjectCard[]>({query: photoProjectsQuery, ...draftProps}).catch(() => ({
+    data: [],
+    sourceMap: undefined,
+    perspective: 'published' as const,
+  })),
+])
+
+// SEO
+const pageTitle = page?.seo?.metaTitle ?? `Photo | ${settings?.title ?? 'Sharp by Tony'}`
+const pageDescription =
+  page?.seo?.metaDescription ??
+  'Professional photography in London, Ontario. Sharp, strategic imagery for construction, lifestyle, and luxury brands by Antonio Martinez.'
+const ogImageUrl = page?.seo?.ogImage?.asset
+  ? imageUrl(page.seo.ogImage, {width: 1200, height: 630, quality: 85})
+  : undefined
+const noIndex = page?.seo?.noIndex ?? false
+
+// Hero background — portrait/lifestyle shot
+const HERO_BG = `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/fill/w_1920,h_800,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg`
+
+// Fallback gallery images — varied sizes to simulate masonry feel
+const FALLBACK_PHOTOS: Array<{title: string; src: string; width: number; height: number}> = [
+  {
+    title: 'Greenhouse',
+    src: `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/fill/w_480,h_640,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg`,
+    width: 480,
+    height: 640,
+  },
+  {
+    title: 'Construction',
+    src: `${WIX}/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg/v1/fill/w_640,h_427,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg`,
+    width: 640,
+    height: 427,
+  },
+  {
+    title: 'Portrait',
+    src: `${WIX}/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg/v1/fill/w_480,h_600,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg`,
+    width: 480,
+    height: 600,
+  },
+  {
+    title: 'Interior',
+    src: `${WIX}/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg/v1/fill/w_640,h_480,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg`,
+    width: 640,
+    height: 480,
+  },
+  {
+    title: 'Lifestyle',
+    src: `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/fill/w_480,h_720,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg`,
+    width: 480,
+    height: 720,
+  },
+  {
+    title: 'Brand',
+    src: `${WIX}/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg/v1/fill/w_640,h_360,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg`,
+    width: 640,
+    height: 360,
+  },
+  {
+    title: 'Product',
+    src: `${WIX}/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg/v1/fill/w_480,h_480,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg`,
+    width: 480,
+    height: 480,
+  },
+  {
+    title: 'Architecture',
+    src: `${WIX}/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg/v1/fill/w_640,h_640,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg`,
+    width: 640,
+    height: 640,
+  },
+  {
+    title: 'Event',
+    src: `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/fill/w_480,h_560,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg`,
+    width: 480,
+    height: 560,
+  },
+]
+
+const hasProjects = photoProjects && photoProjects.length > 0
+
+// Build a unified gallery item list for the lightbox to reference
+type GalleryItem = {
+  src: string
+  width: number
+  height: number
+  title: string
+  client?: string
+  projectSlug?: string
+  sanityId?: string
+}
+
+const galleryItems: GalleryItem[] = hasProjects
+  ? (photoProjects as ProjectCard[]).map((p) => ({
+      src: imageUrl(p.thumbnail, {width: 1200, height: 900, quality: 85}),
+      width: 1200,
+      height: 900,
+      title: p.title,
+      client: p.client?.name,
+      projectSlug: p.slug.current,
+      sanityId: p._id,
+    }))
+  : FALLBACK_PHOTOS.map((p) => ({
+      src: p.src,
+      width: p.width,
+      height: p.height,
+      title: p.title,
+    }))
+
+const GALLERY_HEADING = page?.heroHeading ?? 'PHOTO WORK.'
+const GALLERY_SUBHEADING =
+  page?.heroSubheading ??
+  'A selection of photography across construction, lifestyle, and luxury brands.'
+---
+
+<BaseLayout title={pageTitle} description={pageDescription} ogImage={ogImageUrl} noIndex={noIndex}>
+  <Header currentPath="/photography" />
+
+  <main id="main-content">
+
+    <!-- ───────────────────────── PHOTO HERO ───────────────────────── -->
+    <section class="relative w-full bg-black overflow-hidden flex items-center justify-center" style="min-height: clamp(320px, 50vh, 560px);" aria-label="Photography hero">
+      <!-- Background photo -->
+      <img
+        src={HERO_BG}
+        alt="Sharp by Tony photography"
+        fetchpriority="high"
+        width="1920"
+        height="800"
+        class="absolute inset-0 w-full h-full object-cover object-center"
+      />
+
+      <!-- Dark overlay -->
+      <div class="absolute inset-0 bg-black/60" aria-hidden="true" />
+
+      <!-- Centered text -->
+      <div class="relative z-10 flex flex-col items-center justify-center h-full px-6 py-20 text-center">
+        <div class="hero-text">
+          <p class="text-[12px] font-bold tracking-[0.3em] uppercase mb-3" style="color: #F5C645;">
+            PHOTO | SHARP BY TONY
+          </p>
+          <h1
+            class="text-white text-[48px] md:text-[72px] font-bold tracking-tight leading-none"
+            data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'title'})() : undefined}
+          >
+            {page?.title ?? 'PHOTO.'}
+          </h1>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────── PHOTO GALLERY ─────────────────────── -->
+    <section id="photo-gallery" class="bg-black py-20">
+      <div class="max-w-6xl mx-auto px-6">
+
+        <!-- Heading -->
+        <div class="mb-12 text-center" data-animate>
+          <h2
+            class="text-[#F5C645] text-[32px] md:text-[40px] font-bold tracking-tight mb-4"
+            data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'heroHeading'})() : undefined}
+          >
+            {GALLERY_HEADING}
+          </h2>
+          <p
+            class="text-neutral-400 text-[16px] md:text-[18px] max-w-xl mx-auto leading-relaxed mb-6"
+            data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'heroSubheading'})() : undefined}
+          >
+            {GALLERY_SUBHEADING}
+          </p>
+        </div>
+
+        <!-- Masonry grid -->
+        <div class="masonry-grid gap-3 md:gap-4">
+          {galleryItems.map((item, i) => (
+            <button
+              type="button"
+              class="masonry-item group relative block w-full overflow-hidden bg-neutral-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black"
+              data-lightbox-index={i}
+              data-title={item.title}
+              data-client={item.client ?? ''}
+              data-animate
+              data-delay={Math.min(i * 60, 480)}
+              aria-label={`View ${item.title}${item.client ? ` — ${item.client}` : ''} in full screen`}
+              data-sanity={item.sanityId ? createDataAttribute({id: item.sanityId, type: 'project', path: 'thumbnail'})() : undefined}
+            >
+              <img
+                src={item.src}
+                alt={item.title}
+                width={item.width}
+                height={item.height}
+                class="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                loading={i < 4 ? 'eager' : 'lazy'}
+              />
+              <!-- Hover overlay -->
+              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors duration-300 flex items-end justify-start p-3">
+                {item.client && (
+                  <p class="text-white text-[11px] font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    {item.client}
+                  </p>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────── LIGHTBOX ──────────────────────────── -->
+    <dialog
+      id="photo-lightbox"
+      class="fixed inset-0 w-full h-full max-w-none max-h-none m-0 p-0 bg-transparent border-0 z-[200]"
+      aria-label="Photo lightbox"
+      aria-modal="true"
+    >
+      <!-- Backdrop (click to close) -->
+      <div id="lb-backdrop" class="absolute inset-0 bg-black/95" aria-hidden="true" />
+
+      <!-- Close button -->
+      <button
+        id="lb-close"
+        type="button"
+        class="absolute top-4 right-4 z-20 flex items-center justify-center w-11 h-11 text-white hover:text-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
+        aria-label="Close lightbox"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+
+      <!-- Prev button -->
+      <button
+        id="lb-prev"
+        type="button"
+        class="absolute left-4 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
+        aria-label="Previous photo"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+
+      <!-- Next button -->
+      <button
+        id="lb-next"
+        type="button"
+        class="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
+        aria-label="Next photo"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </button>
+
+      <!-- Image + caption container -->
+      <div class="relative z-10 flex flex-col items-center justify-center h-full px-16 py-12 gap-4">
+        <img
+          id="lb-img"
+          src=""
+          alt=""
+          class="max-w-full max-h-[80vh] object-contain"
+          width="1200"
+          height="900"
+        />
+        <div id="lb-caption" class="text-center min-h-[2rem]">
+          <p id="lb-title" class="text-white text-[13px] font-bold tracking-widest uppercase" />
+          <p id="lb-client" class="text-neutral-400 text-[12px] tracking-widest uppercase mt-1" />
+        </div>
+        <!-- Counter -->
+        <p id="lb-counter" class="text-neutral-500 text-[11px] tracking-widest uppercase absolute bottom-4 left-1/2 -translate-x-1/2" />
+      </div>
+    </dialog>
+
+    <!-- ──────────────────────── CONTACT ──────────────────────── -->
+    <ContactSection settings={settings} />
+  </main>
+
+  <Footer settings={settings} />
+</BaseLayout>
+
+<style>
+  /* Hero fade-up */
+  @keyframes fade-up {
+    from {opacity: 0; transform: translateY(24px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-text {
+      animation: fade-up 0.6s ease-out both;
+    }
+  }
+
+  /* Masonry grid via CSS columns */
+  .masonry-grid {
+    columns: 1;
+    column-gap: 0.75rem;
+  }
+  @media (min-width: 640px) {
+    .masonry-grid { columns: 2; }
+  }
+  @media (min-width: 1024px) {
+    .masonry-grid { columns: 3; column-gap: 1rem; }
+  }
+
+  .masonry-item {
+    break-inside: avoid;
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+  @media (min-width: 1024px) {
+    .masonry-item { margin-bottom: 1rem; }
+  }
+
+  /* Scroll-in */
+  [data-animate] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  [data-animate].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-animate] {opacity: 1; transform: none; transition: none;}
+  }
+
+  /* Lightbox dialog */
+  #photo-lightbox {
+    display: none;
+  }
+  #photo-lightbox[open] {
+    display: block;
+  }
+  #photo-lightbox::backdrop {
+    background: rgba(0, 0, 0, 0.95);
+  }
+
+  /* Ensure lightbox controls sit above the image container */
+  #lb-close,
+  #lb-prev,
+  #lb-next {
+    z-index: 20;
+  }
+</style>
+
+<script>
+  // ── Scroll-in animation ─────────────────────────────────────────────────
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (!prefersReduced) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement
+            const delay = el.dataset.delay ? parseInt(el.dataset.delay) : 0
+            setTimeout(() => el.classList.add('is-visible'), delay)
+            observer.unobserve(el)
+          }
+        })
+      },
+      {threshold: 0.08},
+    )
+    document.querySelectorAll('#photo-gallery [data-animate]').forEach((el) => observer.observe(el))
+  }
+
+  // ── Lightbox ────────────────────────────────────────────────────────────
+  const dialog   = document.getElementById('photo-lightbox') as HTMLDialogElement | null
+  const lbImg    = document.getElementById('lb-img')        as HTMLImageElement | null
+  const lbTitle  = document.getElementById('lb-title')      as HTMLElement | null
+  const lbClient = document.getElementById('lb-client')     as HTMLElement | null
+  const lbCounter = document.getElementById('lb-counter')   as HTMLElement | null
+  const closeBtn  = document.getElementById('lb-close')     as HTMLButtonElement | null
+  const prevBtn   = document.getElementById('lb-prev')      as HTMLButtonElement | null
+  const nextBtn   = document.getElementById('lb-next')      as HTMLButtonElement | null
+  const backdrop  = document.getElementById('lb-backdrop')
+
+  if (!dialog) throw new Error('Lightbox dialog not found')
+
+  // Collect gallery items from DOM so order matches rendered output
+  const galleryBtns = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('[data-lightbox-index]')
+  )
+  const total = galleryBtns.length
+  let currentIndex = 0
+  let previouslyFocused: HTMLElement | null = null
+
+  function showPhoto(index: number) {
+    currentIndex = ((index % total) + total) % total
+    const btn    = galleryBtns[currentIndex]
+    const img    = btn.querySelector('img')
+    const title  = btn.dataset.title ?? ''
+    const client = btn.dataset.client ?? ''
+
+    if (lbImg && img) {
+      lbImg.src = img.src
+      lbImg.alt = img.alt || title
+    }
+    if (lbTitle)  lbTitle.textContent  = title
+    if (lbClient) lbClient.textContent = client
+    if (lbCounter) lbCounter.textContent = `${currentIndex + 1} / ${total}`
+  }
+
+  function openLightbox(index: number) {
+    previouslyFocused = document.activeElement as HTMLElement
+    showPhoto(index)
+    dialog!.showModal()
+    closeBtn?.focus()
+    document.body.style.overflow = 'hidden'
+  }
+
+  function closeLightbox() {
+    dialog!.close()
+    document.body.style.overflow = ''
+    previouslyFocused?.focus()
+  }
+
+  // Open on gallery button click
+  galleryBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.lightboxIndex ?? '0', 10)
+      openLightbox(idx)
+    })
+  })
+
+  // Close
+  closeBtn?.addEventListener('click', closeLightbox)
+  backdrop?.addEventListener('click', closeLightbox)
+
+  // Prev / Next
+  prevBtn?.addEventListener('click', () => showPhoto(currentIndex - 1))
+  nextBtn?.addEventListener('click', () => showPhoto(currentIndex + 1))
+
+  // Keyboard
+  dialog?.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      // dialog handles Escape natively — just restore scroll/focus
+      closeLightbox()
+      return
+    }
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); showPhoto(currentIndex - 1) }
+    if (e.key === 'ArrowRight') { e.preventDefault(); showPhoto(currentIndex + 1) }
+    // Basic focus trap: Tab cycles through close/prev/next
+    if (e.key === 'Tab') {
+      const focusable = [closeBtn, prevBtn, nextBtn].filter(Boolean) as HTMLElement[]
+      const first = focusable[0]
+      const last  = focusable[focusable.length - 1]
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus() }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus() }
+      }
+    }
+  })
+
+  // Native dialog close event (Escape key fires this)
+  dialog?.addEventListener('close', () => {
+    document.body.style.overflow = ''
+    previouslyFocused?.focus()
+  })
+</script>
