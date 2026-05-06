@@ -1,0 +1,78 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import Header from '~/components/Header.astro'
+import Footer from '~/components/Footer.astro'
+import { loadQuery } from '~/lib/load-query'
+import { getDraftModeProps } from '~/lib/draft-mode'
+import { createDataAttribute } from '@sanity/visual-editing'
+import { pageBySlugQuery, type Page } from '~/lib/queries'
+
+const draftProps = getDraftModeProps(Astro.cookies)
+const { data: page } = await loadQuery<Page | null>({
+  query: pageBySlugQuery,
+  params: { slug: 'thank-you' },
+  ...draftProps,
+}).catch(() => ({ data: null, sourceMap: undefined, perspective: 'published' as const }))
+
+const heading = page?.heroHeading ?? 'Thanks for connecting!'
+const body =
+  page?.heroSubheading ??
+  "Your message landed safely. I'll be in touch within 1 to 2 business days. Sharp work takes a little time."
+---
+
+<BaseLayout
+  title="Thanks for Connecting! | Sharp by Tony"
+  description="Thanks for reaching out to Sharp by Tony."
+  noIndex={true}
+>
+  <Header />
+
+  <main id="main-content">
+    <section class="bg-white min-h-[calc(100vh-96px)] flex items-center justify-center py-24 px-6">
+      <div
+        class="text-center max-w-lg mx-auto"
+        data-sanity={page ? createDataAttribute({ id: page._id, type: 'page', path: 'heroHeading' })() : undefined}
+      >
+        <!-- Icon -->
+        <div class="w-16 h-16 rounded-full bg-[#F5C645] flex items-center justify-center mx-auto mb-8">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="black"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-7 h-7"
+            aria-hidden="true"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+
+        <!-- Headline — stega encoding makes this click-to-edit automatically -->
+        <h1 class="text-[42px] md:text-[52px] font-bold tracking-tight text-black mb-5 leading-tight">
+          {heading}
+        </h1>
+
+        <!-- Body — stega encoding makes this click-to-edit automatically -->
+        <p
+          class="text-[16px] text-neutral-500 leading-relaxed mb-10 max-w-md mx-auto"
+          data-sanity={page ? createDataAttribute({ id: page._id, type: 'page', path: 'heroSubheading' })() : undefined}
+        >
+          {body}
+        </p>
+
+        <!-- Return to home -->
+        <a
+          href="/"
+          class="inline-block bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase px-8 py-3 transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+        >
+          &larr; Back to Home
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

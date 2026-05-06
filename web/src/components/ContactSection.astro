@@ -111,26 +111,11 @@ const socials = settings?.socialLinks ?? [
 
     <!-- Right: contact form on dark background -->
     <div class="bg-[#111111] px-10 py-16">
-      <!-- Success message (hidden until form submits) -->
-      <div
-        id="form-success"
-        class="hidden flex-col items-center justify-center h-full text-center"
-        role="status"
-        aria-live="polite"
-      >
-        <div class="w-12 h-12 rounded-full bg-[#F5C645] flex items-center justify-center mx-auto mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" class="w-6 h-6" aria-hidden="true">
-            <path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke="black" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <p class="text-white text-[15px] font-bold tracking-wide mb-2">Thanks! We'll be in touch.</p>
-        <p class="text-neutral-400 text-[13px]">Expect a reply within 1–2 business days.</p>
-      </div>
-
       <form
         id="contact-form"
         name="contact"
         method="POST"
+        action="/thank-you"
         data-netlify="true"
         netlify-honeypot="bot-field"
         class="flex flex-col gap-5"
@@ -234,11 +219,10 @@ const socials = settings?.socialLinks ?? [
 <script>
   const form = document.getElementById('contact-form') as HTMLFormElement | null
   const submitBtn = document.getElementById('contact-submit') as HTMLButtonElement | null
-  const successMsg = document.getElementById('form-success') as HTMLElement | null
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault()
-    if (!submitBtn || !form || !successMsg) return
+    if (!submitBtn || !form) return
 
     submitBtn.textContent = 'Sending…'
     submitBtn.disabled = true
@@ -252,9 +236,7 @@ const socials = settings?.socialLinks ?? [
       })
 
       if (res.ok) {
-        form.classList.add('hidden')
-        successMsg.classList.remove('hidden')
-        successMsg.classList.add('flex')
+        window.location.href = '/thank-you'
       } else {
         submitBtn.textContent = 'Submit'
         submitBtn.disabled = false
