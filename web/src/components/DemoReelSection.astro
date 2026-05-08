@@ -1,5 +1,6 @@
 ---
 import type { SiteSettings } from '~/lib/queries'
+import {stegaClean} from '@sanity/client/stega'
 
 interface Props {
   settings?: SiteSettings | null
@@ -8,78 +9,109 @@ interface Props {
 const { settings } = Astro.props
 
 const reel = settings?.primaryReelVideo
-let embedUrl: string | null = null
-
-if (reel) {
-  if (reel.provider === 'youtube') {
-    const id = reel.url.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1]
-    if (id) embedUrl = `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`
-  } else if (reel.provider === 'vimeo') {
-    const id = reel.url.match(/vimeo\.com\/(\d+)/)?.[1]
-    if (id) embedUrl = `https://player.vimeo.com/video/${id}?dnt=1`
-  }
+let videoId: string | null = null
+if (reel?.provider === 'youtube') {
+  videoId = stegaClean(reel.url).match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1] ?? null
 }
 ---
 
 <section class="relative w-full bg-black">
-  <!-- Full-bleed video / placeholder -->
-  <div class="relative w-full aspect-video">
-    {
-      embedUrl ? (
+  <div class="relative w-full aspect-video" id="demo-reel-wrapper">
+    {videoId ? (
+      <>
+        <!-- Mobile: plain iframe with default YouTube controls, no autoplay -->
         <iframe
-          src={embedUrl}
+          src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
           title="Sharp by Tony – Demo Reel"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen
-          class="absolute inset-0 w-full h-full border-0"
+          class="md:hidden absolute inset-0 w-full h-full border-0"
         />
-      ) : (
-        /* Dark background only — overlay below handles all UI */
-        <div class="absolute inset-0 bg-neutral-900" aria-hidden="true" />
-      )
-    }
-
-    <!-- Overlay: title top · play middle · CTA bottom -->
-    <div class="absolute inset-0 flex flex-col items-center justify-center gap-8 py-12 bg-black/30 lg:justify-between lg:gap-0">
-      <!-- Title -->
-      <h2
-        class="text-white text-[28px] font-bold tracking-widest uppercase"
-        style="text-shadow: rgba(0,0,0,0.6) 0px 2px 8px;"
-      >
-        DEMO REEL
-      </h2>
-
-      <!-- Play button -->
-      <a
-        href="/demo-reel"
-        class="flex items-center gap-3 text-white hover:text-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
-        aria-label="Watch demo reel"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          class="w-14 h-14"
-          aria-hidden="true"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none" />
-        </svg>
-        <span class="hidden lg:inline text-[15px] font-bold tracking-widest uppercase underline underline-offset-4">
-          Play Video
-        </span>
-      </a>
-
-      <!-- All Videos CTA -->
-      <a
-        href="/videos"
-        class="hidden lg:inline-flex items-center gap-2 border border-white text-white text-[13px] font-bold tracking-widest uppercase px-8 py-3 transition-colors hover:bg-white hover:text-black focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
-      >
-        All Videos
-        <span aria-hidden="true">+</span>
-      </a>
-    </div>
+        <!-- Desktop: YT Player API with custom autoplay/cursor/click-restart -->
+        <div id="demo-reel-player" class="hidden md:block absolute inset-0 w-full h-full" />
+        <div id="demo-reel-overlay" class="hidden md:block absolute inset-0 z-10 cursor-none" />
+        <div id="demo-reel-cursor" class="pointer-events-none absolute z-20 hidden -translate-x-1/2 -translate-y-1/2">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128" aria-hidden="true">
+            <circle cx="32" cy="32" r="32" fill="#F5C645" />
+            <polygon points="24,18 24,46 48,32" fill="black" />
+          </svg>
+        </div>
+      </>
+    ) : (
+      <div class="absolute inset-0 bg-neutral-900" aria-hidden="true" />
+    )}
   </div>
 </section>
+
+<script define:vars={{ videoId }}>
+  if (videoId && window.innerWidth >= 768) {
+    const wrapper = document.getElementById('demo-reel-wrapper')
+    const overlay = document.getElementById('demo-reel-overlay')
+    const cursor  = document.getElementById('demo-reel-cursor')
+
+    // Inject YouTube IFrame API if not already present
+    if (!window.YT) {
+      const tag = document.createElement('script')
+      tag.src = 'https://www.youtube.com/iframe_api'
+      document.head.appendChild(tag)
+    }
+
+    let player = null
+
+    function initPlayer() {
+      player = new YT.Player('demo-reel-player', {
+        videoId,
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          controls: 0,
+          loop: 1,
+          playlist: videoId,
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1,
+        },
+        events: {
+          onReady: (e) => e.target.playVideo(),
+        },
+      })
+    }
+
+    if (window.YT?.Player) {
+      initPlayer()
+    } else {
+      window.onYouTubeIframeAPIReady = initPlayer
+    }
+
+    // Custom cursor follows mouse within the wrapper
+    let lastX = 0, lastY = 0
+
+    function updateCursor() {
+      const rect = wrapper.getBoundingClientRect()
+      cursor.style.left = (lastX - rect.left) + 'px'
+      cursor.style.top  = (lastY - rect.top)  + 'px'
+    }
+
+    overlay.addEventListener('mousemove', (e) => {
+      lastX = e.clientX
+      lastY = e.clientY
+      updateCursor()
+    })
+    overlay.addEventListener('mouseenter', () => cursor.classList.remove('hidden'))
+    overlay.addEventListener('mouseleave', () => cursor.classList.add('hidden'))
+    window.addEventListener('scroll', () => {
+      if (!cursor.classList.contains('hidden')) updateCursor()
+    }, { passive: true })
+
+    // Click: restart from beginning, unmute
+    overlay.addEventListener('click', () => {
+      if (!player?.seekTo) return
+      cursor.classList.add('hidden')
+      overlay.remove()
+      player.seekTo(0)
+      player.unMute()
+      player.setVolume(100)
+      player.playVideo()
+    })
+  }
+</script>

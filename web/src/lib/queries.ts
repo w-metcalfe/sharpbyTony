@@ -114,7 +114,7 @@ export type ProjectDetail = {
   vertical: 'construction' | 'lifestyle' | 'luxury' | 'other'
   mediaType: 'video' | 'photo' | 'mixed'
   thumbnail: SanityImageCroppable
-  gallery?: SanityImageCroppable[]
+
   videoEmbed?: VideoEmbed
   shortDescription?: string
   body?: PortableTextBlock[]
@@ -269,7 +269,7 @@ export const projectBySlugQuery = groq`
     vertical,
     mediaType,
     thumbnail { asset, alt, hotspot, crop },
-    gallery[] { asset, alt, hotspot, crop },
+
     videoEmbed { provider, url, posterFrame { asset, alt, hotspot, crop } },
     shortDescription,
     body,

@@ -6,7 +6,7 @@ import Footer from '~/components/Footer.astro'
 
 import {loadQuery} from '~/lib/load-query'
 import {getDraftModeProps} from '~/lib/draft-mode'
-import {imageUrl, WIX} from '~/lib/imageUrl'
+import {imageUrl} from '~/lib/imageUrl'
 import {createDataAttribute} from '@sanity/visual-editing'
 import {
   siteSettingsQuery,
@@ -47,72 +47,14 @@ const ogImageUrl = page?.seo?.ogImage?.asset
   : undefined
 const noIndex = page?.seo?.noIndex ?? false
 
-// Hero background — portrait/lifestyle shot
-const HERO_BG = `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/fill/w_1920,h_800,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg`
-
-// Fallback gallery images — varied sizes to simulate masonry feel
-const FALLBACK_PHOTOS: Array<{title: string; src: string; width: number; height: number}> = [
-  {
-    title: 'Greenhouse',
-    src: `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/fill/w_480,h_640,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg`,
-    width: 480,
-    height: 640,
-  },
-  {
-    title: 'Construction',
-    src: `${WIX}/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg/v1/fill/w_640,h_427,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg`,
-    width: 640,
-    height: 427,
-  },
-  {
-    title: 'Portrait',
-    src: `${WIX}/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg/v1/fill/w_480,h_600,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg`,
-    width: 480,
-    height: 600,
-  },
-  {
-    title: 'Interior',
-    src: `${WIX}/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg/v1/fill/w_640,h_480,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg`,
-    width: 640,
-    height: 480,
-  },
-  {
-    title: 'Lifestyle',
-    src: `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/fill/w_480,h_720,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg`,
-    width: 480,
-    height: 720,
-  },
-  {
-    title: 'Brand',
-    src: `${WIX}/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg/v1/fill/w_640,h_360,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_d3a9bd853ccc458e8d45f88637622cc8~mv2.jpg`,
-    width: 640,
-    height: 360,
-  },
-  {
-    title: 'Product',
-    src: `${WIX}/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg/v1/fill/w_480,h_480,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg`,
-    width: 480,
-    height: 480,
-  },
-  {
-    title: 'Architecture',
-    src: `${WIX}/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg/v1/fill/w_640,h_640,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg`,
-    width: 640,
-    height: 640,
-  },
-  {
-    title: 'Event',
-    src: `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/fill/w_480,h_560,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg`,
-    width: 480,
-    height: 560,
-  },
-]
-
-const hasProjects = photoProjects && photoProjects.length > 0
+const heroBg = photoProjects?.[0]?.thumbnail
+  ? imageUrl(photoProjects[0].thumbnail, {width: 1920, height: 800, quality: 85})
+  : null
 
 // Build a unified gallery item list for the lightbox to reference
 type GalleryItem = {
   src: string
+  fullSrc: string
   width: number
   height: number
   title: string
@@ -121,22 +63,16 @@ type GalleryItem = {
   sanityId?: string
 }
 
-const galleryItems: GalleryItem[] = hasProjects
-  ? (photoProjects as ProjectCard[]).map((p) => ({
-      src: imageUrl(p.thumbnail, {width: 1200, height: 900, quality: 85}),
-      width: 1200,
-      height: 900,
-      title: p.title,
-      client: p.client?.name,
-      projectSlug: p.slug.current,
-      sanityId: p._id,
-    }))
-  : FALLBACK_PHOTOS.map((p) => ({
-      src: p.src,
-      width: p.width,
-      height: p.height,
-      title: p.title,
-    }))
+const galleryItems: GalleryItem[] = (photoProjects as ProjectCard[]).map((p) => ({
+  src: imageUrl(p.thumbnail, {width: 1200, height: 900, quality: 85}),
+  fullSrc: imageUrl(p.thumbnail, {quality: 90}),
+  width: 1200,
+  height: 900,
+  title: p.title,
+  client: p.client?.name,
+  projectSlug: p.slug.current,
+  sanityId: p._id,
+}))
 
 const GALLERY_HEADING = page?.heroHeading ?? 'PHOTO WORK.'
 const GALLERY_SUBHEADING =
@@ -152,14 +88,16 @@ const GALLERY_SUBHEADING =
     <!-- ───────────────────────── PHOTO HERO ───────────────────────── -->
     <section class="relative w-full bg-black overflow-hidden flex items-center justify-center" style="min-height: clamp(320px, 50vh, 560px);" aria-label="Photography hero">
       <!-- Background photo -->
-      <img
-        src={HERO_BG}
-        alt="Sharp by Tony photography"
-        fetchpriority="high"
-        width="1920"
-        height="800"
-        class="absolute inset-0 w-full h-full object-cover object-center"
-      />
+      {heroBg && (
+        <img
+          src={heroBg}
+          alt="Sharp by Tony photography"
+          fetchpriority="high"
+          width="1920"
+          height="800"
+          class="absolute inset-0 w-full h-full object-cover object-center"
+        />
+      )}
 
       <!-- Dark overlay -->
       <div class="absolute inset-0 bg-black/60" aria-hidden="true" />
@@ -209,6 +147,7 @@ const GALLERY_SUBHEADING =
               data-lightbox-index={i}
               data-title={item.title}
               data-client={item.client ?? ''}
+              data-full-src={item.fullSrc}
               data-animate
               data-delay={Math.min(i * 60, 480)}
               aria-label={`View ${item.title}${item.client ? ` — ${item.client}` : ''} in full screen`}
@@ -424,9 +363,9 @@ const GALLERY_SUBHEADING =
     const title  = btn.dataset.title ?? ''
     const client = btn.dataset.client ?? ''
 
-    if (lbImg && img) {
-      lbImg.src = img.src
-      lbImg.alt = img.alt || title
+    if (lbImg) {
+      lbImg.src = btn.dataset.fullSrc ?? img?.src ?? ''
+      lbImg.alt = img?.alt || title
     }
     if (lbTitle)  lbTitle.textContent  = title
     if (lbClient) lbClient.textContent = client

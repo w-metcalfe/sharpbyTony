@@ -1,5 +1,5 @@
 ---
-import { imageUrl, WIX } from '~/lib/imageUrl'
+import { imageUrl } from '~/lib/imageUrl'
 import { createDataAttribute } from '@sanity/visual-editing'
 import type { FeaturedClient } from '~/lib/queries'
 
@@ -9,99 +9,62 @@ interface Props {
 
 const { clients } = Astro.props
 
-// Only show Sanity clients that have a logo uploaded; fall back to Wix CDN otherwise
 const sanityClients = (clients ?? []).filter((c) => c.logo?.asset)
-const hasSanityClients = sanityClients.length > 0
 
-/* Fallback clients from the original Wix site */
-const FALLBACK_CLIENTS: Array<{ name: string; src: string; w: number; h: number }> = [
-  {
-    name: 'TBO',
-    src: `${WIX}/c8520e_297850f26c354a8ab0d1a47e4809e617~mv2.png/v1/fill/w_234,h_99,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/TBO.png`,
-    w: 234,
-    h: 99,
-  },
-  {
-    name: 'Nash Jewellers',
-    src: `${WIX}/c8520e_e578a99112d346fc9334144b9195b237~mv2.png/v1/fill/w_177,h_105,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/nashjewellers_since1918_logo_blue_edited.png`,
-    w: 177,
-    h: 105,
-  },
-  {
-    name: 'Opportunity Bridal',
-    src: `${WIX}/c8520e_20697536c1fc47d595824158f3072a82~mv2.png/v1/crop/x_9,y_0,w_1583,h_451/fill/w_215,h_61,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/opportunity-bridal-logo-black-noTag-1600px.png`,
-    w: 215,
-    h: 61,
-  },
-  {
-    name: 'Magna',
-    src: `${WIX}/c8520e_a7c34ce2fecb4858be9741c8aa536304~mv2.png/v1/fill/w_221,h_52,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/2560px-Magna_logo_svg.png`,
-    w: 221,
-    h: 52,
-  },
-  {
-    name: 'Covers Canada',
-    src: `${WIX}/c8520e_8a345c92f42b4a1083d0364b96f46123~mv2.png/v1/fill/w_217,h_105,al_c,lg_1,q_85,enc_avif,quality_auto/logo_edited.png`,
-    w: 217,
-    h: 105,
-  },
-  {
-    name: 'Fernlea',
-    src: `${WIX}/c8520e_b87519360e1f4c0dbc167f4dd1386af5~mv2.jpg/v1/fill/w_187,h_126,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Fernlea-10_edited.jpg`,
-    w: 187,
-    h: 126,
-  },
-  {
-    name: 'Bath Expert',
-    src: `${WIX}/c8520e_cdb6a2a9124f40bca1bb446d8ed83de2~mv2.png/v1/fill/w_187,h_52,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/bath-expert-logo_edited.png`,
-    w: 187,
-    h: 52,
-  },
-  {
-    name: 'Skyline',
-    src: `${WIX}/c8520e_dc88c0f3cf9f4d96b941bb760e70f10e~mv2.png/v1/fill/w_157,h_83,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Gradient-with-slogan_edited.png`,
-    w: 157,
-    h: 83,
-  },
-]
+const imgClass =
+  'max-h-[40px] w-auto object-contain opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-200'
 ---
 
-<section class="bg-neutral-100 py-10">
-  <div class="max-w-7xl mx-auto px-6">
-    <div class="flex flex-wrap justify-center items-center gap-x-10 gap-y-4">
+<section class="bg-neutral-100 py-10 overflow-hidden">
+  <div class="marquee-track">
+    <div class="marquee-inner">
       {
-        hasSanityClients
-          ? sanityClients.map((c) => (
-              <a
-                href={c.website ?? '#'}
-                target={c.website ? '_blank' : undefined}
-                rel={c.website ? 'noreferrer noopener' : undefined}
-                class="flex items-center justify-center"
-                data-sanity={createDataAttribute({id: c._id, type: 'client', path: 'logo'})()}
-              >
-                <img
-                  src={imageUrl(c.logo, { width: 180, height: 72 })}
-                  alt={c.name}
-                  width="180"
-                  height="72"
-                  class="max-h-[36px] w-auto object-contain opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-200"
-                  loading="lazy"
-                />
-              </a>
-            ))
-          : FALLBACK_CLIENTS.map((c) => (
-              <div class="flex items-center justify-center">
-                <img
-                  src={c.src}
-                  alt={c.name}
-                  width={c.w}
-                  height={c.h}
-                  class="max-h-[36px] w-auto object-contain opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-200"
-                  loading="lazy"
-                />
-              </div>
-            ))
+        [...sanityClients, ...sanityClients].map((c) => (
+          <a
+            href={c.website ?? '#'}
+            target={c.website ? '_blank' : undefined}
+            rel={c.website ? 'noreferrer noopener' : undefined}
+            class="flex-none flex items-center justify-center"
+            data-sanity={createDataAttribute({ id: c._id, type: 'client', path: 'logo' })()}
+          >
+            <img
+              src={imageUrl(c.logo, { width: 300 })}
+              alt={c.name}
+              width="300"
+              class={imgClass}
+              loading="lazy"
+            />
+          </a>
+        ))
       }
     </div>
   </div>
 </section>
+
+<style>
+  .marquee-track {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .marquee-inner {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    width: max-content;
+    animation: marquee 35s linear infinite;
+  }
+
+  .marquee-inner:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+</style>

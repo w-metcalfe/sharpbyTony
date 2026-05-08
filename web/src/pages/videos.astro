@@ -48,18 +48,10 @@ const ogImageUrl = page?.seo?.ogImage?.asset
   : undefined
 const noIndex = page?.seo?.noIndex ?? false
 
-// Hero video embed
-const reel = settings?.primaryReelVideo
-let embedUrl: string | null = null
-if (reel) {
-  if (reel.provider === 'youtube') {
-    const id = reel.url.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1]
-    if (id) embedUrl = `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`
-  } else if (reel.provider === 'vimeo') {
-    const id = reel.url.match(/vimeo\.com\/(\d+)/)?.[1]
-    if (id) embedUrl = `https://player.vimeo.com/video/${id}?dnt=1`
-  }
-}
+// Hero background — first video project thumbnail, fallback to Wix CDN placeholder
+const heroBg = videoProjects?.[0]?.thumbnail
+  ? imageUrl(videoProjects[0].thumbnail, {width: 1920, height: 800, quality: 85})
+  : `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/fill/w_1920,h_800,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg`
 
 // Process section
 const PROCESS_HEADING = page?.heroHeading ?? 'VIDEO PROCESS'
@@ -94,28 +86,14 @@ const otherWorkHeading = blockText(body[6]) || 'OTHER WORK.'
 const otherWorkSubheading =
   blockText(body[7]) || 'A selection of video work across construction, lifestyle, and luxury brands.'
 
-// Portfolio section
-const FALLBACK_PROJECTS: Array<{title: string; src: string; href: string}> = [
-  {
-    title: 'Diamond Barbershop',
-    src: `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/fill/w_640,h_360,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg`,
-    href: '/videos',
-  },
-  {
-    title: 'Bath Expert',
-    src: `${WIX}/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg/v1/fill/w_640,h_360,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg`,
-    href: '/videos',
-  },
-  {
-    title: 'Car Spec',
-    src: `${WIX}/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg/v1/fill/w_640,h_360,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg`,
-    href: '/videos',
-  },
+// Featured embedded videos (2)
+const FEATURED_VIDEOS = [
+  {id: '1C3cVFGJBJo', title: 'Video 1'},
+  {id: 'nblQ7vESQ_k', title: 'Video 2'},
 ]
 
 const hasProjects = videoProjects && videoProjects.length > 0
-const portfolioItems = hasProjects ? videoProjects! : FALLBACK_PROJECTS
-const multiPage = portfolioItems.length > 3
+const multiPage = hasProjects && videoProjects!.length > 3
 ---
 
 <BaseLayout
@@ -129,60 +107,29 @@ const multiPage = portfolioItems.length > 3
   <main id="main-content">
 
     <!-- ─────────────────────────── VIDEO HERO ─────────────────────────── -->
-    <section class="relative w-full bg-black" aria-label="Video hero">
-      <!-- 16:9 video or dark placeholder -->
-      <div class="relative w-full aspect-video">
-        {embedUrl ? (
-          <iframe
-            src={embedUrl}
-            title="Sharp by Tony – Video Reel"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-            class="absolute inset-0 w-full h-full border-0"
-          />
-        ) : (
-          <div class="absolute inset-0 bg-neutral-900" aria-hidden="true" />
-        )}
-
-        <!-- Overlay: kicker + title + play link -->
-        <div class="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-black/40">
-          <div class="hero-text text-center px-6">
-            <p
-              class="text-[12px] font-bold tracking-[0.3em] uppercase mb-3"
-              style="color: #F5C645;"
-            >
-              VIDEO | SHARP BY TONY
-            </p>
-            <h1
-              class="text-white text-[48px] md:text-[72px] font-bold tracking-tight leading-none"
-              data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'title'})() : undefined}
-            >
-              {page?.title ?? 'VIDEO.'}
-            </h1>
-          </div>
-
-          <!-- Play button -->
-          <a
-            href="/demo-reel"
-            class="flex items-center gap-3 text-white hover:text-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
-            aria-label="Watch demo reel"
+    <section class="relative w-full bg-black overflow-hidden flex items-center justify-center" style="min-height: clamp(320px, 50vh, 560px);" aria-label="Video hero">
+      {heroBg && (
+        <img
+          src={heroBg}
+          alt="Sharp by Tony video production"
+          fetchpriority="high"
+          width="1920"
+          height="800"
+          class="absolute inset-0 w-full h-full object-cover object-center"
+        />
+      )}
+      <div class="absolute inset-0 bg-black/60" aria-hidden="true" />
+      <div class="relative z-10 flex flex-col items-center justify-center h-full px-6 py-20 text-center">
+        <div class="hero-text">
+          <p class="text-[12px] font-bold tracking-[0.3em] uppercase mb-3" style="color: #F5C645;">
+            VIDEO | SHARP BY TONY
+          </p>
+          <h1
+            class="text-white text-[48px] md:text-[72px] font-bold tracking-tight leading-none"
+            data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'title'})() : undefined}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              class="w-14 h-14"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none" />
-            </svg>
-            <span class="hidden md:inline text-[13px] font-bold tracking-widest uppercase underline underline-offset-4">
-              Watch Reel
-            </span>
-          </a>
+            {page?.title ?? 'VIDEO.'}
+          </h1>
         </div>
       </div>
     </section>
@@ -268,98 +215,89 @@ const multiPage = portfolioItems.length > 3
         </p>
       </div>
 
-      <!-- Carousel -->
-      <div class="relative w-full" id="vp-carousel">
-        <div class="relative overflow-hidden w-full">
-          <div
-            id="vp-track"
-            class="flex transition-transform duration-500 ease-in-out"
-            style="will-change: transform;"
-          >
-            {hasProjects
-              ? (videoProjects as ProjectCard[]).map((p, i) => (
-                  <a
-                    href={`/projects/${p.slug.current}`}
-                    class="group relative shrink-0 w-full md:w-1/3 aspect-video overflow-hidden bg-neutral-900 block cursor-pointer"
-                    data-animate
-                    data-delay={i * 80}
-                    data-sanity={createDataAttribute({id: p._id, type: 'project', path: 'thumbnail'})()}
-                  >
-                    <img
-                      src={imageUrl(p.thumbnail, {width: 640, height: 360})}
-                      alt={p.thumbnail.alt || p.title}
-                      width="640"
-                      height="360"
-                      class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-200" />
-                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true" class="transition-transform duration-300 lg:group-hover:scale-125">
-                        <circle cx="24" cy="24" r="24" fill="#F5C645" />
-                        <polygon points="19,14 19,34 35,24" fill="black" />
-                      </svg>
-                      {p.client?.name && (
-                        <p class="text-white text-[11px] font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          {p.client.name}
-                        </p>
-                      )}
-                    </div>
-                  </a>
-                ))
-              : FALLBACK_PROJECTS.map((p, i) => (
-                  <a
-                    href={p.href}
-                    class="group relative shrink-0 w-full md:w-1/3 aspect-video overflow-hidden bg-neutral-900 block cursor-pointer"
-                    data-animate
-                    data-delay={i * 80}
-                  >
-                    <img
-                      src={p.src}
-                      alt={p.title}
-                      width="640"
-                      height="360"
-                      class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-200" />
-                    <div class="absolute inset-0 flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true" class="transition-transform duration-300 lg:group-hover:scale-125">
-                        <circle cx="24" cy="24" r="24" fill="#F5C645" />
-                        <polygon points="19,14 19,34 35,24" fill="black" />
-                      </svg>
-                    </div>
-                  </a>
-                ))
-            }
+      {hasProjects ? (
+        <!-- Carousel (real Sanity projects) -->
+        <div class="relative w-full" id="vp-carousel">
+          <div class="relative overflow-hidden w-full">
+            <div
+              id="vp-track"
+              class="flex transition-transform duration-500 ease-in-out"
+              style="will-change: transform;"
+            >
+              {(videoProjects as ProjectCard[]).map((p, i) => (
+                <a
+                  href={`/projects/${p.slug.current}`}
+                  class="group relative shrink-0 w-full md:w-1/3 aspect-video overflow-hidden bg-neutral-900 block cursor-pointer"
+                  data-animate
+                  data-delay={i * 80}
+                  data-sanity={createDataAttribute({id: p._id, type: 'project', path: 'thumbnail'})()}
+                >
+                  <img
+                    src={imageUrl(p.thumbnail, {width: 640, height: 360})}
+                    alt={p.thumbnail.alt || p.title}
+                    width="640"
+                    height="360"
+                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-200" />
+                  <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true" class="transition-transform duration-300 lg:group-hover:scale-125">
+                      <circle cx="24" cy="24" r="24" fill="#F5C645" />
+                      <polygon points="19,14 19,34 35,24" fill="black" />
+                    </svg>
+                    {p.client?.name && (
+                      <p class="text-white text-[11px] font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        {p.client.name}
+                      </p>
+                    )}
+                  </div>
+                </a>
+              ))}
+            </div>
+
+            {multiPage && (
+              <>
+                <button
+                  id="vp-prev"
+                  aria-label="Previous projects"
+                  class="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                </button>
+                <button
+                  id="vp-next"
+                  aria-label="Next projects"
+                  class="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </>
+            )}
           </div>
 
-          {multiPage && (
-            <>
-              <button
-                id="vp-prev"
-                aria-label="Previous projects"
-                class="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
-                  <polyline points="15 18 9 12 15 6" />
-                </svg>
-              </button>
-              <button
-                id="vp-next"
-                aria-label="Next projects"
-                class="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </button>
-            </>
-          )}
+          {multiPage && <div id="vp-dots" class="flex justify-center gap-2 mt-6" />}
         </div>
-
-        {multiPage && <div id="vp-dots" class="flex justify-center gap-2 mt-6" />}
-      </div>
+      ) : (
+        <!-- Fallback: 2 embedded videos, stacked on mobile / side-by-side on desktop -->
+        <div class="flex flex-col md:flex-row gap-3 px-3">
+          {FEATURED_VIDEOS.map((v) => (
+            <div class="relative w-full md:w-1/2 aspect-video bg-neutral-900 shrink-0">
+              <iframe
+                src={`https://www.youtube.com/embed/${v.id}?rel=0&modestbranding=1`}
+                title={v.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                class="absolute inset-0 w-full h-full border-0"
+              />
+            </div>
+          ))}
+        </div>
+      )}
 
       <!-- CTA -->
       <div class="text-center mt-10">

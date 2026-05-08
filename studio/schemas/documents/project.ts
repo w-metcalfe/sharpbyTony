@@ -74,37 +74,7 @@ export const projectType = defineType({
       ],
       validation: (Rule) => Rule.required(),
     }),
-    defineField({
-      name: 'gallery',
-      title: 'Gallery',
-      type: 'array',
-      of: [
-        {
-          type: 'image',
-          options: {hotspot: true},
-          fields: [
-            defineField({
-              name: 'alt',
-              title: 'Alt Text',
-              type: 'string',
-              validation: (Rule) => Rule.required(),
-            }),
-          ],
-        },
-      ],
-      // Conditional: required when mediaType is 'photo'
-      validation: (Rule) =>
-        Rule.custom((value, context) => {
-          const doc = context.document as {mediaType?: string} | undefined
-          if (doc?.mediaType === 'photo') {
-            const arr = value as unknown[] | undefined
-            return arr && arr.length > 0
-              ? true
-              : 'At least one gallery image is required for photo projects'
-          }
-          return true
-        }),
-    }),
+
     defineField({
       name: 'videoEmbed',
       title: 'Video Embed',
