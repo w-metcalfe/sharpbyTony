@@ -104,7 +104,7 @@ const FEATURED_VIDEOS = [
 const hasProjects = videoProjects && videoProjects.length > 0
 const multiPage = hasProjects && videoProjects!.length > 3
 
-const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon) : undefined
+const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
 ---
 
 <BaseLayout

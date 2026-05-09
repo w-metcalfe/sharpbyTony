@@ -39,7 +39,7 @@ const ogImageUrl = page?.seo?.ogImage?.asset
   ? imageUrl(page.seo.ogImage, {width: 1200, height: 630, quality: 85})
   : undefined
 const noIndex = page?.seo?.noIndex ?? false
-const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon) : undefined
+const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
 
 const reel = settings?.primaryReelVideo
 let embedUrl: string | null = null

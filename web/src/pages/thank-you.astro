@@ -22,7 +22,7 @@ const [{ data: page }, { data: settings }] = await Promise.all([
   })),
 ])
 
-const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon) : undefined
+const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
 const heading = page?.heroHeading ?? 'Thanks for connecting!'
 const body =
   page?.heroSubheading ??

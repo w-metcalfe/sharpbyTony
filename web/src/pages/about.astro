@@ -47,7 +47,7 @@ const portrait = settings?.aboutPortrait?.asset
   ? imageUrl(settings.aboutPortrait, {width: 448, height: 630, quality: 80})
   : null
 
-const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon) : undefined
+const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
 
 const FALLBACK_BIO_HEADING = "I'm Antonio, a creative problem solver."
 const FALLBACK_BIO_PARAGRAPHS = [

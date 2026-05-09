@@ -48,7 +48,7 @@ const description =
   settings?.description ??
   'Sharp, strategic visuals for construction, lifestyle and luxury. Video, photo, and design by Antonio Martinez.'
 
-const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon) : undefined
+const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
 
 const ogImageUrl = settings?.defaultOgImage?.asset
   ? imageUrl(settings.defaultOgImage, {width: 1200, height: 630, quality: 85})
