@@ -31,5 +31,3 @@ export function imageUrl(
   return qs ? `${url}?${qs}` : url
 }
 
-/** Wix CDN base for placeholder images until Sanity assets are uploaded. */
-export const WIX = 'https://static.wixstatic.com/media'

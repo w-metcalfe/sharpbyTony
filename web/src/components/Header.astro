@@ -1,16 +1,17 @@
 ---
-import { WIX } from '~/lib/imageUrl'
+import { imageUrl } from '~/lib/imageUrl'
+import type { SiteSettings } from '~/lib/queries'
 
 interface Props {
-  logoUrl?: string
+  settings?: SiteSettings | null
   currentPath?: string
 }
 
-const { logoUrl, currentPath = '/' } = Astro.props
+const { settings, currentPath = '/' } = Astro.props
 
-const LOGO_FALLBACK = `${WIX}/c8520e_301b1a02bee3443a800790e3226eea74~mv2.png/v1/crop/x_107,y_180,w_268,h_154/fill/w_110,h_63,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_301b1a02bee3443a800790e3226eea74~mv2.png`
-
-const logo = logoUrl ?? LOGO_FALLBACK
+const logo = settings?.logo?.asset
+  ? imageUrl(settings.logo, {width: 110, height: 63})
+  : null
 
 const navLinks = [
   { label: 'HOME', href: '/' },
@@ -27,13 +28,15 @@ const navLinks = [
     <!-- Col 1 — Logo -->
     <div class="md:justify-self-start shrink-0">
       <a href="/" aria-label="Sharp by Tony – home" class="focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm inline-block">
-        <img
-          src={logo}
-          alt="Sharp by Tony"
-          width="110"
-          height="63"
-          class="h-[84px] w-auto object-contain"
-        />
+        {logo && (
+          <img
+            src={logo}
+            alt={settings?.logo?.alt ?? 'Sharp by Tony'}
+            width="110"
+            height="63"
+            class="h-[84px] w-auto object-contain"
+          />
+        )}
       </a>
     </div>
 

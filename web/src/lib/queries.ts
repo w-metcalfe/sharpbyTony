@@ -74,6 +74,12 @@ export type SiteSettings = {
   socialLinks?: Array<{platform: string; url: string}>
   primaryReelVideo?: VideoEmbed
   serviceArea?: string[]
+  heroBackground?: SanityImageCroppable
+  videoHeroBackground?: SanityImageCroppable
+  photoHeroBackground?: SanityImageCroppable
+  footerBackground?: SanityImageCroppable
+  aboutPortrait?: SanityImageCroppable
+  processStepImages?: SanityImageCroppable[]
   aboutHeading?: string
   aboutBody?: string
   aboutQuote?: string
@@ -184,6 +190,12 @@ export const siteSettingsQuery = groq`
     socialLinks[] { platform, url },
     primaryReelVideo { provider, url, posterFrame { asset, alt, hotspot, crop } },
     serviceArea,
+    heroBackground { asset, alt, hotspot, crop },
+    videoHeroBackground { asset, alt, hotspot, crop },
+    photoHeroBackground { asset, alt, hotspot, crop },
+    footerBackground { asset, alt, hotspot, crop },
+    aboutPortrait { asset, alt, hotspot, crop },
+    processStepImages[] { asset, alt, hotspot, crop },
     aboutHeading,
     aboutBody,
     aboutQuote,

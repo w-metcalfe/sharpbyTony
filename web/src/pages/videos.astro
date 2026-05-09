@@ -6,7 +6,7 @@ import Footer from '~/components/Footer.astro'
 
 import {loadQuery} from '~/lib/load-query'
 import {getDraftModeProps} from '~/lib/draft-mode'
-import {imageUrl, WIX} from '~/lib/imageUrl'
+import {imageUrl} from '~/lib/imageUrl'
 import {createDataAttribute} from '@sanity/visual-editing'
 import {
   siteSettingsQuery,
@@ -48,10 +48,13 @@ const ogImageUrl = page?.seo?.ogImage?.asset
   : undefined
 const noIndex = page?.seo?.noIndex ?? false
 
-// Hero background — first video project thumbnail, fallback to Wix CDN placeholder
 const heroBg = videoProjects?.[0]?.thumbnail
   ? imageUrl(videoProjects[0].thumbnail, {width: 1920, height: 800, quality: 85})
-  : `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/fill/w_1920,h_800,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg`
+  : settings?.videoHeroBackground?.asset
+    ? imageUrl(settings.videoHeroBackground, {width: 1920, height: 800, quality: 85})
+    : settings?.heroBackground?.asset
+      ? imageUrl(settings.heroBackground, {width: 1920, height: 800, quality: 85})
+      : null
 
 // Process section
 const PROCESS_HEADING = page?.heroHeading ?? 'VIDEO PROCESS'
@@ -62,17 +65,23 @@ const PROCESS_INTRO =
 const PROCESS_STEPS = [
   {
     label: 'DETAILED PLAN',
-    img: `${WIX}/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg/v1/fill/w_560,h_360,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg`,
+    img: settings?.processStepImages?.[0]?.asset
+      ? imageUrl(settings.processStepImages[0], {width: 560, height: 360, quality: 80})
+      : null,
     body: 'In pre-production, I translate your vision and strategy into clear shot lists, visual mood boards, and scripts that set the creative direction. I also handle the details with lighting plans, equipment selection, and sourcing the right cast and crew so that everything is dialed in and thought of before the camera ever rolls.',
   },
   {
     label: 'PRODUCTION',
-    img: `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/fill/w_560,h_360,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg`,
+    img: settings?.processStepImages?.[1]?.asset
+      ? imageUrl(settings.processStepImages[1], {width: 560, height: 360, quality: 80})
+      : null,
     body: 'During production, I execute the plan shot by shot—methodically checking off the shot list and capturing everything needed so the edit is smooth and efficient. Clients are often on set to weigh in on framing, performance, and delivery, ensuring alignment in real time and zero surprises in post.',
   },
   {
     label: 'EDITS & DELIVERY',
-    img: `${WIX}/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg/v1/fill/w_560,h_360,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg`,
+    img: settings?.processStepImages?.[2]?.asset
+      ? imageUrl(settings.processStepImages[2], {width: 560, height: 360, quality: 80})
+      : null,
     body: 'Experience a thorough feedback session post-production to refine your video content. I ensure that your vision is realized, making necessary adjustments for a polished final product that meets your goals and exceeds your expectations.',
   },
 ]
@@ -94,15 +103,18 @@ const FEATURED_VIDEOS = [
 
 const hasProjects = videoProjects && videoProjects.length > 0
 const multiPage = hasProjects && videoProjects!.length > 3
+
+const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon) : undefined
 ---
 
 <BaseLayout
   title={pageTitle}
   description={pageDescription}
   ogImage={ogImageUrl}
+  favicon={favicon}
   noIndex={noIndex}
 >
-  <Header currentPath="/videos" />
+  <Header currentPath="/videos" settings={settings} />
 
   <main id="main-content">
 
@@ -169,14 +181,16 @@ const multiPage = hasProjects && videoProjects!.length > 3
             >
               <!-- Step image -->
               <div class="aspect-video overflow-hidden mb-5 bg-neutral-900">
-                <img
-                  src={step.img}
-                  alt={step.label}
-                  width="560"
-                  height="360"
-                  class="w-full h-full object-cover"
-                  loading="lazy"
-                />
+                {step.img && (
+                  <img
+                    src={step.img}
+                    alt={step.label}
+                    width="560"
+                    height="360"
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                )}
               </div>
 
               <!-- Step label -->

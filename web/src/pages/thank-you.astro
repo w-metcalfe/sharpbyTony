@@ -5,15 +5,24 @@ import Footer from '~/components/Footer.astro'
 import { loadQuery } from '~/lib/load-query'
 import { getDraftModeProps } from '~/lib/draft-mode'
 import { createDataAttribute } from '@sanity/visual-editing'
-import { pageBySlugQuery, type Page } from '~/lib/queries'
+import { pageBySlugQuery, siteSettingsQuery, type Page, type SiteSettings } from '~/lib/queries'
+import { imageUrl } from '~/lib/imageUrl'
 
 const draftProps = getDraftModeProps(Astro.cookies)
-const { data: page } = await loadQuery<Page | null>({
-  query: pageBySlugQuery,
-  params: { slug: 'thank-you' },
-  ...draftProps,
-}).catch(() => ({ data: null, sourceMap: undefined, perspective: 'published' as const }))
+const [{ data: page }, { data: settings }] = await Promise.all([
+  loadQuery<Page | null>({
+    query: pageBySlugQuery,
+    params: { slug: 'thank-you' },
+    ...draftProps,
+  }).catch(() => ({ data: null, sourceMap: undefined, perspective: 'published' as const })),
+  loadQuery<SiteSettings | null>({ query: siteSettingsQuery, ...draftProps }).catch(() => ({
+    data: null,
+    sourceMap: undefined,
+    perspective: 'published' as const,
+  })),
+])
 
+const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon) : undefined
 const heading = page?.heroHeading ?? 'Thanks for connecting!'
 const body =
   page?.heroSubheading ??
@@ -23,9 +32,10 @@ const body =
 <BaseLayout
   title="Thanks for Connecting! | Sharp by Tony"
   description="Thanks for reaching out to Sharp by Tony."
+  favicon={favicon}
   noIndex={true}
 >
-  <Header />
+  <Header settings={settings} />
 
   <main id="main-content">
     <section class="bg-white min-h-[calc(100vh-96px)] flex items-center justify-center py-24 px-6">
@@ -74,5 +84,5 @@ const body =
     </section>
   </main>
 
-  <Footer />
+  <Footer settings={settings} />
 </BaseLayout>

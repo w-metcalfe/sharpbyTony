@@ -6,7 +6,7 @@ import Footer from '~/components/Footer.astro'
 
 import {loadQuery} from '~/lib/load-query'
 import {getDraftModeProps} from '~/lib/draft-mode'
-import {imageUrl, WIX} from '~/lib/imageUrl'
+import {imageUrl} from '~/lib/imageUrl'
 import {createDataAttribute} from '@sanity/visual-editing'
 import {
   siteSettingsQuery,
@@ -43,8 +43,11 @@ const ogImageUrl = page?.seo?.ogImage?.asset
   : undefined
 const noIndex = page?.seo?.noIndex ?? false
 
-// Bio
-const PORTRAIT = `${WIX}/c8520e_54104400d63f4bd7b10b4f0dfb774130~mv2.jpg/v1/crop/x_0,y_171,w_3648,h_5130/fill/w_448,h_630,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/CapturedByThea_Antonio-66.jpg`
+const portrait = settings?.aboutPortrait?.asset
+  ? imageUrl(settings.aboutPortrait, {width: 448, height: 630, quality: 80})
+  : null
+
+const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon) : undefined
 
 const FALLBACK_BIO_HEADING = "I'm Antonio, a creative problem solver."
 const FALLBACK_BIO_PARAGRAPHS = [
@@ -110,9 +113,10 @@ const bodyHtml = page?.body?.length ? renderBlocks(page.body) : null
   title={pageTitle}
   description={pageDescription}
   ogImage={ogImageUrl}
+  favicon={favicon}
   noIndex={noIndex}
 >
-  <Header currentPath="/about" />
+  <Header currentPath="/about" settings={settings} />
 
   <main id="main-content">
     <!-- ───────────────────────────── BIO SECTION ───────────────────────────── -->
@@ -177,14 +181,16 @@ const bodyHtml = page?.body?.length ? renderBlocks(page.body) : null
 
           <!-- Right: portrait -->
           <div class="relative" data-animate data-delay="150">
-            <img
-              src={PORTRAIT}
-              alt="Antonio Martinez – Sharp by Tony"
-              width="448"
-              height="630"
-              class="w-full max-w-[380px] mx-auto object-cover"
-              loading="lazy"
-            />
+            {portrait && (
+              <img
+                src={portrait}
+                alt={settings?.aboutPortrait?.alt ?? 'Antonio Martinez – Sharp by Tony'}
+                width="448"
+                height="630"
+                class="w-full max-w-[380px] mx-auto object-cover"
+                loading="lazy"
+              />
+            )}
           </div>
         </div>
       </div>

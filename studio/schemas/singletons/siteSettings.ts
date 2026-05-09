@@ -205,6 +205,102 @@ export const siteSettingsType = defineType({
       type: 'string',
     }),
     defineField({
+      name: 'heroBackground',
+      title: 'Hero Background Image',
+      type: 'image',
+      options: {hotspot: true},
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          validation: (Rule) => Rule.required(),
+        }),
+      ],
+      description: 'Full-width background image for the homepage hero section',
+    }),
+    defineField({
+      name: 'videoHeroBackground',
+      title: 'Video Page Hero Background',
+      type: 'image',
+      options: {hotspot: true},
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          validation: (Rule) => Rule.required(),
+        }),
+      ],
+      description: 'Hero background image for the Video page',
+    }),
+    defineField({
+      name: 'photoHeroBackground',
+      title: 'Photography Page Hero Background',
+      type: 'image',
+      options: {hotspot: true},
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          validation: (Rule) => Rule.required(),
+        }),
+      ],
+      description: 'Hero background image for the Photography page',
+    }),
+    defineField({
+      name: 'footerBackground',
+      title: 'Footer Background Image',
+      type: 'image',
+      options: {hotspot: true},
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          validation: (Rule) => Rule.required(),
+        }),
+      ],
+      description: 'Decorative full-width image strip above the footer bar',
+    }),
+    defineField({
+      name: 'aboutPortrait',
+      title: 'About — Portrait Photo',
+      type: 'image',
+      options: {hotspot: true},
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          validation: (Rule) => Rule.required(),
+        }),
+      ],
+      description: "Tony's portrait used in the About section and About page",
+    }),
+    defineField({
+      name: 'processStepImages',
+      title: 'Video Process Step Images',
+      type: 'array',
+      description: 'Exactly 3 images for the video process steps (Pre-Production, Production, Post-Production)',
+      of: [
+        {
+          type: 'image',
+          options: {hotspot: true},
+          fields: [
+            defineField({
+              name: 'alt',
+              title: 'Alt Text',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            }),
+          ],
+        },
+      ],
+      validation: (Rule) => Rule.min(3).max(3),
+    }),
+    defineField({
       name: 'primaryReelVideo',
       title: 'Primary Reel Video',
       type: 'videoEmbed',

@@ -159,6 +159,7 @@ npx sanity deploy -y --url sharpbytony
 
 - **`studio/schemas/`** requires **Plan Mode review before any change**. Do not edit schema files directly without entering Plan Mode first.
 - **Do not run `sanity deploy`** without explicit instruction from the user.
+- **Do not use `claude_preview` to verify frontend changes** after edits unless explicitly instructed to do so.
 
 ## Phase status
 

@@ -1,5 +1,5 @@
 ---
-import { WIX } from '~/lib/imageUrl'
+import { imageUrl } from '~/lib/imageUrl'
 import type { SiteSettings } from '~/lib/queries'
 
 interface Props {
@@ -17,20 +17,24 @@ const socials = settings?.socialLinks ?? [
   { platform: 'linkedin', url: 'https://www.linkedin.com/in/antonio-martinez-b44b2b195/' },
 ]
 
-const FOOTER_IMAGE = `${WIX}/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg/v1/fill/w_1920,h_510,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_e436343bb7474cc8931f97c3f34aab07~mv2.jpg`
+const footerImage = settings?.footerBackground?.asset
+  ? imageUrl(settings.footerBackground, {width: 1920, height: 510, quality: 80})
+  : null
 ---
 
 <!-- Decorative image strip -->
 <div class="relative h-[375px] md:h-[495px] overflow-hidden bg-neutral-900">
-  <img
-    src={FOOTER_IMAGE}
-    alt=""
-    aria-hidden="true"
-    width="1920"
-    height="510"
-    class="w-full h-full object-cover object-center"
-    loading="lazy"
-  />
+  {footerImage && (
+    <img
+      src={footerImage}
+      alt=""
+      aria-hidden="true"
+      width="1920"
+      height="510"
+      class="w-full h-full object-cover object-center"
+      loading="lazy"
+    />
+  )}
 </div>
 
 <!-- Footer bar -->

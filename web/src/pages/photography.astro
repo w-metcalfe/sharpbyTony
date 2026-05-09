@@ -46,9 +46,10 @@ const ogImageUrl = page?.seo?.ogImage?.asset
   ? imageUrl(page.seo.ogImage, {width: 1200, height: 630, quality: 85})
   : undefined
 const noIndex = page?.seo?.noIndex ?? false
+const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon) : undefined
 
-const heroBg = photoProjects?.[0]?.thumbnail
-  ? imageUrl(photoProjects[0].thumbnail, {width: 1920, height: 800, quality: 85})
+const heroBg = settings?.photoHeroBackground?.asset
+  ? imageUrl(settings.photoHeroBackground, {width: 1920, height: 800, quality: 85})
   : null
 
 // Build a unified gallery item list for the lightbox to reference
@@ -80,8 +81,8 @@ const GALLERY_SUBHEADING =
   'A selection of photography across construction, lifestyle, and luxury brands.'
 ---
 
-<BaseLayout title={pageTitle} description={pageDescription} ogImage={ogImageUrl} noIndex={noIndex}>
-  <Header currentPath="/photography" />
+<BaseLayout title={pageTitle} description={pageDescription} ogImage={ogImageUrl} favicon={favicon} noIndex={noIndex}>
+  <Header currentPath="/photography" settings={settings} />
 
   <main id="main-content">
 

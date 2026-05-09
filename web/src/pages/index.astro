@@ -12,6 +12,7 @@ import Footer from '~/components/Footer.astro'
 
 import {loadQuery} from '~/lib/load-query'
 import {getDraftModeProps} from '~/lib/draft-mode'
+import {imageUrl} from '~/lib/imageUrl'
 import {
   siteSettingsQuery,
   featuredClientsQuery,
@@ -46,10 +47,12 @@ const title = settings
 const description =
   settings?.description ??
   'Sharp, strategic visuals for construction, lifestyle and luxury. Video, photo, and design by Antonio Martinez.'
+
+const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon) : undefined
 ---
 
-<BaseLayout title={title} description={description}>
-  <Header currentPath="/" />
+<BaseLayout title={title} description={description} favicon={favicon}>
+  <Header currentPath="/" settings={settings} />
 
   <main id="main-content">
     <HeroSection settings={settings} />

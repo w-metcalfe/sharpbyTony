@@ -1,5 +1,5 @@
 ---
-import { WIX } from '~/lib/imageUrl'
+import { imageUrl } from '~/lib/imageUrl'
 import { createDataAttribute } from '@sanity/visual-editing'
 import type { SiteSettings } from '~/lib/queries'
 
@@ -9,21 +9,24 @@ interface Props {
 
 const { settings } = Astro.props
 
-const BG_IMAGE = `${WIX}/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg/v1/fill/w_1920,h_800,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c8520e_2f7c26513dcc4919abcc7e225aa6ce40~mv2.jpg`
-const LOGO = `${WIX}/c8520e_301b1a02bee3443a800790e3226eea74~mv2.png/v1/crop/x_0,y_107,w_500,h_287/fill/w_230,h_132,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Colour%20on%20Black.png`
+const bgImage = settings?.heroBackground?.asset
+  ? imageUrl(settings.heroBackground, {width: 1920, height: 800, quality: 85})
+  : null
 ---
 
 <section class="flex flex-col bg-black lg:block lg:relative lg:overflow-hidden desktop-hero-height">
   <!-- Background image wrapper: 50vh block on mobile, absolute fill on desktop -->
   <div class="relative h-[37vh] overflow-hidden lg:absolute lg:inset-0 lg:h-auto">
-    <img
-      src={BG_IMAGE}
-      alt="Antonio Martinez – Sharp by Tony"
-      fetchpriority="high"
-      class="w-full h-full object-cover object-[85%_top] lg:object-[70%_center]"
-      width="1920"
-      height="800"
-    />
+    {bgImage && (
+      <img
+        src={bgImage}
+        alt={settings?.heroBackground?.alt ?? 'Antonio Martinez – Sharp by Tony'}
+        fetchpriority="high"
+        class="w-full h-full object-cover object-[85%_top] lg:object-[70%_center]"
+        width="1920"
+        height="800"
+      />
+    )}
   </div>
 
   <!-- Dark gradient left overlay — desktop only -->
