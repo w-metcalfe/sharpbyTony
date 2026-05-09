@@ -166,5 +166,7 @@ npx sanity deploy -y --url sharpbytony
 - Phase 0 (decisions): complete
 - Phase 1 (repo + framework scaffold): complete
 - Phase 2 (schemas + data layer): complete — schemas locked, Sanity client wired, GROQ queries written and verified
-- Phase 3 (UI + Visual Editing): **complete** — all homepage sections editable via Sanity Presentation Tool; 9 testimonials and 8 client records seeded in Sanity; `siteSettings` fields cover hero, about, projects, testimonials, and contact sections
-- Next: upload client logos in Studio → Clients (each record needs a logo image before it appears in the logo strip)
+- Phase 3 (UI + Visual Editing): complete — all homepage sections editable via Sanity Presentation Tool; 9 testimonials and 8 client records seeded in Sanity; `siteSettings` fields cover hero, about, projects, testimonials, and contact sections
+- Phase 4 (content + photos): **complete** — client photos uploaded, website content finalized, all hardcoded fallbacks removed
+- Next: optimizations → domain transfer from Wix → point domain to Netlify build (launch)
+- Post-launch: SEO improvements

@@ -49,9 +49,13 @@ const description =
   'Sharp, strategic visuals for construction, lifestyle and luxury. Video, photo, and design by Antonio Martinez.'
 
 const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon) : undefined
+
+const ogImageUrl = settings?.defaultOgImage?.asset
+  ? imageUrl(settings.defaultOgImage, {width: 1200, height: 630, quality: 85})
+  : undefined
 ---
 
-<BaseLayout title={title} description={description} favicon={favicon}>
+<BaseLayout title={title} description={description} favicon={favicon} ogImage={ogImageUrl} contactEmail={settings?.contactEmail} contactPhone={settings?.contactPhone}>
   <Header currentPath="/" settings={settings} />
 
   <main id="main-content">

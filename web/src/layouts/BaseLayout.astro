@@ -10,6 +10,8 @@ interface Props {
   ogImage?: string
   favicon?: string
   noIndex?: boolean
+  contactEmail?: string
+  contactPhone?: string
 }
 
 const {
@@ -18,9 +20,32 @@ const {
   ogImage,
   favicon,
   noIndex = false,
+  contactEmail,
+  contactPhone,
 } = Astro.props
 
+const canonicalUrl = new URL(Astro.url.pathname, 'https://sharpbytony.com').href
 const draftMode = Astro.cookies.has(perspectiveCookieName)
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: 'Sharp by Tony',
+  url: 'https://sharpbytony.com',
+  ...(contactPhone ? {telephone: contactPhone} : {telephone: '+15199027253'}),
+  ...(contactEmail ? {email: contactEmail} : {}),
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'London',
+    addressRegion: 'ON',
+    addressCountry: 'CA',
+  },
+  founder: {
+    '@type': 'Person',
+    name: 'Antonio Martinez',
+  },
+  serviceType: ['Video Production', 'Photography', 'Design'],
+}
 ---
 
 <!doctype html>
@@ -37,19 +62,27 @@ const draftMode = Astro.cookies.has(perspectiveCookieName)
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
     {ogImage && <meta property="og:image" content={ogImage} />}
 
     <!-- Favicon -->
-    {favicon && <link rel="icon" href={favicon} type="image/jpeg" />}
+    {favicon
+      ? <link rel="icon" href={favicon} type="image/jpeg" />
+      : <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    }
+    <link rel="icon" href="/favicon.ico" sizes="any" />
 
     <!-- Canonical -->
-    <link rel="canonical" href={new URL(Astro.url.pathname, 'https://sharpbytony.com').href} />
+    <link rel="canonical" href={canonicalUrl} />
 
     <!-- Twitter / X card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     {ogImage && <meta name="twitter:image" content={ogImage} />}
+
+    <!-- JSON-LD structured data -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body class="bg-white text-black">
     <!-- Skip navigation for keyboard users (WCAG 2.4.1) -->

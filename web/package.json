@@ -17,6 +17,7 @@
   "dependencies": {
     "@astrojs/netlify": "^7.0.8",
     "@astrojs/react": "^5.0.4",
+    "@astrojs/sitemap": "^3.7.2",
     "@sanity/astro": "^3.3.1",
     "@sanity/client": "^7.22.0",
     "@sanity/preview-url-secret": "^4.0.5",
