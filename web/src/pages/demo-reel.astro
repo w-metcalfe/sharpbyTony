@@ -52,11 +52,15 @@ const reel = homePage?.primaryReelVideo
 let embedUrl: string | null = null
 if (reel?.provider === 'youtube') {
   const id = stegaClean(reel.url).match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1]
-  if (id) embedUrl = `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`
+  if (id) embedUrl = `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1&autoplay=1`
 } else if (reel?.provider === 'vimeo') {
   const id = stegaClean(reel.url).match(/vimeo\.com\/(\d+)/)?.[1]
-  if (id) embedUrl = `https://player.vimeo.com/video/${id}?dnt=1`
+  if (id) embedUrl = `https://player.vimeo.com/video/${id}?dnt=1&autoplay=1`
 }
+
+const posterFrameUrl = reel?.posterFrame?.asset
+  ? imageUrl(reel.posterFrame, {width: 1920, quality: 85})
+  : null
 ---
 
 <BaseLayout
@@ -76,20 +80,55 @@ if (reel?.provider === 'youtube') {
     <!-- ─────────────────────────── VIDEO HERO ─────────────────────────── -->
     <section class="relative w-full bg-black" aria-label="Demo reel hero">
       <h1 class="sr-only">Sharp by Tony – Demo Reel</h1>
-      <div class="relative w-full aspect-video">
+      <div class="relative w-full aspect-video" id="reel-container">
         {embedUrl ? (
-          <iframe
-            src={embedUrl}
-            title="Sharp by Tony – Demo Reel"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-            class="absolute inset-0 w-full h-full border-0"
-          />
+          <>
+            {posterFrameUrl && (
+              <button
+                id="reel-poster"
+                class="absolute inset-0 w-full h-full border-0 p-0 cursor-pointer group"
+                aria-label="Play demo reel"
+              >
+                <img
+                  src={posterFrameUrl}
+                  alt="Demo reel poster frame"
+                  class="absolute inset-0 w-full h-full object-cover"
+                />
+                <span class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                  <svg class="w-20 h-20 text-white drop-shadow-lg" viewBox="0 0 80 80" fill="currentColor" aria-hidden="true">
+                    <circle cx="40" cy="40" r="40" fill="rgba(0,0,0,0.45)" />
+                    <polygon points="32,24 60,40 32,56" fill="white" />
+                  </svg>
+                </span>
+              </button>
+            )}
+            <iframe
+              id="reel-iframe"
+              src={posterFrameUrl ? 'about:blank' : embedUrl}
+              data-src={embedUrl}
+              title="Sharp by Tony – Demo Reel"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              class={`absolute inset-0 w-full h-full border-0${posterFrameUrl ? ' hidden' : ''}`}
+            />
+          </>
         ) : (
           <div class="absolute inset-0 bg-neutral-900" aria-hidden="true" />
         )}
       </div>
     </section>
+
+    <script>
+      const poster = document.getElementById('reel-poster')
+      const iframe = document.getElementById('reel-iframe') as HTMLIFrameElement | null
+      if (poster && iframe) {
+        poster.addEventListener('click', () => {
+          iframe.src = iframe.dataset.src ?? ''
+          iframe.classList.remove('hidden')
+          poster.remove()
+        })
+      }
+    </script>
 
     <!-- ──────────────────────── CONTACT ──────────────────────── -->
     <ContactSection settings={settings} />
