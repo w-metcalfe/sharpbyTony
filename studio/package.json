@@ -12,7 +12,8 @@
     "start": "sanity start",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "typegen": "sanity typegen generate"
   },
   "keywords": [
     "sanity"
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@sanity/eslint-config-studio": "^6.0.0",
+    "@sanity/icons": "^3.7.4",
     "@types/react": "^19.2.14",
     "eslint": "^9.28",
     "prettier": "^3.5",

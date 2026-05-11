@@ -5,17 +5,17 @@ import Footer from '~/components/Footer.astro'
 import { loadQuery } from '~/lib/load-query'
 import { getDraftModeProps } from '~/lib/draft-mode'
 import { createDataAttribute } from '@sanity/visual-editing'
-import { pageBySlugQuery, siteSettingsQuery, type Page, type SiteSettings } from '~/lib/queries'
+import { PAGE_BY_SLUG_QUERY, SITE_SETTINGS_QUERY, type Page, type SiteSettings } from '~/lib/queries'
 import { imageUrl } from '~/lib/imageUrl'
 
 const draftProps = getDraftModeProps(Astro.cookies)
 const [{ data: page }, { data: settings }] = await Promise.all([
   loadQuery<Page | null>({
-    query: pageBySlugQuery,
+    query: PAGE_BY_SLUG_QUERY,
     params: { slug: 'thank-you' },
     ...draftProps,
   }).catch(() => ({ data: null, sourceMap: undefined, perspective: 'published' as const })),
-  loadQuery<SiteSettings | null>({ query: siteSettingsQuery, ...draftProps }).catch(() => ({
+  loadQuery<SiteSettings | null>({ query: SITE_SETTINGS_QUERY, ...draftProps }).catch(() => ({
     data: null,
     sourceMap: undefined,
     perspective: 'published' as const,
@@ -34,6 +34,9 @@ const body =
   description="Thanks for reaching out to Sharp by Tony."
   favicon={favicon}
   noIndex={true}
+  contactEmail={settings?.contactEmail}
+  contactPhone={settings?.contactPhone}
+  address={settings?.address}
 >
   <Header settings={settings} />
 

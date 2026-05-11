@@ -1,9 +1,11 @@
+import {ImagesIcon} from '@sanity/icons'
 import {defineField, defineType} from 'sanity'
 
 export const projectType = defineType({
   name: 'project',
   title: 'Project',
   type: 'document',
+  icon: ImagesIcon,
   fields: [
     defineField({
       name: 'title',
@@ -99,43 +101,7 @@ export const projectType = defineType({
     defineField({
       name: 'body',
       title: 'Body',
-      type: 'array',
-      of: [
-        {
-          type: 'block',
-          marks: {
-            decorators: [
-              {title: 'Bold', value: 'strong'},
-              {title: 'Italic', value: 'em'},
-              {title: 'Underline', value: 'underline'},
-              {title: 'Strike', value: 'strike-through'},
-              {title: 'Code', value: 'code'},
-            ],
-            annotations: [
-              {
-                name: 'link',
-                type: 'object',
-                title: 'Link',
-                fields: [
-                  defineField({
-                    name: 'href',
-                    title: 'URL',
-                    type: 'url',
-                    validation: (Rule) =>
-                      Rule.required().uri({scheme: ['https', 'http', 'mailto', 'tel']}),
-                  }),
-                  defineField({
-                    name: 'blank',
-                    title: 'Open in new tab',
-                    type: 'boolean',
-                    initialValue: false,
-                  }),
-                ],
-              },
-            ],
-          },
-        },
-      ],
+      type: 'portableText',
     }),
     defineField({
       name: 'featured',

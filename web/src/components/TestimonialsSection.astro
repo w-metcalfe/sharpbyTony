@@ -1,13 +1,14 @@
 ---
 import { createDataAttribute } from '@sanity/visual-editing'
-import type { FeaturedTestimonial, SiteSettings } from '~/lib/queries'
+import type { FeaturedTestimonial, SiteSettings, HomePage } from '~/lib/queries'
 
 interface Props {
   testimonials?: FeaturedTestimonial[]
   settings?: SiteSettings | null
+  homePage?: HomePage | null
 }
 
-const { testimonials, settings } = Astro.props
+const { testimonials, homePage } = Astro.props
 
 const FALLBACK_TESTIMONIALS: FeaturedTestimonial[] = [
   {
@@ -90,9 +91,9 @@ const items = hasSanityTestimonials ? testimonials : FALLBACK_TESTIMONIALS
   <div class="max-w-5xl mx-auto px-6">
     <h2
       class="text-[#F5C645] text-[32px] md:text-[40px] font-bold tracking-tight text-center mb-14"
-      data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'testimonialsHeading'})() : undefined}
+      data-sanity={homePage ? createDataAttribute({id: 'homePage', type: 'homePage', path: 'testimonialsHeading'})() : undefined}
     >
-      {settings?.testimonialsHeading ?? 'Testimonials'}
+      {homePage?.testimonialsHeading ?? 'Testimonials'}
     </h2>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">

@@ -1,16 +1,17 @@
 ---
 import { imageUrl } from '~/lib/imageUrl'
 import { createDataAttribute } from '@sanity/visual-editing'
-import type { SiteSettings } from '~/lib/queries'
+import type { SiteSettings, HomePage } from '~/lib/queries'
 
 interface Props {
   settings?: SiteSettings | null
+  homePage?: HomePage | null
 }
 
-const { settings } = Astro.props
+const { homePage } = Astro.props
 
-const portrait = settings?.aboutPortrait?.asset
-  ? imageUrl(settings.aboutPortrait, {width: 448, height: 630, quality: 80})
+const portrait = homePage?.aboutPortrait?.asset
+  ? imageUrl(homePage.aboutPortrait, {width: 448, height: 630, quality: 80})
   : null
 
 const FALLBACK_BODY =
@@ -19,7 +20,7 @@ const FALLBACK_BODY =
 const FALLBACK_QUOTE =
   'It is my policy to only offer you sharp content that reaches your goals and exceeds your expectations.'
 
-const aboutBody = settings?.aboutBody ?? FALLBACK_BODY
+const aboutBody = homePage?.aboutBody ?? FALLBACK_BODY
 const paragraphs = aboutBody.split(/\n\n+/).filter(Boolean)
 ---
 
@@ -31,13 +32,13 @@ const paragraphs = aboutBody.split(/\n\n+/).filter(Boolean)
       <div data-animate>
         <h2
           class="text-[48px] font-bold tracking-tight mb-6 text-black"
-          data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'aboutHeading'})() : undefined}
+          data-sanity={homePage ? createDataAttribute({id: 'homePage', type: 'homePage', path: 'aboutHeading'})() : undefined}
         >
-          {settings?.aboutHeading ?? 'About Me'}
+          {homePage?.aboutHeading ?? 'About Me'}
         </h2>
 
         <div
-          data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'aboutBody'})() : undefined}
+          data-sanity={homePage ? createDataAttribute({id: 'homePage', type: 'homePage', path: 'aboutBody'})() : undefined}
         >
           {paragraphs.map((p) => (
             <p class="text-[15px] leading-[1.875] text-neutral-700 mb-5">{p}</p>
@@ -48,9 +49,9 @@ const paragraphs = aboutBody.split(/\n\n+/).filter(Boolean)
         <blockquote class="border-l-4 border-[#F5C645] pl-4 mb-8">
           <p
             class="text-[15px] leading-[1.875] text-neutral-800 italic"
-            data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'aboutQuote'})() : undefined}
+            data-sanity={homePage ? createDataAttribute({id: 'homePage', type: 'homePage', path: 'aboutQuote'})() : undefined}
           >
-            "{settings?.aboutQuote ?? FALLBACK_QUOTE}"
+            "{homePage?.aboutQuote ?? FALLBACK_QUOTE}"
           </p>
           <footer class="mt-2 text-[12px] font-bold tracking-widest uppercase text-neutral-500">— Tony</footer>
         </blockquote>
@@ -60,7 +61,7 @@ const paragraphs = aboutBody.split(/\n\n+/).filter(Boolean)
           href="#contact-form"
           class="inline-block bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase px-6 py-3 transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 cursor-pointer"
         >
-          {settings?.heroCta ?? 'Book Your Shoot'}
+          {homePage?.heroCta ?? 'Book Your Shoot'}
         </a>
       </div>
 
@@ -69,7 +70,7 @@ const paragraphs = aboutBody.split(/\n\n+/).filter(Boolean)
         {portrait && (
           <img
             src={portrait}
-            alt={settings?.aboutPortrait?.alt ?? 'Antonio Martinez – Sharp by Tony'}
+            alt={homePage?.aboutPortrait?.alt ?? 'Antonio Martinez – Sharp by Tony'}
             width="448"
             height="630"
             class="w-full max-w-[380px] mx-auto object-cover"

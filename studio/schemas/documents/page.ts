@@ -1,9 +1,11 @@
-import {defineField, defineType} from 'sanity'
+import {DocumentIcon} from '@sanity/icons'
+import {defineField, defineArrayMember, defineType} from 'sanity'
 
 export const pageType = defineType({
   name: 'page',
   title: 'Page',
   type: 'document',
+  icon: DocumentIcon,
   fields: [
     defineField({
       name: 'title',
@@ -31,52 +33,71 @@ export const pageType = defineType({
       rows: 2,
     }),
     defineField({
+      name: 'kicker',
+      title: 'Kicker',
+      type: 'string',
+      description: 'About page: yellow label text above the main heading',
+    }),
+    defineField({
+      name: 'heroBackground',
+      title: 'Hero Background Image',
+      type: 'image',
+      options: {hotspot: true},
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          validation: (Rule) => Rule.required(),
+        }),
+      ],
+      description: 'Videos and Photography pages: hero background image',
+    }),
+    defineField({
+      name: 'portrait',
+      title: 'Portrait Photo',
+      type: 'image',
+      options: {hotspot: true},
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          validation: (Rule) => Rule.required(),
+        }),
+      ],
+      description: 'About page: portrait photo displayed in the bio section',
+    }),
+    defineField({
+      name: 'processStepImages',
+      title: 'Process Step Images',
+      type: 'array',
+      description: 'Videos page only: exactly 3 images for the process steps (Pre-Production, Production, Post-Production)',
+      of: [
+        defineArrayMember({
+          type: 'image',
+          options: {hotspot: true},
+          fields: [
+            defineField({
+              name: 'alt',
+              title: 'Alt Text',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            }),
+          ],
+        }),
+      ],
+      validation: (Rule) => Rule.max(3),
+    }),
+    defineField({
       name: 'body',
       title: 'Body',
-      type: 'array',
-      // JC #10: standard decorators + link annotation; no custom blocks at this stage
-      of: [
-        {
-          type: 'block',
-          marks: {
-            decorators: [
-              {title: 'Bold', value: 'strong'},
-              {title: 'Italic', value: 'em'},
-              {title: 'Underline', value: 'underline'},
-              {title: 'Strike', value: 'strike-through'},
-              {title: 'Code', value: 'code'},
-            ],
-            annotations: [
-              {
-                name: 'link',
-                type: 'object',
-                title: 'Link',
-                fields: [
-                  defineField({
-                    name: 'href',
-                    title: 'URL',
-                    type: 'url',
-                    validation: (Rule) =>
-                      Rule.required().uri({scheme: ['https', 'http', 'mailto', 'tel']}),
-                  }),
-                  defineField({
-                    name: 'blank',
-                    title: 'Open in new tab',
-                    type: 'boolean',
-                    initialValue: false,
-                  }),
-                ],
-              },
-            ],
-          },
-        },
-      ],
+      type: 'portableText',
     }),
     defineField({
       name: 'seo',
       title: 'SEO',
       type: 'seo',
-      // JC #11: object is required but its sub-fields are individually optional
       validation: (Rule) => Rule.required(),
     }),
   ],

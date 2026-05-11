@@ -1,14 +1,15 @@
 ---
 import { imageUrl } from '~/lib/imageUrl'
 import { createDataAttribute } from '@sanity/visual-editing'
-import type { ProjectCard, SiteSettings } from '~/lib/queries'
+import type { ProjectCard, SiteSettings, HomePage } from '~/lib/queries'
 
 interface Props {
   projects?: ProjectCard[]
   settings?: SiteSettings | null
+  homePage?: HomePage | null
 }
 
-const { projects, settings } = Astro.props
+const { projects, homePage } = Astro.props
 
 const FALLBACK_VIDEOS = [
   {id: '1C3cVFGJBJo', title: 'Video 1'},
@@ -24,15 +25,15 @@ const multiPage = hasProjects && projects!.length > 1
   <div class="max-w-5xl mx-auto px-6 mb-10">
     <h2
       class="text-[#F5C645] text-[32px] md:text-[40px] font-bold tracking-tight mb-3 text-center"
-      data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'projectsHeading'})() : undefined}
+      data-sanity={homePage ? createDataAttribute({id: 'homePage', type: 'homePage', path: 'projectsHeading'})() : undefined}
     >
-      {settings?.projectsHeading ?? 'Project Highlights.'}
+      {homePage?.projectsHeading ?? 'Project Highlights.'}
     </h2>
     <p
       class="text-neutral-400 text-[18px] text-center max-w-xl mx-auto leading-relaxed"
-      data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'projectsSubheading'})() : undefined}
+      data-sanity={homePage ? createDataAttribute({id: 'homePage', type: 'homePage', path: 'projectsSubheading'})() : undefined}
     >
-      {settings?.projectsSubheading ?? 'A selection of work across video, photo, and design for clients in construction, lifestyle, and luxury.'}
+      {homePage?.projectsSubheading ?? 'A selection of work across video, photo, and design for clients in construction, lifestyle, and luxury.'}
     </p>
   </div>
 

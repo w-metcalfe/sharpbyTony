@@ -1,4 +1,4 @@
-import groq from 'groq'
+import {defineQuery} from 'groq'
 
 // ---------------------------------------------------------------------------
 // Shared primitive types
@@ -58,35 +58,37 @@ export type PortableTextBlock = {
 // Query result types
 // ---------------------------------------------------------------------------
 
+/** Global brand metadata, contact info, and social links. */
 export type SiteSettings = {
   title: string
-  tagline: string
-  heroBody?: string
-  heroKicker?: string
-  heroCta?: string
   description: string
   logo: SanityImage
   favicon: SanityImage
   defaultOgImage: SanityImage
   contactEmail: string
   contactPhone: string
+  contactHeading?: string
   address?: {locality?: string; region?: string}
   socialLinks?: Array<{platform: string; url: string}>
-  primaryReelVideo?: VideoEmbed
   serviceArea?: string[]
-  heroBackground?: SanityImageCroppable
-  videoHeroBackground?: SanityImageCroppable
-  photoHeroBackground?: SanityImageCroppable
   footerBackground?: SanityImageCroppable
-  aboutPortrait?: SanityImageCroppable
-  processStepImages?: SanityImageCroppable[]
+}
+
+/** Home page specific content. */
+export type HomePage = {
+  heroKicker?: string
+  tagline?: string
+  heroBody?: string
+  heroCta?: string
+  heroBackground?: SanityImageCroppable
   aboutHeading?: string
   aboutBody?: string
   aboutQuote?: string
+  aboutPortrait?: SanityImageCroppable
+  primaryReelVideo?: VideoEmbed
   projectsHeading?: string
   projectsSubheading?: string
   testimonialsHeading?: string
-  contactHeading?: string
 }
 
 export type ProjectCard = {
@@ -147,6 +149,10 @@ export type Page = {
   slug: SlugValue
   heroHeading: string
   heroSubheading?: string
+  kicker?: string
+  heroBackground?: SanityImageCroppable
+  portrait?: SanityImageCroppable
+  processStepImages?: SanityImageCroppable[]
   body?: PortableTextBlock[]
   seo: Seo
 }
@@ -173,41 +179,44 @@ export type FeaturedTestimonial = {
 // ---------------------------------------------------------------------------
 
 /** Global brand metadata, contact info, and social links. */
-export const siteSettingsQuery = groq`
+export const SITE_SETTINGS_QUERY = defineQuery(`
   *[_type == "siteSettings" && _id == "siteSettings"][0] {
     title,
-    tagline,
-    heroBody,
-    heroKicker,
-    heroCta,
     description,
     logo { asset, alt },
     favicon { asset, alt },
     defaultOgImage { asset, alt },
     contactEmail,
     contactPhone,
+    contactHeading,
     address { locality, region },
     socialLinks[] { platform, url },
-    primaryReelVideo { provider, url, posterFrame { asset, alt, hotspot, crop } },
     serviceArea,
+    footerBackground { asset, alt, hotspot, crop }
+  }
+`)
+
+/** Home page specific content — hero, about section, projects, testimonials headings. */
+export const HOME_PAGE_QUERY = defineQuery(`
+  *[_type == "homePage" && _id == "homePage"][0] {
+    heroKicker,
+    tagline,
+    heroBody,
+    heroCta,
     heroBackground { asset, alt, hotspot, crop },
-    videoHeroBackground { asset, alt, hotspot, crop },
-    photoHeroBackground { asset, alt, hotspot, crop },
-    footerBackground { asset, alt, hotspot, crop },
-    aboutPortrait { asset, alt, hotspot, crop },
-    processStepImages[] { asset, alt, hotspot, crop },
     aboutHeading,
     aboutBody,
     aboutQuote,
+    aboutPortrait { asset, alt, hotspot, crop },
+    primaryReelVideo { provider, url, posterFrame { asset, alt, hotspot, crop } },
     projectsHeading,
     projectsSubheading,
-    testimonialsHeading,
-    contactHeading
+    testimonialsHeading
   }
-`
+`)
 
 /** All projects sorted by manual order, then newest first. */
-export const allProjectsQuery = groq`
+export const ALL_PROJECTS_QUERY = defineQuery(`
   *[_type == "project"] | order(order asc, publishedAt desc) {
     _id,
     title,
@@ -222,10 +231,10 @@ export const allProjectsQuery = groq`
     client->{ name },
     service->{ title, slug }
   }
-`
+`)
 
 /** Projects filtered by vertical. Pass `{ vertical: "construction" }` etc. */
-export const projectsByVerticalQuery = groq`
+export const PROJECTS_BY_VERTICAL_QUERY = defineQuery(`
   *[_type == "project" && vertical == $vertical] | order(order asc, publishedAt desc) {
     _id,
     title,
@@ -240,10 +249,10 @@ export const projectsByVerticalQuery = groq`
     client->{ name },
     service->{ title, slug }
   }
-`
+`)
 
 /** Projects flagged as featured, sorted by manual order then newest first. */
-export const featuredProjectsQuery = groq`
+export const FEATURED_PROJECTS_QUERY = defineQuery(`
   *[_type == "project" && featured == true] | order(order asc, publishedAt desc) {
     _id,
     title,
@@ -258,10 +267,10 @@ export const featuredProjectsQuery = groq`
     client->{ name },
     service->{ title, slug }
   }
-`
+`)
 
 /** Projects included in the Demo Reel, sorted by manual order then newest first. */
-export const reelProjectsQuery = groq`
+export const REEL_PROJECTS_QUERY = defineQuery(`
   *[_type == "project" && featuredOnReel == true] | order(order asc, publishedAt desc) {
     _id,
     title,
@@ -270,10 +279,10 @@ export const reelProjectsQuery = groq`
     videoEmbed { provider, url, posterFrame { asset, alt, hotspot, crop } },
     shortDescription
   }
-`
+`)
 
 /** Full project detail by slug. Pass `{ slug: "project-slug" }`. Returns null if not found. */
-export const projectBySlugQuery = groq`
+export const PROJECT_BY_SLUG_QUERY = defineQuery(`
   *[_type == "project" && slug.current == $slug][0] {
     _id,
     title,
@@ -292,10 +301,10 @@ export const projectBySlugQuery = groq`
     service->{ _id, title, slug },
     seo { metaTitle, metaDescription, ogImage { asset, alt }, noIndex }
   }
-`
+`)
 
 /** All services sorted by priority order. */
-export const allServicesQuery = groq`
+export const ALL_SERVICES_QUERY = defineQuery(`
   *[_type == "service"] | order(order asc) {
     _id,
     title,
@@ -304,33 +313,37 @@ export const allServicesQuery = groq`
     icon,
     order
   }
-`
+`)
 
 /** Static page by slug. Pass `{ slug: "about" }`. Returns null if not found. */
-export const pageBySlugQuery = groq`
+export const PAGE_BY_SLUG_QUERY = defineQuery(`
   *[_type == "page" && slug.current == $slug][0] {
     _id,
     title,
     slug,
     heroHeading,
     heroSubheading,
+    kicker,
+    heroBackground { asset, alt, hotspot, crop },
+    portrait { asset, alt, hotspot, crop },
+    processStepImages[] { asset, alt, hotspot, crop },
     body,
     seo { metaTitle, metaDescription, ogImage { asset, alt }, noIndex }
   }
-`
+`)
 
 /** Clients flagged as featured for the home-page logo strip, sorted by manual order. */
-export const featuredClientsQuery = groq`
+export const FEATURED_CLIENTS_QUERY = defineQuery(`
   *[_type == "client" && featured == true] | order(order asc) {
     _id,
     name,
     logo { asset, alt, hotspot, crop },
     website
   }
-`
+`)
 
 /** All photo-type projects sorted by manual order then newest first. */
-export const photoProjectsQuery = groq`
+export const PHOTO_PROJECTS_QUERY = defineQuery(`
   *[_type == "project" && mediaType == "photo"] | order(order asc, publishedAt desc) {
     _id,
     title,
@@ -344,10 +357,10 @@ export const photoProjectsQuery = groq`
     client->{ name },
     service->{ title, slug }
   }
-`
+`)
 
 /** All video-type projects sorted by manual order then newest first. */
-export const videoProjectsQuery = groq`
+export const VIDEO_PROJECTS_QUERY = defineQuery(`
   *[_type == "project" && mediaType == "video"] | order(order asc, publishedAt desc) {
     _id,
     title,
@@ -362,10 +375,10 @@ export const videoProjectsQuery = groq`
     client->{ name },
     service->{ title, slug }
   }
-`
+`)
 
 /** Testimonials flagged as featured, sorted by manual order. */
-export const featuredTestimonialsQuery = groq`
+export const FEATURED_TESTIMONIALS_QUERY = defineQuery(`
   *[_type == "testimonial" && featured == true] | order(order asc) {
     _id,
     quote,
@@ -375,4 +388,4 @@ export const featuredTestimonialsQuery = groq`
     relatedClient->{ name },
     relatedProject->{ title, slug }
   }
-`
+`)

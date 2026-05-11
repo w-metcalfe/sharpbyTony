@@ -1,14 +1,15 @@
 ---
-import type { SiteSettings } from '~/lib/queries'
+import type { SiteSettings, HomePage } from '~/lib/queries'
 import {stegaClean} from '@sanity/client/stega'
 
 interface Props {
   settings?: SiteSettings | null
+  homePage?: HomePage | null
 }
 
-const { settings } = Astro.props
+const { homePage } = Astro.props
 
-const reel = settings?.primaryReelVideo
+const reel = homePage?.primaryReelVideo
 let videoId: string | null = null
 if (reel?.provider === 'youtube') {
   videoId = stegaClean(reel.url).match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1] ?? null

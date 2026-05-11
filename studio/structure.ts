@@ -8,6 +8,14 @@ export const structure = (S: StructureBuilder) =>
     .title('Content')
     .items([
       S.listItem()
+        .title('Home Page')
+        .id('homePage')
+        .child(
+          S.document()
+            .schemaType('homePage')
+            .documentId('homePage'),
+        ),
+      S.listItem()
         .title('Site Settings')
         .id('siteSettings')
         .child(

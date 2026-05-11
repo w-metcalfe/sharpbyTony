@@ -14,11 +14,13 @@ import {loadQuery} from '~/lib/load-query'
 import {getDraftModeProps} from '~/lib/draft-mode'
 import {imageUrl} from '~/lib/imageUrl'
 import {
-  siteSettingsQuery,
-  featuredClientsQuery,
-  featuredProjectsQuery,
-  featuredTestimonialsQuery,
+  SITE_SETTINGS_QUERY,
+  HOME_PAGE_QUERY,
+  FEATURED_CLIENTS_QUERY,
+  FEATURED_PROJECTS_QUERY,
+  FEATURED_TESTIMONIALS_QUERY,
   type SiteSettings,
+  type HomePage,
   type FeaturedClient,
   type ProjectCard,
   type FeaturedTestimonial,
@@ -30,14 +32,16 @@ const draftProps = getDraftModeProps(Astro.cookies)
 // component falls back to hardcoded placeholder content.
 const [
   {data: settings},
+  {data: homePage},
   {data: clients},
   {data: projects},
   {data: testimonials},
 ] = await Promise.all([
-  loadQuery<SiteSettings | null>({query: siteSettingsQuery, ...draftProps}).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
-  loadQuery<FeaturedClient[]>({query: featuredClientsQuery, ...draftProps}).catch(() => ({data: [], sourceMap: undefined, perspective: 'published' as const})),
-  loadQuery<ProjectCard[]>({query: featuredProjectsQuery, ...draftProps}).catch(() => ({data: [], sourceMap: undefined, perspective: 'published' as const})),
-  loadQuery<FeaturedTestimonial[]>({query: featuredTestimonialsQuery, ...draftProps}).catch(() => ({data: [], sourceMap: undefined, perspective: 'published' as const})),
+  loadQuery<SiteSettings | null>({query: SITE_SETTINGS_QUERY, ...draftProps}).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
+  loadQuery<HomePage | null>({query: HOME_PAGE_QUERY, ...draftProps}).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
+  loadQuery<FeaturedClient[]>({query: FEATURED_CLIENTS_QUERY, ...draftProps}).catch(() => ({data: [], sourceMap: undefined, perspective: 'published' as const})),
+  loadQuery<ProjectCard[]>({query: FEATURED_PROJECTS_QUERY, ...draftProps}).catch(() => ({data: [], sourceMap: undefined, perspective: 'published' as const})),
+  loadQuery<FeaturedTestimonial[]>({query: FEATURED_TESTIMONIALS_QUERY, ...draftProps}).catch(() => ({data: [], sourceMap: undefined, perspective: 'published' as const})),
 ])
 
 const title = settings
@@ -55,16 +59,16 @@ const ogImageUrl = settings?.defaultOgImage?.asset
   : undefined
 ---
 
-<BaseLayout title={title} description={description} favicon={favicon} ogImage={ogImageUrl} contactEmail={settings?.contactEmail} contactPhone={settings?.contactPhone}>
+<BaseLayout title={title} description={description} favicon={favicon} ogImage={ogImageUrl} contactEmail={settings?.contactEmail} contactPhone={settings?.contactPhone} address={settings?.address}>
   <Header currentPath="/" settings={settings} />
 
   <main id="main-content">
-    <HeroSection settings={settings} />
+    <HeroSection settings={settings} homePage={homePage} />
     <ClientsSection clients={clients} />
-    <AboutSection settings={settings} />
-    <DemoReelSection settings={settings} />
-    <ProjectHighlights projects={projects} settings={settings} />
-    <TestimonialsSection testimonials={testimonials} settings={settings} />
+    <AboutSection settings={settings} homePage={homePage} />
+    <DemoReelSection settings={settings} homePage={homePage} />
+    <ProjectHighlights projects={projects} settings={settings} homePage={homePage} />
+    <TestimonialsSection testimonials={testimonials} settings={settings} homePage={homePage} />
     <ContactSection settings={settings} />
   </main>
 

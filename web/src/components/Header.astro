@@ -177,7 +177,8 @@ const navLinks = [
 
   btn?.addEventListener('click', () => {
     const isOpen = btn.getAttribute('aria-expanded') === 'true'
-    isOpen ? closeMenu() : openMenu()
+    if (isOpen) closeMenu()
+    else openMenu()
   })
 
   // Close menu when a nav link is tapped

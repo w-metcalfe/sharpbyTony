@@ -18,7 +18,7 @@ export function imageUrl(
   const dims = parts.pop()
   const hash = parts.join('-')
 
-  let url = `https://cdn.sanity.io/images/${PROJECT_ID}/${DATASET}/${hash}-${dims}.${ext}`
+  const url = `https://cdn.sanity.io/images/${PROJECT_ID}/${DATASET}/${hash}-${dims}.${ext}`
 
   const params = new URLSearchParams()
   if (opts.width) params.set('w', String(opts.width))

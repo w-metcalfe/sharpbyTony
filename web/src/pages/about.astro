@@ -9,23 +9,30 @@ import {getDraftModeProps} from '~/lib/draft-mode'
 import {imageUrl} from '~/lib/imageUrl'
 import {createDataAttribute} from '@sanity/visual-editing'
 import {
-  siteSettingsQuery,
-  pageBySlugQuery,
+  SITE_SETTINGS_QUERY,
+  HOME_PAGE_QUERY,
+  PAGE_BY_SLUG_QUERY,
   type SiteSettings,
+  type HomePage,
   type Page,
   type PortableTextBlock,
 } from '~/lib/queries'
 
 const draftProps = getDraftModeProps(Astro.cookies)
 
-const [{data: settings}, {data: page}] = await Promise.all([
-  loadQuery<SiteSettings | null>({query: siteSettingsQuery, ...draftProps}).catch(() => ({
+const [{data: settings}, {data: homePage}, {data: page}] = await Promise.all([
+  loadQuery<SiteSettings | null>({query: SITE_SETTINGS_QUERY, ...draftProps}).catch(() => ({
+    data: null,
+    sourceMap: undefined,
+    perspective: 'published' as const,
+  })),
+  loadQuery<HomePage | null>({query: HOME_PAGE_QUERY, ...draftProps}).catch(() => ({
     data: null,
     sourceMap: undefined,
     perspective: 'published' as const,
   })),
   loadQuery<Page | null>({
-    query: pageBySlugQuery,
+    query: PAGE_BY_SLUG_QUERY,
     params: {slug: 'about'},
     ...draftProps,
   }).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
@@ -43,8 +50,8 @@ const ogImageUrl = page?.seo?.ogImage?.asset
   : undefined
 const noIndex = page?.seo?.noIndex ?? false
 
-const portrait = settings?.aboutPortrait?.asset
-  ? imageUrl(settings.aboutPortrait, {width: 448, height: 630, quality: 80})
+const portrait = homePage?.aboutPortrait?.asset
+  ? imageUrl(homePage.aboutPortrait, {width: 448, height: 630, quality: 80})
   : null
 
 const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
@@ -115,6 +122,9 @@ const bodyHtml = page?.body?.length ? renderBlocks(page.body) : null
   ogImage={ogImageUrl}
   favicon={favicon}
   noIndex={noIndex}
+  contactEmail={settings?.contactEmail}
+  contactPhone={settings?.contactPhone}
+  address={settings?.address}
 >
   <Header currentPath="/about" settings={settings} />
 
@@ -130,11 +140,11 @@ const bodyHtml = page?.body?.length ? renderBlocks(page.body) : null
             <p
               class="text-[13px] font-bold tracking-[0.25em] uppercase mb-4"
               style="color: #F5C645;"
-              data-sanity={settings
-                ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'aboutHeading'})()
+              data-sanity={homePage
+                ? createDataAttribute({id: 'homePage', type: 'homePage', path: 'aboutHeading'})()
                 : undefined}
             >
-              {settings?.aboutHeading ?? 'About Me'}
+              {homePage?.aboutHeading ?? 'About Me'}
             </p>
 
             <h1
@@ -184,7 +194,7 @@ const bodyHtml = page?.body?.length ? renderBlocks(page.body) : null
             {portrait && (
               <img
                 src={portrait}
-                alt={settings?.aboutPortrait?.alt ?? 'Antonio Martinez – Sharp by Tony'}
+                alt={homePage?.aboutPortrait?.alt ?? 'Antonio Martinez – Sharp by Tony'}
                 width="448"
                 height="630"
                 class="w-full max-w-[380px] mx-auto object-cover"

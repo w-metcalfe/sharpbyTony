@@ -1,16 +1,17 @@
 ---
 import { imageUrl } from '~/lib/imageUrl'
 import { createDataAttribute } from '@sanity/visual-editing'
-import type { SiteSettings } from '~/lib/queries'
+import type { SiteSettings, HomePage } from '~/lib/queries'
 
 interface Props {
   settings?: SiteSettings | null
+  homePage?: HomePage | null
 }
 
-const { settings } = Astro.props
+const { homePage } = Astro.props
 
-const bgImage = settings?.heroBackground?.asset
-  ? imageUrl(settings.heroBackground, {width: 1920, height: 800, quality: 85})
+const bgImage = homePage?.heroBackground?.asset
+  ? imageUrl(homePage.heroBackground, {width: 1920, height: 800, quality: 85})
   : null
 ---
 
@@ -20,7 +21,7 @@ const bgImage = settings?.heroBackground?.asset
     {bgImage && (
       <img
         src={bgImage}
-        alt={settings?.heroBackground?.alt ?? 'Antonio Martinez – Sharp by Tony'}
+        alt={homePage?.heroBackground?.alt ?? 'Antonio Martinez – Sharp by Tony'}
         fetchpriority="high"
         class="w-full h-full object-cover object-[85%_top] lg:object-[70%_center]"
         width="1920"
@@ -44,26 +45,26 @@ const bgImage = settings?.heroBackground?.asset
       <p
         class="text-[14px] font-normal tracking-[0.25em] uppercase mb-2"
         style="color: #F5C645; text-shadow: rgba(0,0,0,0.4) 0px 4px 5px;"
-        data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'heroKicker'})() : undefined}
+        data-sanity={homePage ? createDataAttribute({id: 'homePage', type: 'homePage', path: 'heroKicker'})() : undefined}
       >
-        {settings?.heroKicker ?? 'VIDEO | PHOTO | DESIGN'}
+        {homePage?.heroKicker ?? 'VIDEO | PHOTO | DESIGN'}
       </p>
 
       <!-- Tagline -->
       <h1
         class="text-white text-[24px] font-bold tracking-widest uppercase mb-6"
         style="text-shadow: rgba(0,0,0,0.4) 0px 4px 5px;"
-        data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'tagline'})() : undefined}
+        data-sanity={homePage ? createDataAttribute({id: 'homePage', type: 'homePage', path: 'tagline'})() : undefined}
       >
-        {settings?.tagline ?? 'Sharp & Strategic Visuals.'}
+        {homePage?.tagline ?? 'Sharp & Strategic Visuals.'}
       </h1>
 
       <!-- Body copy -->
       <p
         class="text-white/80 text-[18px] leading-relaxed mb-6"
-        data-sanity={settings ? createDataAttribute({id: 'siteSettings', type: 'siteSettings', path: 'heroBody'})() : undefined}
+        data-sanity={homePage ? createDataAttribute({id: 'homePage', type: 'homePage', path: 'heroBody'})() : undefined}
       >
-        {settings?.heroBody ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.'}
+        {homePage?.heroBody ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.'}
       </p>
 
       <!-- CTA -->
@@ -71,7 +72,7 @@ const bgImage = settings?.heroBackground?.asset
         href="#contact-form"
         class="inline-block bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase px-6 py-3 transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black cursor-pointer"
       >
-        {settings?.heroCta ?? 'Book Your Shoot'}
+        {homePage?.heroCta ?? 'Book Your Shoot'}
       </a>
     </div>
   </div>

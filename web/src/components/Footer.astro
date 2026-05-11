@@ -1,5 +1,6 @@
 ---
 import { imageUrl } from '~/lib/imageUrl'
+import { stegaClean } from '@sanity/client/stega'
 import type { SiteSettings } from '~/lib/queries'
 
 interface Props {
@@ -45,7 +46,7 @@ const footerImage = settings?.footerBackground?.asset
       {
         socials.map(({ platform, url }) => (
           <a
-            href={url}
+            href={stegaClean(url)}
             target="_blank"
             rel="noreferrer noopener"
             aria-label={`Sharp by Tony on ${platform}`}

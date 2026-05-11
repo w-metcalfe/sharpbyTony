@@ -9,9 +9,9 @@ import {getDraftModeProps} from '~/lib/draft-mode'
 import {imageUrl} from '~/lib/imageUrl'
 import {createDataAttribute} from '@sanity/visual-editing'
 import {
-  siteSettingsQuery,
-  pageBySlugQuery,
-  videoProjectsQuery,
+  SITE_SETTINGS_QUERY,
+  PAGE_BY_SLUG_QUERY,
+  VIDEO_PROJECTS_QUERY,
   type SiteSettings,
   type Page,
   type ProjectCard,
@@ -21,17 +21,17 @@ import {
 const draftProps = getDraftModeProps(Astro.cookies)
 
 const [{data: settings}, {data: page}, {data: videoProjects}] = await Promise.all([
-  loadQuery<SiteSettings | null>({query: siteSettingsQuery, ...draftProps}).catch(() => ({
+  loadQuery<SiteSettings | null>({query: SITE_SETTINGS_QUERY, ...draftProps}).catch(() => ({
     data: null,
     sourceMap: undefined,
     perspective: 'published' as const,
   })),
   loadQuery<Page | null>({
-    query: pageBySlugQuery,
+    query: PAGE_BY_SLUG_QUERY,
     params: {slug: 'videos'},
     ...draftProps,
   }).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
-  loadQuery<ProjectCard[]>({query: videoProjectsQuery, ...draftProps}).catch(() => ({
+  loadQuery<ProjectCard[]>({query: VIDEO_PROJECTS_QUERY, ...draftProps}).catch(() => ({
     data: [],
     sourceMap: undefined,
     perspective: 'published' as const,
@@ -50,11 +50,9 @@ const noIndex = page?.seo?.noIndex ?? false
 
 const heroBg = videoProjects?.[0]?.thumbnail
   ? imageUrl(videoProjects[0].thumbnail, {width: 1920, height: 800, quality: 85})
-  : settings?.videoHeroBackground?.asset
-    ? imageUrl(settings.videoHeroBackground, {width: 1920, height: 800, quality: 85})
-    : settings?.heroBackground?.asset
-      ? imageUrl(settings.heroBackground, {width: 1920, height: 800, quality: 85})
-      : null
+  : page?.heroBackground?.asset
+    ? imageUrl(page.heroBackground, {width: 1920, height: 800, quality: 85})
+    : null
 
 // Process section
 const PROCESS_HEADING = page?.heroHeading ?? 'VIDEO PROCESS'
@@ -65,22 +63,22 @@ const PROCESS_INTRO =
 const PROCESS_STEPS = [
   {
     label: 'DETAILED PLAN',
-    img: settings?.processStepImages?.[0]?.asset
-      ? imageUrl(settings.processStepImages[0], {width: 560, height: 360, quality: 80})
+    img: page?.processStepImages?.[0]?.asset
+      ? imageUrl(page.processStepImages[0], {width: 560, height: 360, quality: 80})
       : null,
     body: 'In pre-production, I translate your vision and strategy into clear shot lists, visual mood boards, and scripts that set the creative direction. I also handle the details with lighting plans, equipment selection, and sourcing the right cast and crew so that everything is dialed in and thought of before the camera ever rolls.',
   },
   {
     label: 'PRODUCTION',
-    img: settings?.processStepImages?.[1]?.asset
-      ? imageUrl(settings.processStepImages[1], {width: 560, height: 360, quality: 80})
+    img: page?.processStepImages?.[1]?.asset
+      ? imageUrl(page.processStepImages[1], {width: 560, height: 360, quality: 80})
       : null,
     body: 'During production, I execute the plan shot by shot—methodically checking off the shot list and capturing everything needed so the edit is smooth and efficient. Clients are often on set to weigh in on framing, performance, and delivery, ensuring alignment in real time and zero surprises in post.',
   },
   {
     label: 'EDITS & DELIVERY',
-    img: settings?.processStepImages?.[2]?.asset
-      ? imageUrl(settings.processStepImages[2], {width: 560, height: 360, quality: 80})
+    img: page?.processStepImages?.[2]?.asset
+      ? imageUrl(page.processStepImages[2], {width: 560, height: 360, quality: 80})
       : null,
     body: 'Experience a thorough feedback session post-production to refine your video content. I ensure that your vision is realized, making necessary adjustments for a polished final product that meets your goals and exceeds your expectations.',
   },
@@ -113,6 +111,9 @@ const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32
   ogImage={ogImageUrl}
   favicon={favicon}
   noIndex={noIndex}
+  contactEmail={settings?.contactEmail}
+  contactPhone={settings?.contactPhone}
+  address={settings?.address}
 >
   <Header currentPath="/videos" settings={settings} />
 
@@ -230,7 +231,6 @@ const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32
       </div>
 
       {hasProjects ? (
-        <!-- Carousel (real Sanity projects) -->
         <div class="relative w-full" id="vp-carousel">
           <div class="relative overflow-hidden w-full">
             <div
@@ -297,7 +297,6 @@ const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32
           {multiPage && <div id="vp-dots" class="flex justify-center gap-2 mt-6" />}
         </div>
       ) : (
-        <!-- Fallback: 2 embedded videos, stacked on mobile / side-by-side on desktop -->
         <div class="flex flex-col md:flex-row gap-3 px-3">
           {FEATURED_VIDEOS.map((v) => (
             <div class="relative w-full md:w-1/2 aspect-video bg-neutral-900 shrink-0">

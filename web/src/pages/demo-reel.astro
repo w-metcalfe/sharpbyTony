@@ -9,22 +9,29 @@ import {getDraftModeProps} from '~/lib/draft-mode'
 import {imageUrl} from '~/lib/imageUrl'
 import {stegaClean} from '@sanity/client/stega'
 import {
-  siteSettingsQuery,
-  pageBySlugQuery,
+  SITE_SETTINGS_QUERY,
+  HOME_PAGE_QUERY,
+  PAGE_BY_SLUG_QUERY,
   type SiteSettings,
+  type HomePage,
   type Page,
 } from '~/lib/queries'
 
 const draftProps = getDraftModeProps(Astro.cookies)
 
-const [{data: settings}, {data: page}] = await Promise.all([
-  loadQuery<SiteSettings | null>({query: siteSettingsQuery, ...draftProps}).catch(() => ({
+const [{data: settings}, {data: homePage}, {data: page}] = await Promise.all([
+  loadQuery<SiteSettings | null>({query: SITE_SETTINGS_QUERY, ...draftProps}).catch(() => ({
+    data: null,
+    sourceMap: undefined,
+    perspective: 'published' as const,
+  })),
+  loadQuery<HomePage | null>({query: HOME_PAGE_QUERY, ...draftProps}).catch(() => ({
     data: null,
     sourceMap: undefined,
     perspective: 'published' as const,
   })),
   loadQuery<Page | null>({
-    query: pageBySlugQuery,
+    query: PAGE_BY_SLUG_QUERY,
     params: {slug: 'demo-reel'},
     ...draftProps,
   }).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
@@ -41,7 +48,7 @@ const ogImageUrl = page?.seo?.ogImage?.asset
 const noIndex = page?.seo?.noIndex ?? false
 const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
 
-const reel = settings?.primaryReelVideo
+const reel = homePage?.primaryReelVideo
 let embedUrl: string | null = null
 if (reel?.provider === 'youtube') {
   const id = stegaClean(reel.url).match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1]
@@ -58,6 +65,9 @@ if (reel?.provider === 'youtube') {
   ogImage={ogImageUrl}
   favicon={favicon}
   noIndex={noIndex}
+  contactEmail={settings?.contactEmail}
+  contactPhone={settings?.contactPhone}
+  address={settings?.address}
 >
   <Header currentPath="/demo-reel" settings={settings} />
 

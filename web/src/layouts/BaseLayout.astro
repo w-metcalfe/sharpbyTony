@@ -12,6 +12,7 @@ interface Props {
   noIndex?: boolean
   contactEmail?: string
   contactPhone?: string
+  address?: {locality?: string | null; region?: string | null}
 }
 
 const {
@@ -22,6 +23,7 @@ const {
   noIndex = false,
   contactEmail,
   contactPhone,
+  address,
 } = Astro.props
 
 const canonicalUrl = new URL(Astro.url.pathname, 'https://sharpbytony.com').href
@@ -32,14 +34,17 @@ const jsonLd = {
   '@type': 'ProfessionalService',
   name: 'Sharp by Tony',
   url: 'https://sharpbytony.com',
-  ...(contactPhone ? {telephone: contactPhone} : {telephone: '+15199027253'}),
+  ...(contactPhone ? {telephone: contactPhone} : {}),
   ...(contactEmail ? {email: contactEmail} : {}),
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'London',
-    addressRegion: 'ON',
-    addressCountry: 'CA',
-  },
+  ...(address?.locality || address?.region
+    ? {
+        address: {
+          '@type': 'PostalAddress',
+          ...(address.locality ? {addressLocality: address.locality} : {}),
+          ...(address.region ? {addressRegion: address.region} : {}),
+        },
+      }
+    : {}),
   founder: {
     '@type': 'Person',
     name: 'Antonio Martinez',

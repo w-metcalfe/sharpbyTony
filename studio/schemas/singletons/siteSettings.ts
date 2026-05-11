@@ -1,19 +1,15 @@
-import {defineField, defineType} from 'sanity'
+import {CogIcon} from '@sanity/icons'
+import {defineField, defineArrayMember, defineType} from 'sanity'
 
 export const siteSettingsType = defineType({
   name: 'siteSettings',
   title: 'Site Settings',
   type: 'document',
+  icon: CogIcon,
   fields: [
     defineField({
       name: 'title',
       title: 'Site Title',
-      type: 'string',
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'tagline',
-      title: 'Tagline',
       type: 'string',
       validation: (Rule) => Rule.required(),
     }),
@@ -49,7 +45,6 @@ export const siteSettingsType = defineType({
           name: 'alt',
           title: 'Alt Text',
           type: 'string',
-          // JC #5: global rule — alt required on all image fields
           validation: (Rule) => Rule.required(),
         }),
       ],
@@ -74,7 +69,6 @@ export const siteSettingsType = defineType({
       name: 'contactEmail',
       title: 'Contact Email',
       type: 'string',
-      // JC #6: regex email validation (no built-in email type in Sanity)
       validation: (Rule) =>
         Rule.required().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {
           name: 'email',
@@ -84,15 +78,18 @@ export const siteSettingsType = defineType({
       name: 'contactPhone',
       title: 'Contact Phone',
       type: 'string',
-      // JC #7: E.164 recommended via hint, not enforced strictly to reduce author friction
       description: 'Recommended: E.164 format, e.g. +15199027253',
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'contactHeading',
+      title: 'Contact Section Heading',
+      type: 'string',
     }),
     defineField({
       name: 'address',
       title: 'Address',
       type: 'object',
-      // JC #8: field names match schema.org PostalAddress — locality + region
       fields: [
         defineField({
           name: 'locality',
@@ -113,7 +110,7 @@ export const siteSettingsType = defineType({
       title: 'Social Links',
       type: 'array',
       of: [
-        {
+        defineArrayMember({
           type: 'object',
           fields: [
             defineField({
@@ -142,112 +139,8 @@ export const siteSettingsType = defineType({
           preview: {
             select: {title: 'platform', subtitle: 'url'},
           },
-        },
-      ],
-    }),
-    defineField({
-      name: 'heroBody',
-      title: 'Hero Body Copy',
-      type: 'text',
-      rows: 3,
-      description: 'Short paragraph displayed in the hero card, below the tagline.',
-    }),
-    defineField({
-      name: 'heroKicker',
-      title: 'Hero Kicker',
-      type: 'string',
-      description: 'Short label above the headline, e.g. "VIDEO | PHOTO | DESIGN"',
-    }),
-    defineField({
-      name: 'heroCta',
-      title: 'CTA Button Label',
-      type: 'string',
-      description: 'Primary call-to-action button label, e.g. "Book Your Shoot"',
-    }),
-    defineField({
-      name: 'aboutHeading',
-      title: 'About Section Heading',
-      type: 'string',
-    }),
-    defineField({
-      name: 'aboutBody',
-      title: 'About Body Copy',
-      type: 'text',
-      rows: 5,
-      description: 'Main body paragraphs for the About section. Separate paragraphs with a blank line.',
-    }),
-    defineField({
-      name: 'aboutQuote',
-      title: 'About Pull Quote',
-      type: 'text',
-      rows: 2,
-      description: 'Blockquote displayed in the About section',
-    }),
-    defineField({
-      name: 'projectsHeading',
-      title: 'Projects Section Heading',
-      type: 'string',
-    }),
-    defineField({
-      name: 'projectsSubheading',
-      title: 'Projects Section Subheading',
-      type: 'text',
-      rows: 2,
-    }),
-    defineField({
-      name: 'testimonialsHeading',
-      title: 'Testimonials Section Heading',
-      type: 'string',
-    }),
-    defineField({
-      name: 'contactHeading',
-      title: 'Contact Section Heading',
-      type: 'string',
-    }),
-    defineField({
-      name: 'heroBackground',
-      title: 'Hero Background Image',
-      type: 'image',
-      options: {hotspot: true},
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Alt Text',
-          type: 'string',
-          validation: (Rule) => Rule.required(),
         }),
       ],
-      description: 'Full-width background image for the homepage hero section',
-    }),
-    defineField({
-      name: 'videoHeroBackground',
-      title: 'Video Page Hero Background',
-      type: 'image',
-      options: {hotspot: true},
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Alt Text',
-          type: 'string',
-          validation: (Rule) => Rule.required(),
-        }),
-      ],
-      description: 'Hero background image for the Video page',
-    }),
-    defineField({
-      name: 'photoHeroBackground',
-      title: 'Photography Page Hero Background',
-      type: 'image',
-      options: {hotspot: true},
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Alt Text',
-          type: 'string',
-          validation: (Rule) => Rule.required(),
-        }),
-      ],
-      description: 'Hero background image for the Photography page',
     }),
     defineField({
       name: 'footerBackground',
@@ -262,49 +155,7 @@ export const siteSettingsType = defineType({
           validation: (Rule) => Rule.required(),
         }),
       ],
-      description: 'Decorative full-width image strip above the footer bar',
-    }),
-    defineField({
-      name: 'aboutPortrait',
-      title: 'About — Portrait Photo',
-      type: 'image',
-      options: {hotspot: true},
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Alt Text',
-          type: 'string',
-          validation: (Rule) => Rule.required(),
-        }),
-      ],
-      description: "Tony's portrait used in the About section and About page",
-    }),
-    defineField({
-      name: 'processStepImages',
-      title: 'Video Process Step Images',
-      type: 'array',
-      description: 'Exactly 3 images for the video process steps (Pre-Production, Production, Post-Production)',
-      of: [
-        {
-          type: 'image',
-          options: {hotspot: true},
-          fields: [
-            defineField({
-              name: 'alt',
-              title: 'Alt Text',
-              type: 'string',
-              validation: (Rule) => Rule.required(),
-            }),
-          ],
-        },
-      ],
-      validation: (Rule) => Rule.min(3).max(3),
-    }),
-    defineField({
-      name: 'primaryReelVideo',
-      title: 'Primary Reel Video',
-      type: 'videoEmbed',
-      description: 'Hero video used on the Demo Reel page',
+      description: 'Decorative full-width image strip above the footer bar — appears on every page',
     }),
     defineField({
       name: 'serviceArea',

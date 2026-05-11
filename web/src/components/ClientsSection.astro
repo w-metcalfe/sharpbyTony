@@ -1,5 +1,6 @@
 ---
 import { imageUrl } from '~/lib/imageUrl'
+import { stegaClean } from '@sanity/client/stega'
 import { createDataAttribute } from '@sanity/visual-editing'
 import type { FeaturedClient } from '~/lib/queries'
 
@@ -21,7 +22,7 @@ const imgClass =
       {
         [...sanityClients, ...sanityClients].map((c) => (
           <a
-            href={c.website ?? '#'}
+            href={c.website ? stegaClean(c.website) : '#'}
             target={c.website ? '_blank' : undefined}
             rel={c.website ? 'noreferrer noopener' : undefined}
             class="flex-none flex items-center justify-center"

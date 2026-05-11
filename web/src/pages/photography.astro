@@ -9,9 +9,9 @@ import {getDraftModeProps} from '~/lib/draft-mode'
 import {imageUrl} from '~/lib/imageUrl'
 import {createDataAttribute} from '@sanity/visual-editing'
 import {
-  siteSettingsQuery,
-  pageBySlugQuery,
-  photoProjectsQuery,
+  SITE_SETTINGS_QUERY,
+  PAGE_BY_SLUG_QUERY,
+  PHOTO_PROJECTS_QUERY,
   type SiteSettings,
   type Page,
   type ProjectCard,
@@ -20,17 +20,17 @@ import {
 const draftProps = getDraftModeProps(Astro.cookies)
 
 const [{data: settings}, {data: page}, {data: photoProjects}] = await Promise.all([
-  loadQuery<SiteSettings | null>({query: siteSettingsQuery, ...draftProps}).catch(() => ({
+  loadQuery<SiteSettings | null>({query: SITE_SETTINGS_QUERY, ...draftProps}).catch(() => ({
     data: null,
     sourceMap: undefined,
     perspective: 'published' as const,
   })),
   loadQuery<Page | null>({
-    query: pageBySlugQuery,
+    query: PAGE_BY_SLUG_QUERY,
     params: {slug: 'photography'},
     ...draftProps,
   }).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
-  loadQuery<ProjectCard[]>({query: photoProjectsQuery, ...draftProps}).catch(() => ({
+  loadQuery<ProjectCard[]>({query: PHOTO_PROJECTS_QUERY, ...draftProps}).catch(() => ({
     data: [],
     sourceMap: undefined,
     perspective: 'published' as const,
@@ -48,8 +48,8 @@ const ogImageUrl = page?.seo?.ogImage?.asset
 const noIndex = page?.seo?.noIndex ?? false
 const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
 
-const heroBg = settings?.photoHeroBackground?.asset
-  ? imageUrl(settings.photoHeroBackground, {width: 1920, height: 800, quality: 85})
+const heroBg = page?.heroBackground?.asset
+  ? imageUrl(page.heroBackground, {width: 1920, height: 800, quality: 85})
   : null
 
 // Build a unified gallery item list for the lightbox to reference
@@ -81,7 +81,7 @@ const GALLERY_SUBHEADING =
   'A selection of photography across construction, lifestyle, and luxury brands.'
 ---
 
-<BaseLayout title={pageTitle} description={pageDescription} ogImage={ogImageUrl} favicon={favicon} noIndex={noIndex}>
+<BaseLayout title={pageTitle} description={pageDescription} ogImage={ogImageUrl} favicon={favicon} noIndex={noIndex} contactEmail={settings?.contactEmail} contactPhone={settings?.contactPhone} address={settings?.address}>
   <Header currentPath="/photography" settings={settings} />
 
   <main id="main-content">
