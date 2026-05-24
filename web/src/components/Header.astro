@@ -1,30 +1,48 @@
 ---
-import { imageUrl } from '~/lib/imageUrl'
-import type { SiteSettings } from '~/lib/queries'
+import {imageUrl} from '~/lib/imageUrl'
+import {loadQuery} from '~/lib/load-query'
+import {getDraftModeProps} from '~/lib/draft-mode'
+import {SERVICES_BY_CATEGORY_QUERY, type SiteSettings, type Service} from '~/lib/queries'
 
 interface Props {
   settings?: SiteSettings | null
   currentPath?: string
 }
 
-const { settings, currentPath = '/' } = Astro.props
+const {settings, currentPath = '/'} = Astro.props
 
-const logo = settings?.logo?.asset
-  ? imageUrl(settings.logo, {width: 110, height: 63})
-  : null
+const draftProps = getDraftModeProps(Astro.cookies)
 
-const navLinks = [
-  { label: 'HOME', href: '/' },
-  { label: 'ABOUT', href: '/about' },
-  { label: 'VIDEO', href: '/videos' },
-  { label: 'PHOTO', href: '/photography' },
-  { label: 'DEMO REEL', href: '/demo-reel' },
-]
+const [{data: videoServices}, {data: photoServices}] = await Promise.all([
+  loadQuery<Service[]>({
+    query: SERVICES_BY_CATEGORY_QUERY,
+    params: {category: 'video'},
+    ...draftProps,
+  }).catch(() => ({data: [], sourceMap: undefined, perspective: 'published' as const})),
+  loadQuery<Service[]>({
+    query: SERVICES_BY_CATEGORY_QUERY,
+    params: {category: 'photography'},
+    ...draftProps,
+  }).catch(() => ({data: [], sourceMap: undefined, perspective: 'published' as const})),
+])
+
+const logo = settings?.logo?.asset ? imageUrl(settings.logo, {width: 110, height: 63}) : null
+
+const isVideoActive = currentPath === '/videos' || currentPath.startsWith('/video/')
+const isPhotoActive = currentPath === '/photography' || currentPath.startsWith('/photography/')
+
+function shortNavLabel(title: string, category: 'video' | 'photography'): string {
+  if (category === 'video') {
+    return title.replace(/\s*(videography|video\s+production|production)$/i, '').trim() + ' Video'
+  }
+  return title.replace(/\s*photography$/i, '').trim() + ' Photo'
+}
 ---
 
 <header class="bg-black sticky top-0 z-50">
   <!-- Mobile: flex justify-between | Desktop: 3-col grid (logo | nav | cta) -->
   <div class="px-6 md:px-[120px] py-3 flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr]">
+
     <!-- Col 1 — Logo -->
     <div class="md:justify-self-start shrink-0">
       <a href="/" aria-label="Sharp by Tony – home" class="focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm inline-block">
@@ -40,33 +58,101 @@ const navLinks = [
       </a>
     </div>
 
-    <!-- Col 2 — Desktop nav (truly centred) -->
+    <!-- Col 2 — Desktop nav -->
     <nav aria-label="Site" class="hidden md:block">
       <ul class="flex items-center gap-6">
-        {
-          navLinks.map(({ label, href }) => (
-            <li>
-              <a
-                href={href}
-                class:list={[
-                  'text-[14px] font-bold tracking-widest uppercase transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm',
-                  currentPath === href
-                    ? 'text-[#F5C645]'
-                    : 'text-white hover:text-[#F5C645]',
-                ]}
-                aria-current={currentPath === href ? 'page' : undefined}
-              >
-                {label}
-              </a>
-            </li>
-          ))
-        }
+
+        <li>
+          <a
+            href="/"
+            class:list={['text-[14px] font-bold tracking-widest uppercase transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm', currentPath === '/' ? 'text-[#F5C645]' : 'text-white hover:text-[#F5C645]']}
+            aria-current={currentPath === '/' ? 'page' : undefined}
+          >HOME</a>
+        </li>
+
+        <li>
+          <a
+            href="/about"
+            class:list={['text-[14px] font-bold tracking-widest uppercase transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm', currentPath === '/about' ? 'text-[#F5C645]' : 'text-white hover:text-[#F5C645]']}
+            aria-current={currentPath === '/about' ? 'page' : undefined}
+          >ABOUT</a>
+        </li>
+
+        <!-- VIDEO dropdown -->
+        <li class="relative group">
+          <a
+            href="/videos"
+            class:list={['inline-flex items-center gap-1 text-[14px] font-bold tracking-widest uppercase transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm', isVideoActive ? 'text-[#F5C645]' : 'text-white hover:text-[#F5C645]']}
+            aria-current={isVideoActive ? 'page' : undefined}
+            aria-haspopup="true"
+          >
+            VIDEO
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 transition-transform duration-150 group-hover:rotate-180 group-focus-within:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </a>
+          {videoServices.length > 0 && (
+            <div class="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition-all duration-150" role="region" aria-label="Video services">
+              <ul class="bg-neutral-900 border-t-2 border-[#F5C645] min-w-[200px] py-2 shadow-xl">
+                {videoServices.map((s) => (
+                  <li>
+                    <a
+                      href={`/video/${s.slug.current}`}
+                      class:list={['block px-5 py-2.5 text-[11px] font-bold tracking-[0.2em] uppercase whitespace-nowrap transition-colors duration-150 focus:outline-none focus:bg-neutral-800', currentPath === `/video/${s.slug.current}` ? 'text-[#F5C645]' : 'text-neutral-300 hover:text-[#F5C645] hover:bg-neutral-800']}
+                    >
+                      {shortNavLabel(s.title, 'video')}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </li>
+
+        <!-- PHOTO dropdown -->
+        <li class="relative group">
+          <a
+            href="/photography"
+            class:list={['inline-flex items-center gap-1 text-[14px] font-bold tracking-widest uppercase transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm', isPhotoActive ? 'text-[#F5C645]' : 'text-white hover:text-[#F5C645]']}
+            aria-current={isPhotoActive ? 'page' : undefined}
+            aria-haspopup="true"
+          >
+            PHOTO
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 transition-transform duration-150 group-hover:rotate-180 group-focus-within:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </a>
+          {photoServices.length > 0 && (
+            <div class="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition-all duration-150" role="region" aria-label="Photography services">
+              <ul class="bg-neutral-900 border-t-2 border-[#F5C645] min-w-[200px] py-2 shadow-xl">
+                {photoServices.map((s) => (
+                  <li>
+                    <a
+                      href={`/photography/${s.slug.current}`}
+                      class:list={['block px-5 py-2.5 text-[11px] font-bold tracking-[0.2em] uppercase whitespace-nowrap transition-colors duration-150 focus:outline-none focus:bg-neutral-800', currentPath === `/photography/${s.slug.current}` ? 'text-[#F5C645]' : 'text-neutral-300 hover:text-[#F5C645] hover:bg-neutral-800']}
+                    >
+                      {shortNavLabel(s.title, 'photography')}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </li>
+
+        <li>
+          <a
+            href="/demo-reel"
+            class:list={['text-[14px] font-bold tracking-widest uppercase transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm', currentPath === '/demo-reel' ? 'text-[#F5C645]' : 'text-white hover:text-[#F5C645]']}
+            aria-current={currentPath === '/demo-reel' ? 'page' : undefined}
+          >DEMO REEL</a>
+        </li>
+
       </ul>
     </nav>
 
     <!-- Col 3 — CTA (desktop) + hamburger (mobile) -->
     <div class="md:justify-self-end flex items-center">
-      <!-- CTA -->
       <a
         href="#contact-form"
         class="hidden md:inline-block bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase px-5 py-2.5 transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
@@ -74,7 +160,6 @@ const navLinks = [
         Book Your Shoot
       </a>
 
-      <!-- Mobile hamburger — minimum 44×44px touch target -->
       <button
         id="mobile-menu-btn"
         class="md:hidden text-white p-[10px] focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm"
@@ -82,70 +167,98 @@ const navLinks = [
         aria-expanded="false"
         aria-controls="mobile-menu"
       >
-      <!-- Hamburger icon (shown when closed) -->
-      <svg
-        id="icon-hamburger"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <line x1="3" y1="12" x2="21" y2="12"></line>
-        <line x1="3" y1="18" x2="21" y2="18"></line>
-      </svg>
-      <!-- X icon (shown when open) -->
-      <svg
-        id="icon-close"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-        class="hidden"
-      >
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    </button>
+        <svg id="icon-hamburger" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="hidden">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
   </div>
-</div>
 
-  <!-- Mobile nav drawer — outside the flex row, animated via max-height -->
+  <!-- Mobile nav drawer -->
   <div
     id="mobile-menu"
     class="md:hidden overflow-hidden max-h-0 transition-[max-height] duration-300 ease-in-out bg-black border-t border-neutral-800"
     aria-hidden="true"
   >
     <nav aria-label="Mobile site navigation">
-      <ul class="flex flex-col gap-4 px-6 py-4">
-        {
-          navLinks.map(({ label, href }) => (
-            <li>
-              <a
-                href={href}
-                class:list={[
-                  'text-[13px] font-bold tracking-widest uppercase block focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm',
-                  currentPath === href ? 'text-[#F5C645]' : 'text-white',
-                ]}
-                aria-current={currentPath === href ? 'page' : undefined}
-              >
-                {label}
-              </a>
-            </li>
-          ))
-        }
+      <ul class="flex flex-col px-6 py-4">
+
+        <li class="py-2.5">
+          <a
+            href="/"
+            class:list={['text-[13px] font-bold tracking-widest uppercase block focus:outline-none focus:ring-2 focus:ring-[#F5C645] rounded-sm', currentPath === '/' ? 'text-[#F5C645]' : 'text-white']}
+            aria-current={currentPath === '/' ? 'page' : undefined}
+          >HOME</a>
+        </li>
+
+        <li class="py-2.5">
+          <a
+            href="/about"
+            class:list={['text-[13px] font-bold tracking-widest uppercase block focus:outline-none focus:ring-2 focus:ring-[#F5C645] rounded-sm', currentPath === '/about' ? 'text-[#F5C645]' : 'text-white']}
+            aria-current={currentPath === '/about' ? 'page' : undefined}
+          >ABOUT</a>
+        </li>
+
+        <!-- VIDEO + sub-links -->
+        <li class="py-2.5">
+          <a
+            href="/videos"
+            class:list={['text-[13px] font-bold tracking-widest uppercase block focus:outline-none focus:ring-2 focus:ring-[#F5C645] rounded-sm', isVideoActive ? 'text-[#F5C645]' : 'text-white']}
+            aria-current={isVideoActive ? 'page' : undefined}
+          >VIDEO</a>
+          {videoServices.length > 0 && (
+            <ul class="mt-2 mb-1 flex flex-col gap-1.5 pl-3 border-l border-neutral-700">
+              {videoServices.map((s) => (
+                <li>
+                  <a
+                    href={`/video/${s.slug.current}`}
+                    class:list={['text-[11px] font-bold tracking-[0.2em] uppercase whitespace-nowrap block focus:outline-none focus:ring-2 focus:ring-[#F5C645] rounded-sm py-0.5', currentPath === `/video/${s.slug.current}` ? 'text-[#F5C645]' : 'text-neutral-400']}
+                  >
+                    {shortNavLabel(s.title, 'video')}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+
+        <!-- PHOTO + sub-links -->
+        <li class="py-2.5">
+          <a
+            href="/photography"
+            class:list={['text-[13px] font-bold tracking-widest uppercase block focus:outline-none focus:ring-2 focus:ring-[#F5C645] rounded-sm', isPhotoActive ? 'text-[#F5C645]' : 'text-white']}
+            aria-current={isPhotoActive ? 'page' : undefined}
+          >PHOTO</a>
+          {photoServices.length > 0 && (
+            <ul class="mt-2 mb-1 flex flex-col gap-1.5 pl-3 border-l border-neutral-700">
+              {photoServices.map((s) => (
+                <li>
+                  <a
+                    href={`/photography/${s.slug.current}`}
+                    class:list={['text-[11px] font-bold tracking-[0.2em] uppercase whitespace-nowrap block focus:outline-none focus:ring-2 focus:ring-[#F5C645] rounded-sm py-0.5', currentPath === `/photography/${s.slug.current}` ? 'text-[#F5C645]' : 'text-neutral-400']}
+                  >
+                    {shortNavLabel(s.title, 'photography')}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+
+        <li class="py-2.5">
+          <a
+            href="/demo-reel"
+            class:list={['text-[13px] font-bold tracking-widest uppercase block focus:outline-none focus:ring-2 focus:ring-[#F5C645] rounded-sm', currentPath === '/demo-reel' ? 'text-[#F5C645]' : 'text-white']}
+            aria-current={currentPath === '/demo-reel' ? 'page' : undefined}
+          >DEMO REEL</a>
+        </li>
+
       </ul>
     </nav>
   </div>
@@ -181,7 +294,6 @@ const navLinks = [
     else openMenu()
   })
 
-  // Close menu when a nav link is tapped
   menu?.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', closeMenu)
   })

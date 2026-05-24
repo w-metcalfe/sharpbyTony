@@ -37,6 +37,23 @@ export type Seo = {
   noIndex?: boolean
 }
 
+export type FaqItem = {
+  question: string
+  answer: string
+}
+
+export type BenefitItem = {
+  headline: string
+  body: string
+  icon?: string
+}
+
+export type ProcessStep = {
+  label: string
+  body: string
+  image?: SanityImageCroppable
+}
+
 export type SlugValue = {current: string}
 
 /**
@@ -138,9 +155,32 @@ export type Service = {
   _id: string
   title: string
   slug: SlugValue
+  category: 'video' | 'photography' | 'design'
   summary: string
+  heroImage: SanityImageCroppable
   icon?: string
   order: number
+}
+
+export type ServiceDetail = {
+  _id: string
+  title: string
+  slug: SlugValue
+  category: 'video' | 'photography' | 'design'
+  summary: string
+  heroImage: SanityImageCroppable
+  whyChooseUsHeading?: string
+  whyChooseUsBody?: PortableTextBlock[]
+  whyChooseUsPortrait?: SanityImageCroppable
+  benefitsHeading?: string
+  processHeading?: string
+  processIntro?: string
+  processSteps?: ProcessStep[]
+  testimonialsHeading?: string
+  body?: PortableTextBlock[]
+  benefits?: BenefitItem[]
+  faq?: FaqItem[]
+  seo?: Seo
 }
 
 export type Page = {
@@ -303,14 +343,53 @@ export const PROJECT_BY_SLUG_QUERY = defineQuery(`
   }
 `)
 
+/** Full service detail by slug. Pass `{ slug: "service-slug" }`. Returns null if not found. */
+export const SERVICE_BY_SLUG_QUERY = defineQuery(`
+  *[_type == "service" && slug.current == $slug][0] {
+    _id,
+    title,
+    slug,
+    category,
+    summary,
+    heroImage { asset, alt, hotspot, crop },
+    whyChooseUsHeading,
+    whyChooseUsBody,
+    whyChooseUsPortrait { asset, alt, hotspot, crop },
+    benefitsHeading,
+    processHeading,
+    processIntro,
+    processSteps[] { label, body, image { asset, alt, hotspot, crop } },
+    testimonialsHeading,
+    body,
+    benefits[] { headline, body, icon },
+    faq[] { question, answer },
+    seo { metaTitle, metaDescription, ogImage { asset, alt }, noIndex }
+  }
+`)
+
 /** All services sorted by priority order. */
 export const ALL_SERVICES_QUERY = defineQuery(`
   *[_type == "service"] | order(order asc) {
     _id,
     title,
     slug,
+    category,
     summary,
+    heroImage { asset, alt, hotspot, crop },
     icon,
+    order
+  }
+`)
+
+/** Services filtered by category for hub pages. Pass `{ category: "video" }` etc. */
+export const SERVICES_BY_CATEGORY_QUERY = defineQuery(`
+  *[_type == "service" && category == $category] | order(order asc) {
+    _id,
+    title,
+    slug,
+    category,
+    summary,
+    heroImage { asset, alt, hotspot, crop },
     order
   }
 `)

@@ -11,16 +11,15 @@ import {createDataAttribute} from '@sanity/visual-editing'
 import {
   SITE_SETTINGS_QUERY,
   PAGE_BY_SLUG_QUERY,
-  VIDEO_PROJECTS_QUERY,
+  SERVICES_BY_CATEGORY_QUERY,
   type SiteSettings,
   type Page,
-  type ProjectCard,
-  type PortableTextBlock,
+  type Service,
 } from '~/lib/queries'
 
 const draftProps = getDraftModeProps(Astro.cookies)
 
-const [{data: settings}, {data: page}, {data: videoProjects}] = await Promise.all([
+const [{data: settings}, {data: page}, {data: services}] = await Promise.all([
   loadQuery<SiteSettings | null>({query: SITE_SETTINGS_QUERY, ...draftProps}).catch(() => ({
     data: null,
     sourceMap: undefined,
@@ -31,11 +30,11 @@ const [{data: settings}, {data: page}, {data: videoProjects}] = await Promise.al
     params: {slug: 'videos'},
     ...draftProps,
   }).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
-  loadQuery<ProjectCard[]>({query: VIDEO_PROJECTS_QUERY, ...draftProps}).catch(() => ({
-    data: [],
-    sourceMap: undefined,
-    perspective: 'published' as const,
-  })),
+  loadQuery<Service[]>({
+    query: SERVICES_BY_CATEGORY_QUERY,
+    params: {category: 'video'},
+    ...draftProps,
+  }).catch(() => ({data: [], sourceMap: undefined, perspective: 'published' as const})),
 ])
 
 // SEO
@@ -47,62 +46,11 @@ const ogImageUrl = page?.seo?.ogImage?.asset
   ? imageUrl(page.seo.ogImage, {width: 1200, height: 630, quality: 85})
   : undefined
 const noIndex = page?.seo?.noIndex ?? false
-
-const heroBg = videoProjects?.[0]?.thumbnail
-  ? imageUrl(videoProjects[0].thumbnail, {width: 1920, height: 800, quality: 85})
-  : page?.heroBackground?.asset
-    ? imageUrl(page.heroBackground, {width: 1920, height: 800, quality: 85})
-    : null
-
-// Process section
-const PROCESS_HEADING = page?.heroHeading ?? 'VIDEO PROCESS'
-const PROCESS_INTRO =
-  page?.heroSubheading ??
-  "From planning and execution through editing and feedback, I collaborate seamlessly, either alongside your marketing team or one-on-one with you, to create video content that's thoughtful, strategic, and Sharp."
-
-const PROCESS_STEPS = [
-  {
-    label: 'DETAILED PLAN',
-    img: page?.processStepImages?.[0]?.asset
-      ? imageUrl(page.processStepImages[0], {width: 560, height: 360, quality: 80})
-      : null,
-    body: 'In pre-production, I translate your vision and strategy into clear shot lists, visual mood boards, and scripts that set the creative direction. I also handle the details with lighting plans, equipment selection, and sourcing the right cast and crew so that everything is dialed in and thought of before the camera ever rolls.',
-  },
-  {
-    label: 'PRODUCTION',
-    img: page?.processStepImages?.[1]?.asset
-      ? imageUrl(page.processStepImages[1], {width: 560, height: 360, quality: 80})
-      : null,
-    body: 'During production, I execute the plan shot by shot—methodically checking off the shot list and capturing everything needed so the edit is smooth and efficient. Clients are often on set to weigh in on framing, performance, and delivery, ensuring alignment in real time and zero surprises in post.',
-  },
-  {
-    label: 'EDITS & DELIVERY',
-    img: page?.processStepImages?.[2]?.asset
-      ? imageUrl(page.processStepImages[2], {width: 560, height: 360, quality: 80})
-      : null,
-    body: 'Experience a thorough feedback session post-production to refine your video content. I ensure that your vision is realized, making necessary adjustments for a polished final product that meets your goals and exceeds your expectations.',
-  },
-]
-
-// Body block text extractor — preserves stega characters for live editing
-function blockText(block: PortableTextBlock | undefined): string {
-  return block?.children?.map((c) => c.text).join('') ?? ''
-}
-const body = page?.body ?? []
-const otherWorkHeading = blockText(body[6]) || 'OTHER WORK.'
-const otherWorkSubheading =
-  blockText(body[7]) || 'A selection of video work across construction, lifestyle, and luxury brands.'
-
-// Featured embedded videos (2)
-const FEATURED_VIDEOS = [
-  {id: '1C3cVFGJBJo', title: 'Video 1'},
-  {id: 'nblQ7vESQ_k', title: 'Video 2'},
-]
-
-const hasProjects = videoProjects && videoProjects.length > 0
-const multiPage = hasProjects && videoProjects!.length > 3
-
 const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
+
+const heroBg = page?.heroBackground?.asset
+  ? imageUrl(page.heroBackground, {width: 1920, height: 800, quality: 85})
+  : null
 ---
 
 <BaseLayout
@@ -143,183 +91,80 @@ const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32
           >
             {page?.title ?? 'VIDEO.'}
           </h1>
+          {page?.heroSubheading && (
+            <p
+              class="text-neutral-300 text-[16px] md:text-[18px] leading-relaxed max-w-xl mx-auto mt-6"
+              data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'heroSubheading'})() : undefined}
+            >
+              {page.heroSubheading}
+            </p>
+          )}
         </div>
       </div>
     </section>
 
-    <!-- ──────────────────────── VIDEO PROCESS ──────────────────────── -->
-    <section id="video-process" class="bg-black py-20">
+    <!-- ─────────────────────────── SERVICE CARDS ─────────────────────────── -->
+    <section id="video-services" class="bg-black py-20">
       <div class="max-w-5xl mx-auto px-6">
 
-        <!-- Heading + intro -->
-        <div class="mb-14 text-center" data-animate>
-          <h2
-            class="text-white text-[32px] md:text-[48px] font-bold tracking-tight mb-6"
-            data-sanity={page
-              ? createDataAttribute({id: page._id, type: 'page', path: 'heroHeading'})()
-              : undefined}
-          >
-            {PROCESS_HEADING}
-          </h2>
-          <p
-            class="text-neutral-400 text-[16px] md:text-[18px] leading-relaxed max-w-2xl mx-auto"
-            data-sanity={page
-              ? createDataAttribute({id: page._id, type: 'page', path: 'heroSubheading'})()
-              : undefined}
-          >
-            {PROCESS_INTRO}
-          </p>
-        </div>
-
-        <!-- 3-step grid -->
-        <div class="grid md:grid-cols-3 gap-6">
-          {PROCESS_STEPS.map((step, i) => (
-            <div
-              class="flex flex-col"
-              data-animate
-              data-delay={i * 120}
-              data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'body'})() : undefined}
+        {page?.heroHeading && (
+          <div class="mb-12 text-center" data-animate>
+            <h2
+              class="text-white text-[32px] md:text-[48px] font-bold tracking-tight"
+              data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'heroHeading'})() : undefined}
             >
-              <!-- Step image -->
-              <div class="aspect-video overflow-hidden mb-5 bg-neutral-900">
-                {step.img && (
+              {page.heroHeading}
+            </h2>
+          </div>
+        )}
+
+        {services && services.length > 0 ? (
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+            {(services as Service[]).map((service, i) => (
+              <a
+                href={`/video/${service.slug.current}`}
+                class="group relative block aspect-[4/3] overflow-hidden bg-neutral-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black"
+                data-animate
+                data-delay={i * 100}
+                data-sanity={createDataAttribute({id: service._id, type: 'service', path: 'heroImage'})()}
+              >
+                {service.heroImage?.asset && (
                   <img
-                    src={step.img}
-                    alt={step.label}
-                    width="560"
-                    height="360"
-                    class="w-full h-full object-cover"
+                    src={imageUrl(service.heroImage, {width: 800, height: 600, quality: 85})}
+                    alt={service.heroImage.alt}
+                    width="800"
+                    height="600"
+                    class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                   />
                 )}
-              </div>
-
-              <!-- Step label -->
-              <p class="text-[12px] font-bold tracking-[0.25em] mb-3" style="color: #F5C645;">
-                {blockText(body[i * 2]) || step.label}
-              </p>
-
-              <!-- Step description -->
-              <p class="text-neutral-400 text-[14px] leading-[1.8]">
-                {blockText(body[i * 2 + 1]) || step.body}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <!-- ────────────────────────── DIVIDER ─────────────────────────── -->
-    <div class="w-full h-px bg-neutral-800" aria-hidden="true" />
-
-    <!-- ──────────────────────── VIDEO PORTFOLIO ──────────────────────── -->
-    <section id="video-portfolio" class="bg-black py-16">
-      <!-- Heading -->
-      <div class="max-w-5xl mx-auto px-6 mb-10">
-        <h2
-          class="text-[#F5C645] text-[32px] md:text-[40px] font-bold tracking-tight mb-3 text-center"
-          data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'body'})() : undefined}
-        >
-          {otherWorkHeading}
-        </h2>
-        <p
-          class="text-neutral-400 text-[18px] text-center max-w-xl mx-auto leading-relaxed"
-          data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'body'})() : undefined}
-        >
-          {otherWorkSubheading}
-        </p>
-      </div>
-
-      {hasProjects ? (
-        <div class="relative w-full" id="vp-carousel">
-          <div class="relative overflow-hidden w-full">
-            <div
-              id="vp-track"
-              class="flex transition-transform duration-500 ease-in-out"
-              style="will-change: transform;"
-            >
-              {(videoProjects as ProjectCard[]).map((p, i) => (
-                <a
-                  href={`/projects/${p.slug.current}`}
-                  class="group relative shrink-0 w-full md:w-1/3 aspect-video overflow-hidden bg-neutral-900 block cursor-pointer"
-                  data-animate
-                  data-delay={i * 80}
-                  data-sanity={createDataAttribute({id: p._id, type: 'project', path: 'thumbnail'})()}
-                >
-                  <img
-                    src={imageUrl(p.thumbnail, {width: 640, height: 360})}
-                    alt={p.thumbnail.alt || p.title}
-                    width="640"
-                    height="360"
-                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-200" />
-                  <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true" class="transition-transform duration-300 lg:group-hover:scale-125">
-                      <circle cx="24" cy="24" r="24" fill="#F5C645" />
-                      <polygon points="19,14 19,34 35,24" fill="black" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div class="absolute inset-x-0 bottom-0 p-6 flex flex-col gap-2">
+                  <p class="text-[11px] font-bold tracking-[0.3em] uppercase" style="color: #F5C645;">
+                    VIDEO | SHARP BY TONY
+                  </p>
+                  <h2 class="text-white text-[28px] md:text-[36px] font-bold tracking-tight leading-none">
+                    {service.title}
+                  </h2>
+                  <p class="service-summary text-neutral-300 text-[14px] leading-[1.7] max-w-sm">
+                    {service.summary}
+                  </p>
+                  <div class="service-cta flex items-center gap-2 mt-1">
+                    <span class="text-[11px] font-bold tracking-[0.25em] uppercase" style="color: #F5C645;">
+                      Learn More
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#F5C645" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true">
+                      <polyline points="9 18 15 12 9 6" />
                     </svg>
-                    {p.client?.name && (
-                      <p class="text-white text-[11px] font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        {p.client.name}
-                      </p>
-                    )}
                   </div>
-                </a>
-              ))}
-            </div>
-
-            {multiPage && (
-              <>
-                <button
-                  id="vp-prev"
-                  aria-label="Previous projects"
-                  class="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
-                    <polyline points="15 18 9 12 15 6" />
-                  </svg>
-                </button>
-                <button
-                  id="vp-next"
-                  aria-label="Next projects"
-                  class="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </button>
-              </>
-            )}
+                </div>
+              </a>
+            ))}
           </div>
-
-          {multiPage && <div id="vp-dots" class="flex justify-center gap-2 mt-6" />}
-        </div>
-      ) : (
-        <div class="flex flex-col md:flex-row gap-3 px-3">
-          {FEATURED_VIDEOS.map((v) => (
-            <div class="relative w-full md:w-1/2 aspect-video bg-neutral-900 shrink-0">
-              <iframe
-                src={`https://www.youtube.com/embed/${v.id}?rel=0&modestbranding=1`}
-                title={v.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-                class="absolute inset-0 w-full h-full border-0"
-              />
-            </div>
-          ))}
-        </div>
-      )}
-
-      <!-- CTA -->
-      <div class="text-center mt-10">
-        <a
-          href="/demo-reel"
-          class="inline-block border border-[#F5C645] text-[#F5C645] text-[12px] font-bold tracking-widest uppercase px-8 py-3 transition-colors hover:bg-[#F5C645] hover:text-black focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black cursor-pointer"
-        >
-          Watch Demo Reel
-        </a>
+        ) : (
+          <p class="text-neutral-500 text-center text-[14px]">Services coming soon.</p>
+        )}
       </div>
     </section>
 
@@ -331,7 +176,6 @@ const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32
 </BaseLayout>
 
 <style>
-  /* Hero fade-up */
   @keyframes fade-up {
     from {opacity: 0; transform: translateY(24px);}
     to {opacity: 1; transform: translateY(0);}
@@ -342,7 +186,6 @@ const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32
     }
   }
 
-  /* Scroll-in */
   [data-animate] {
     opacity: 0;
     transform: translateY(16px);
@@ -356,13 +199,9 @@ const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32
     [data-animate] {opacity: 1; transform: none; transition: none;}
   }
 
-  /* Carousel dots */
-  .vp-dot {background-color: rgba(255,255,255,0.3);}
-  .vp-dot.active {background-color: #F5C645;}
 </style>
 
 <script>
-  // ── Scroll-in animation ─────────────────────────────────────────────────
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
   if (!prefersReduced) {
@@ -379,64 +218,6 @@ const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32
       },
       {threshold: 0.12},
     )
-    document.querySelectorAll('#video-process [data-animate]').forEach((el) => observer.observe(el))
-  }
-
-  // ── Portfolio carousel ──────────────────────────────────────────────────
-  const track   = document.getElementById('vp-track') as HTMLElement | null
-  const prevBtn = document.getElementById('vp-prev')  as HTMLButtonElement | null
-  const nextBtn = document.getElementById('vp-next')  as HTMLButtonElement | null
-  const dotsEl  = document.getElementById('vp-dots')
-
-  if (track) {
-    const totalItems = track.children.length
-    let perPage      = getPerPage()
-    let totalPages   = Math.ceil(totalItems / perPage)
-    let currentPage  = 0
-
-    function getPerPage() {
-      return window.innerWidth >= 768 ? 3 : 1
-    }
-
-    function buildDots() {
-      if (!dotsEl) return
-      dotsEl.innerHTML = ''
-      for (let i = 0; i < totalPages; i++) {
-        const btn = document.createElement('button')
-        btn.className = 'vp-dot w-2 h-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]'
-        btn.setAttribute('aria-label', `Go to page ${i + 1}`)
-        btn.addEventListener('click', () => goTo(i))
-        dotsEl.appendChild(btn)
-      }
-    }
-
-    function goTo(page: number) {
-      currentPage = ((page % totalPages) + totalPages) % totalPages
-      const containerWidth = track!.parentElement!.offsetWidth
-      track!.style.transform = `translateX(${-currentPage * containerWidth}px)`
-      dotsEl?.querySelectorAll('.vp-dot').forEach((dot, i) =>
-        dot.classList.toggle('active', i === currentPage),
-      )
-    }
-
-    function handleResize() {
-      const newPerPage = getPerPage()
-      if (newPerPage !== perPage) {
-        perPage    = newPerPage
-        totalPages = Math.ceil(totalItems / perPage)
-        currentPage = 0
-        buildDots()
-      }
-      goTo(currentPage)
-    }
-
-    buildDots()
-    goTo(0)
-
-    track.querySelectorAll<HTMLElement>('[data-animate]').forEach((el) => el.classList.add('is-visible'))
-
-    prevBtn?.addEventListener('click', () => goTo(currentPage - 1))
-    nextBtn?.addEventListener('click', () => goTo(currentPage + 1))
-    window.addEventListener('resize', handleResize, {passive: true})
+    document.querySelectorAll('[data-animate]').forEach((el) => observer.observe(el))
   }
 </script>

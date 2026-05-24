@@ -169,4 +169,8 @@ npx sanity deploy -y --url sharpbytony
 - Phase 3 (UI + Visual Editing): complete — all homepage sections editable via Sanity Presentation Tool; 9 testimonials and 8 client records seeded in Sanity; `siteSettings` fields cover hero, about, projects, testimonials, and contact sections
 - Phase 4 (content + photos): **complete** — client photos uploaded, website content finalized, all hardcoded fallbacks removed
 - Next: optimizations → domain transfer from Wix → point domain to Netlify build (launch)
-- Post-launch: SEO improvements
+- Post-launch SEO: **in progress**
+  - SEO research complete — service pages identified, primary/secondary keywords mapped, keyword clusters created
+  - Video hub (`/videos`) and photo hub (`/photography`) created
+  - First service page built: `/video/wedding-videographer` — use as template for remaining service pages
+  - Remaining service pages to be built by duplicating the wedding videographer template

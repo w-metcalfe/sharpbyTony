@@ -6,9 +6,11 @@ interface Props {
   testimonials?: FeaturedTestimonial[]
   settings?: SiteSettings | null
   homePage?: HomePage | null
+  heading?: string
+  headingSanityAttr?: string
 }
 
-const { testimonials, homePage } = Astro.props
+const { testimonials, homePage, heading, headingSanityAttr } = Astro.props
 
 const FALLBACK_TESTIMONIALS: FeaturedTestimonial[] = [
   {
@@ -90,10 +92,10 @@ const items = hasSanityTestimonials ? testimonials : FALLBACK_TESTIMONIALS
 <section id="testimonials-section" class="bg-black py-20">
   <div class="max-w-5xl mx-auto px-6">
     <h2
-      class="text-[#F5C645] text-[32px] md:text-[40px] font-bold tracking-tight text-center mb-14"
-      data-sanity={homePage ? createDataAttribute({id: 'homePage', type: 'homePage', path: 'testimonialsHeading'})() : undefined}
+      class="text-white text-[32px] md:text-[40px] font-bold tracking-tight text-center mb-14"
+      data-sanity={headingSanityAttr ?? (homePage ? createDataAttribute({id: 'homePage', type: 'homePage', path: 'testimonialsHeading'})() : undefined)}
     >
-      {homePage?.testimonialsHeading ?? 'Testimonials'}
+      {heading ?? homePage?.testimonialsHeading ?? 'Testimonials'}
     </h2>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">

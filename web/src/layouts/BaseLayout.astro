@@ -90,6 +90,9 @@ const jsonLd = {
 
     <!-- JSON-LD structured data -->
     <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <!-- Page-specific head injections (e.g. FAQPage schema) -->
+    <slot name="head" />
   </head>
   <body class="bg-white text-black">
     <!-- Skip navigation for keyboard users (WCAG 2.4.1) -->

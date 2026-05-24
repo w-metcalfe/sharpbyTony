@@ -30,9 +30,12 @@ export const resolve: PresentationPluginOptions['resolve'] = {
       }),
     }),
     service: defineLocations({
-      select: {title: 'title'},
-      resolve: () => ({
-        locations: [{title: 'Home', href: '/'}],
+      select: {title: 'title', slug: 'slug.current', category: 'category'},
+      resolve: (doc) => ({
+        locations:
+          doc?.slug && doc?.category
+            ? [{title: doc.title ?? 'Untitled', href: `/${doc.category}/${doc.slug}`}]
+            : [{title: 'Home', href: '/'}],
       }),
     }),
     page: defineLocations({

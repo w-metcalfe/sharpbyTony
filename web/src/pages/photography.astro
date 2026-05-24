@@ -11,15 +11,15 @@ import {createDataAttribute} from '@sanity/visual-editing'
 import {
   SITE_SETTINGS_QUERY,
   PAGE_BY_SLUG_QUERY,
-  PHOTO_PROJECTS_QUERY,
+  SERVICES_BY_CATEGORY_QUERY,
   type SiteSettings,
   type Page,
-  type ProjectCard,
+  type Service,
 } from '~/lib/queries'
 
 const draftProps = getDraftModeProps(Astro.cookies)
 
-const [{data: settings}, {data: page}, {data: photoProjects}] = await Promise.all([
+const [{data: settings}, {data: page}, {data: services}] = await Promise.all([
   loadQuery<SiteSettings | null>({query: SITE_SETTINGS_QUERY, ...draftProps}).catch(() => ({
     data: null,
     sourceMap: undefined,
@@ -30,11 +30,11 @@ const [{data: settings}, {data: page}, {data: photoProjects}] = await Promise.al
     params: {slug: 'photography'},
     ...draftProps,
   }).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
-  loadQuery<ProjectCard[]>({query: PHOTO_PROJECTS_QUERY, ...draftProps}).catch(() => ({
-    data: [],
-    sourceMap: undefined,
-    perspective: 'published' as const,
-  })),
+  loadQuery<Service[]>({
+    query: SERVICES_BY_CATEGORY_QUERY,
+    params: {category: 'photography'},
+    ...draftProps,
+  }).catch(() => ({data: [], sourceMap: undefined, perspective: 'published' as const})),
 ])
 
 // SEO
@@ -51,44 +51,24 @@ const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32
 const heroBg = page?.heroBackground?.asset
   ? imageUrl(page.heroBackground, {width: 1920, height: 800, quality: 85})
   : null
-
-// Build a unified gallery item list for the lightbox to reference
-type GalleryItem = {
-  src: string
-  fullSrc: string
-  width: number
-  height: number
-  title: string
-  client?: string
-  projectSlug?: string
-  sanityId?: string
-}
-
-const galleryItems: GalleryItem[] = (photoProjects as ProjectCard[]).map((p) => ({
-  src: imageUrl(p.thumbnail, {width: 1200, height: 900, quality: 85}),
-  fullSrc: imageUrl(p.thumbnail, {quality: 90}),
-  width: 1200,
-  height: 900,
-  title: p.title,
-  client: p.client?.name,
-  projectSlug: p.slug.current,
-  sanityId: p._id,
-}))
-
-const GALLERY_HEADING = page?.heroHeading ?? 'PHOTO WORK.'
-const GALLERY_SUBHEADING =
-  page?.heroSubheading ??
-  'A selection of photography across construction, lifestyle, and luxury brands.'
 ---
 
-<BaseLayout title={pageTitle} description={pageDescription} ogImage={ogImageUrl} favicon={favicon} noIndex={noIndex} contactEmail={settings?.contactEmail} contactPhone={settings?.contactPhone} address={settings?.address}>
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  ogImage={ogImageUrl}
+  favicon={favicon}
+  noIndex={noIndex}
+  contactEmail={settings?.contactEmail}
+  contactPhone={settings?.contactPhone}
+  address={settings?.address}
+>
   <Header currentPath="/photography" settings={settings} />
 
   <main id="main-content">
 
-    <!-- ───────────────────────── PHOTO HERO ───────────────────────── -->
+    <!-- ─────────────────────────── PHOTO HERO ─────────────────────────── -->
     <section class="relative w-full bg-black overflow-hidden flex items-center justify-center" style="min-height: clamp(320px, 50vh, 560px);" aria-label="Photography hero">
-      <!-- Background photo -->
       {heroBg && (
         <img
           src={heroBg}
@@ -99,11 +79,7 @@ const GALLERY_SUBHEADING =
           class="absolute inset-0 w-full h-full object-cover object-center"
         />
       )}
-
-      <!-- Dark overlay -->
       <div class="absolute inset-0 bg-black/60" aria-hidden="true" />
-
-      <!-- Centered text -->
       <div class="relative z-10 flex flex-col items-center justify-center h-full px-6 py-20 text-center">
         <div class="hero-text">
           <p class="text-[12px] font-bold tracking-[0.3em] uppercase mb-3" style="color: #F5C645;">
@@ -115,132 +91,82 @@ const GALLERY_SUBHEADING =
           >
             {page?.title ?? 'PHOTO.'}
           </h1>
-        </div>
-      </div>
-    </section>
-
-    <!-- ─────────────────────── PHOTO GALLERY ─────────────────────── -->
-    <section id="photo-gallery" class="bg-black py-20">
-      <div class="max-w-6xl mx-auto px-6">
-
-        <!-- Heading -->
-        <div class="mb-12 text-center" data-animate>
-          <h2
-            class="text-[#F5C645] text-[32px] md:text-[40px] font-bold tracking-tight mb-4"
-            data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'heroHeading'})() : undefined}
-          >
-            {GALLERY_HEADING}
-          </h2>
-          <p
-            class="text-neutral-400 text-[16px] md:text-[18px] max-w-xl mx-auto leading-relaxed mb-6"
-            data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'heroSubheading'})() : undefined}
-          >
-            {GALLERY_SUBHEADING}
-          </p>
-        </div>
-
-        <!-- Masonry grid -->
-        <div class="masonry-grid gap-3 md:gap-4">
-          {galleryItems.map((item, i) => (
-            <button
-              type="button"
-              class="masonry-item group relative block w-full overflow-hidden bg-neutral-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black"
-              data-lightbox-index={i}
-              data-title={item.title}
-              data-client={item.client ?? ''}
-              data-full-src={item.fullSrc}
-              data-animate
-              data-delay={Math.min(i * 60, 480)}
-              aria-label={`View ${item.title}${item.client ? ` — ${item.client}` : ''} in full screen`}
-              data-sanity={item.sanityId ? createDataAttribute({id: item.sanityId, type: 'project', path: 'thumbnail'})() : undefined}
+          {page?.heroSubheading && (
+            <p
+              class="text-neutral-300 text-[16px] md:text-[18px] leading-relaxed max-w-xl mx-auto mt-6"
+              data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'heroSubheading'})() : undefined}
             >
-              <img
-                src={item.src}
-                alt={item.title}
-                width={item.width}
-                height={item.height}
-                class="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-                loading={i < 4 ? 'eager' : 'lazy'}
-              />
-              <!-- Hover overlay -->
-              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors duration-300 flex items-end justify-start p-3">
-                {item.client && (
-                  <p class="text-white text-[11px] font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {item.client}
-                  </p>
-                )}
-              </div>
-            </button>
-          ))}
+              {page.heroSubheading}
+            </p>
+          )}
         </div>
       </div>
     </section>
 
-    <!-- ─────────────────────────── LIGHTBOX ──────────────────────────── -->
-    <dialog
-      id="photo-lightbox"
-      class="fixed inset-0 w-full h-full max-w-none max-h-none m-0 p-0 bg-transparent border-0 z-[200]"
-      aria-label="Photo lightbox"
-      aria-modal="true"
-    >
-      <!-- Backdrop (click to close) -->
-      <div id="lb-backdrop" class="absolute inset-0 bg-black/95" aria-hidden="true" />
+    <!-- ─────────────────────────── SERVICE CARDS ─────────────────────────── -->
+    <section id="photo-services" class="bg-black py-20">
+      <div class="max-w-5xl mx-auto px-6">
 
-      <!-- Close button -->
-      <button
-        id="lb-close"
-        type="button"
-        class="absolute top-4 right-4 z-20 flex items-center justify-center w-11 h-11 text-white hover:text-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
-        aria-label="Close lightbox"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7" aria-hidden="true">
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-      </button>
+        {page?.heroHeading && (
+          <div class="mb-12 text-center" data-animate>
+            <h2
+              class="text-white text-[32px] md:text-[48px] font-bold tracking-tight"
+              data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'heroHeading'})() : undefined}
+            >
+              {page.heroHeading}
+            </h2>
+          </div>
+        )}
 
-      <!-- Prev button -->
-      <button
-        id="lb-prev"
-        type="button"
-        class="absolute left-4 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
-        aria-label="Previous photo"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-      </button>
-
-      <!-- Next button -->
-      <button
-        id="lb-next"
-        type="button"
-        class="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-11 h-11 bg-black/60 border border-white/20 text-white hover:bg-[#F5C645] hover:text-black hover:border-[#F5C645] transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645]"
-        aria-label="Next photo"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
-      </button>
-
-      <!-- Image + caption container -->
-      <div class="relative z-10 flex flex-col items-center justify-center h-full px-16 py-12 gap-4">
-        <img
-          id="lb-img"
-          src=""
-          alt=""
-          class="max-w-full max-h-[80vh] object-contain"
-          width="1200"
-          height="900"
-        />
-        <div id="lb-caption" class="text-center min-h-[2rem]">
-          <p id="lb-title" class="text-white text-[13px] font-bold tracking-widest uppercase" />
-          <p id="lb-client" class="text-neutral-400 text-[12px] tracking-widest uppercase mt-1" />
-        </div>
-        <!-- Counter -->
-        <p id="lb-counter" class="text-neutral-500 text-[11px] tracking-widest uppercase absolute bottom-4 left-1/2 -translate-x-1/2" />
+        {services && services.length > 0 ? (
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+            {(services as Service[]).map((service, i) => (
+              <a
+                href={`/photography/${service.slug.current}`}
+                class="group relative block aspect-[4/3] overflow-hidden bg-neutral-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black"
+                data-animate
+                data-delay={i * 100}
+                data-sanity={createDataAttribute({id: service._id, type: 'service', path: 'heroImage'})()}
+              >
+                {service.heroImage?.asset && (
+                  <img
+                    src={imageUrl(service.heroImage, {width: 800, height: 600, quality: 85})}
+                    alt={service.heroImage.alt}
+                    width="800"
+                    height="600"
+                    class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                )}
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div class="absolute inset-x-0 bottom-0 p-6 flex flex-col gap-2">
+                  <p class="text-[11px] font-bold tracking-[0.3em] uppercase" style="color: #F5C645;">
+                    PHOTO | SHARP BY TONY
+                  </p>
+                  <h2 class="text-white text-[28px] md:text-[36px] font-bold tracking-tight leading-none">
+                    {service.title}
+                  </h2>
+                  <p class="service-summary text-neutral-300 text-[14px] leading-[1.7] max-w-sm">
+                    {service.summary}
+                  </p>
+                  <div class="service-cta flex items-center gap-2 mt-1">
+                    <span class="text-[11px] font-bold tracking-[0.25em] uppercase" style="color: #F5C645;">
+                      Learn More
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#F5C645" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p class="text-neutral-500 text-center text-[14px]">Services coming soon.</p>
+        )}
       </div>
-    </dialog>
+    </section>
 
     <!-- ──────────────────────── CONTACT ──────────────────────── -->
     <ContactSection settings={settings} />
@@ -250,7 +176,6 @@ const GALLERY_SUBHEADING =
 </BaseLayout>
 
 <style>
-  /* Hero fade-up */
   @keyframes fade-up {
     from {opacity: 0; transform: translateY(24px);}
     to {opacity: 1; transform: translateY(0);}
@@ -261,28 +186,6 @@ const GALLERY_SUBHEADING =
     }
   }
 
-  /* Masonry grid via CSS columns */
-  .masonry-grid {
-    columns: 1;
-    column-gap: 0.75rem;
-  }
-  @media (min-width: 640px) {
-    .masonry-grid { columns: 2; }
-  }
-  @media (min-width: 1024px) {
-    .masonry-grid { columns: 3; column-gap: 1rem; }
-  }
-
-  .masonry-item {
-    break-inside: avoid;
-    display: block;
-    margin-bottom: 0.75rem;
-  }
-  @media (min-width: 1024px) {
-    .masonry-item { margin-bottom: 1rem; }
-  }
-
-  /* Scroll-in */
   [data-animate] {
     opacity: 0;
     transform: translateY(16px);
@@ -296,27 +199,9 @@ const GALLERY_SUBHEADING =
     [data-animate] {opacity: 1; transform: none; transition: none;}
   }
 
-  /* Lightbox dialog */
-  #photo-lightbox {
-    display: none;
-  }
-  #photo-lightbox[open] {
-    display: block;
-  }
-  #photo-lightbox::backdrop {
-    background: rgba(0, 0, 0, 0.95);
-  }
-
-  /* Ensure lightbox controls sit above the image container */
-  #lb-close,
-  #lb-prev,
-  #lb-next {
-    z-index: 20;
-  }
 </style>
 
 <script>
-  // ── Scroll-in animation ─────────────────────────────────────────────────
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
   if (!prefersReduced) {
@@ -331,103 +216,8 @@ const GALLERY_SUBHEADING =
           }
         })
       },
-      {threshold: 0.08},
+      {threshold: 0.12},
     )
-    document.querySelectorAll('#photo-gallery [data-animate]').forEach((el) => observer.observe(el))
+    document.querySelectorAll('[data-animate]').forEach((el) => observer.observe(el))
   }
-
-  // ── Lightbox ────────────────────────────────────────────────────────────
-  const dialog   = document.getElementById('photo-lightbox') as HTMLDialogElement | null
-  const lbImg    = document.getElementById('lb-img')        as HTMLImageElement | null
-  const lbTitle  = document.getElementById('lb-title')      as HTMLElement | null
-  const lbClient = document.getElementById('lb-client')     as HTMLElement | null
-  const lbCounter = document.getElementById('lb-counter')   as HTMLElement | null
-  const closeBtn  = document.getElementById('lb-close')     as HTMLButtonElement | null
-  const prevBtn   = document.getElementById('lb-prev')      as HTMLButtonElement | null
-  const nextBtn   = document.getElementById('lb-next')      as HTMLButtonElement | null
-  const backdrop  = document.getElementById('lb-backdrop')
-
-  if (!dialog) throw new Error('Lightbox dialog not found')
-
-  // Collect gallery items from DOM so order matches rendered output
-  const galleryBtns = Array.from(
-    document.querySelectorAll<HTMLButtonElement>('[data-lightbox-index]')
-  )
-  const total = galleryBtns.length
-  let currentIndex = 0
-  let previouslyFocused: HTMLElement | null = null
-
-  function showPhoto(index: number) {
-    currentIndex = ((index % total) + total) % total
-    const btn    = galleryBtns[currentIndex]
-    const img    = btn.querySelector('img')
-    const title  = btn.dataset.title ?? ''
-    const client = btn.dataset.client ?? ''
-
-    if (lbImg) {
-      lbImg.src = btn.dataset.fullSrc ?? img?.src ?? ''
-      lbImg.alt = img?.alt || title
-    }
-    if (lbTitle)  lbTitle.textContent  = title
-    if (lbClient) lbClient.textContent = client
-    if (lbCounter) lbCounter.textContent = `${currentIndex + 1} / ${total}`
-  }
-
-  function openLightbox(index: number) {
-    previouslyFocused = document.activeElement as HTMLElement
-    showPhoto(index)
-    dialog!.showModal()
-    closeBtn?.focus()
-    document.body.style.overflow = 'hidden'
-  }
-
-  function closeLightbox() {
-    dialog!.close()
-    document.body.style.overflow = ''
-    previouslyFocused?.focus()
-  }
-
-  // Open on gallery button click
-  galleryBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.lightboxIndex ?? '0', 10)
-      openLightbox(idx)
-    })
-  })
-
-  // Close
-  closeBtn?.addEventListener('click', closeLightbox)
-  backdrop?.addEventListener('click', closeLightbox)
-
-  // Prev / Next
-  prevBtn?.addEventListener('click', () => showPhoto(currentIndex - 1))
-  nextBtn?.addEventListener('click', () => showPhoto(currentIndex + 1))
-
-  // Keyboard
-  dialog?.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      // dialog handles Escape natively — just restore scroll/focus
-      closeLightbox()
-      return
-    }
-    if (e.key === 'ArrowLeft')  { e.preventDefault(); showPhoto(currentIndex - 1) }
-    if (e.key === 'ArrowRight') { e.preventDefault(); showPhoto(currentIndex + 1) }
-    // Basic focus trap: Tab cycles through close/prev/next
-    if (e.key === 'Tab') {
-      const focusable = [closeBtn, prevBtn, nextBtn].filter(Boolean) as HTMLElement[]
-      const first = focusable[0]
-      const last  = focusable[focusable.length - 1]
-      if (e.shiftKey) {
-        if (document.activeElement === first) { e.preventDefault(); last.focus() }
-      } else {
-        if (document.activeElement === last) { e.preventDefault(); first.focus() }
-      }
-    }
-  })
-
-  // Native dialog close event (Escape key fires this)
-  dialog?.addEventListener('close', () => {
-    document.body.style.overflow = ''
-    previouslyFocused?.focus()
-  })
 </script>

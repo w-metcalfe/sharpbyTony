@@ -1,0 +1,197 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import Header from '~/components/Header.astro'
+import ContactSection from '~/components/ContactSection.astro'
+import Footer from '~/components/Footer.astro'
+
+import {loadQuery} from '~/lib/load-query'
+import {getDraftModeProps} from '~/lib/draft-mode'
+import {imageUrl} from '~/lib/imageUrl'
+import {createDataAttribute} from '@sanity/visual-editing'
+import {
+  SITE_SETTINGS_QUERY,
+  SERVICE_BY_SLUG_QUERY,
+  type SiteSettings,
+  type ServiceDetail,
+  type PortableTextBlock,
+} from '~/lib/queries'
+
+const {slug} = Astro.params
+if (!slug) return Astro.redirect('/photography')
+
+const draftProps = getDraftModeProps(Astro.cookies)
+
+const [{data: settings}, {data: service}] = await Promise.all([
+  loadQuery<SiteSettings | null>({query: SITE_SETTINGS_QUERY, ...draftProps}).catch(() => ({
+    data: null,
+    sourceMap: undefined,
+    perspective: 'published' as const,
+  })),
+  loadQuery<ServiceDetail | null>({
+    query: SERVICE_BY_SLUG_QUERY,
+    params: {slug},
+    ...draftProps,
+  }).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
+])
+
+if (!service) return Astro.redirect('/photography')
+
+// SEO
+const pageTitle =
+  service.seo?.metaTitle ??
+  `${service.title} | Photography London Ontario | ${settings?.title ?? 'Sharp by Tony'}`
+const pageDescription =
+  service.seo?.metaDescription ?? service.summary
+const ogImageUrl = service.seo?.ogImage?.asset
+  ? imageUrl(service.seo.ogImage, {width: 1200, height: 630, quality: 85})
+  : service.heroImage?.asset
+    ? imageUrl(service.heroImage, {width: 1200, height: 630, quality: 85})
+    : undefined
+const noIndex = service.seo?.noIndex ?? false
+const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
+
+const heroBg = service.heroImage?.asset
+  ? imageUrl(service.heroImage, {width: 1920, height: 800, quality: 85})
+  : null
+
+function blockText(block: PortableTextBlock | undefined): string {
+  return block?.children?.map((c) => c.text).join('') ?? ''
+}
+const body = service.body ?? []
+
+const faqJsonLd =
+  service.faq && service.faq.length > 0
+    ? JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: service.faq.map((item) => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: item.answer,
+          },
+        })),
+      })
+    : null
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  ogImage={ogImageUrl}
+  favicon={favicon}
+  noIndex={noIndex}
+  contactEmail={settings?.contactEmail}
+  contactPhone={settings?.contactPhone}
+  address={settings?.address}
+>
+  {faqJsonLd && (
+    <script is:inline slot="head" type="application/ld+json" set:html={faqJsonLd} />
+  )}
+
+  <Header currentPath="/photography" settings={settings} />
+
+  <main id="main-content">
+
+    <!-- ─────────────────────────── HERO ─────────────────────────── -->
+    <section class="relative w-full bg-black overflow-hidden flex items-center justify-center" style="min-height: clamp(320px, 55vh, 640px);" aria-label="Service hero">
+      {heroBg && (
+        <img
+          src={heroBg}
+          alt={service.heroImage.alt}
+          fetchpriority="high"
+          width="1920"
+          height="800"
+          class="absolute inset-0 w-full h-full object-cover object-center"
+          data-sanity={createDataAttribute({id: service._id, type: 'service', path: 'heroImage'})()}
+        />
+      )}
+      <div class="absolute inset-0 bg-black/65" aria-hidden="true" />
+      <div class="relative z-10 flex flex-col items-center justify-center h-full px-6 py-20 text-center">
+        <div class="hero-text">
+          <p class="text-[12px] font-bold tracking-[0.3em] uppercase mb-3" style="color: #F5C645;">
+            PHOTO | SHARP BY TONY
+          </p>
+          <h1
+            class="text-white text-[48px] md:text-[72px] font-bold tracking-tight leading-none mb-6"
+            data-sanity={createDataAttribute({id: service._id, type: 'service', path: 'title'})()}
+          >
+            {service.title}
+          </h1>
+          <p
+            class="text-neutral-300 text-[16px] md:text-[18px] leading-relaxed max-w-xl mx-auto"
+            data-sanity={createDataAttribute({id: service._id, type: 'service', path: 'summary'})()}
+          >
+            {service.summary}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────── BODY ─────────────────────────── -->
+    {body.length > 0 && (
+      <section class="bg-black py-20">
+        <div
+          class="max-w-3xl mx-auto px-6 space-y-6"
+          data-sanity={createDataAttribute({id: service._id, type: 'service', path: 'body'})()}
+        >
+          {body.map((block) => {
+            const text = blockText(block)
+            if (!text) return null
+            if (block.style === 'h2') {
+              return (
+                <h2 class="text-white text-[28px] md:text-[36px] font-bold tracking-tight leading-snug">
+                  {text}
+                </h2>
+              )
+            }
+            if (block.style === 'h3') {
+              return (
+                <h3 class="text-white text-[22px] md:text-[28px] font-bold tracking-tight leading-snug">
+                  {text}
+                </h3>
+              )
+            }
+            return (
+              <p class="text-neutral-400 text-[16px] md:text-[18px] leading-[1.8]">
+                {text}
+              </p>
+            )
+          })}
+        </div>
+      </section>
+    )}
+
+    <!-- ─────────────────────────── BACK LINK ─────────────────────────── -->
+    <div class="bg-black pb-10 text-center">
+      <a
+        href="/photography"
+        class="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.25em] uppercase transition-colors focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black"
+        style="color: #F5C645;"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#F5C645" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        All Photography Services
+      </a>
+    </div>
+
+    <!-- ──────────────────────── CONTACT ──────────────────────── -->
+    <ContactSection settings={settings} />
+  </main>
+
+  <Footer settings={settings} />
+</BaseLayout>
+
+<style>
+  @keyframes fade-up {
+    from {opacity: 0; transform: translateY(24px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-text {
+      animation: fade-up 0.6s ease-out both;
+    }
+  }
+</style>
