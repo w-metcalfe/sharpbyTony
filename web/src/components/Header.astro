@@ -33,6 +33,9 @@ const isPhotoActive = currentPath === '/photography' || currentPath.startsWith('
 
 function shortNavLabel(title: string, category: 'video' | 'photography'): string {
   if (category === 'video') {
+    // "Wedding Videographer" → "Wedding Videography"
+    const swapped = title.replace(/\bvideographer\b/i, 'Videography')
+    if (swapped !== title) return swapped
     return title.replace(/\s*(videography|video\s+production|production)$/i, '').trim() + ' Video'
   }
   return title.replace(/\s*photography$/i, '').trim() + ' Photo'
@@ -100,7 +103,7 @@ function shortNavLabel(title: string, category: 'video' | 'photography'): string
                       href={`/video/${s.slug.current}`}
                       class:list={['block px-5 py-2.5 text-[11px] font-bold tracking-[0.2em] uppercase whitespace-nowrap transition-colors duration-150 focus:outline-none focus:bg-neutral-800', currentPath === `/video/${s.slug.current}` ? 'text-[#F5C645]' : 'text-neutral-300 hover:text-[#F5C645] hover:bg-neutral-800']}
                     >
-                      {shortNavLabel(s.title, 'video')}
+                      {s.navLabel ?? shortNavLabel(s.title, 'video')}
                     </a>
                   </li>
                 ))}
@@ -131,7 +134,7 @@ function shortNavLabel(title: string, category: 'video' | 'photography'): string
                       href={`/photography/${s.slug.current}`}
                       class:list={['block px-5 py-2.5 text-[11px] font-bold tracking-[0.2em] uppercase whitespace-nowrap transition-colors duration-150 focus:outline-none focus:bg-neutral-800', currentPath === `/photography/${s.slug.current}` ? 'text-[#F5C645]' : 'text-neutral-300 hover:text-[#F5C645] hover:bg-neutral-800']}
                     >
-                      {shortNavLabel(s.title, 'photography')}
+                      {s.navLabel ?? shortNavLabel(s.title, 'photography')}
                     </a>
                   </li>
                 ))}
@@ -220,7 +223,7 @@ function shortNavLabel(title: string, category: 'video' | 'photography'): string
                     href={`/video/${s.slug.current}`}
                     class:list={['text-[11px] font-bold tracking-[0.2em] uppercase whitespace-nowrap block focus:outline-none focus:ring-2 focus:ring-[#F5C645] rounded-sm py-0.5', currentPath === `/video/${s.slug.current}` ? 'text-[#F5C645]' : 'text-neutral-400']}
                   >
-                    {shortNavLabel(s.title, 'video')}
+                    {s.navLabel ?? shortNavLabel(s.title, 'video')}
                   </a>
                 </li>
               ))}
@@ -243,7 +246,7 @@ function shortNavLabel(title: string, category: 'video' | 'photography'): string
                     href={`/photography/${s.slug.current}`}
                     class:list={['text-[11px] font-bold tracking-[0.2em] uppercase whitespace-nowrap block focus:outline-none focus:ring-2 focus:ring-[#F5C645] rounded-sm py-0.5', currentPath === `/photography/${s.slug.current}` ? 'text-[#F5C645]' : 'text-neutral-400']}
                   >
-                    {shortNavLabel(s.title, 'photography')}
+                    {s.navLabel ?? shortNavLabel(s.title, 'photography')}
                   </a>
                 </li>
               ))}

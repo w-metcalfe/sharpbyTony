@@ -3,7 +3,7 @@
 **Geographic target:** Canada (national)
 **Data source:** Ahrefs (Keywords Explorer — matching terms + search suggestions, country filter CA)
 **Companion to:** [keyword-research-baseline.md](keyword-research-baseline.md) · [keyword-research-spokes.md](keyword-research-spokes.md) · [keyword-clusters.md](keyword-clusters.md)
-**Scope:** 6 FAQ questions per service page (14 pages, 84 questions total). Questions only — answers to be written separately.
+**Scope:** 6 FAQ questions per service page (16 pages, 96 questions total). Questions only — answers to be written separately.
 
 ## Methodology
 
@@ -93,6 +93,14 @@ Most long-tail FAQ phrases register 0/mo in Ahrefs CA individually — this is n
 5. What's included in an event photography package?
 6. How far in advance should I book an event photographer?
 
+### Construction Photography
+1. How much does construction photography cost in Canada?
+2. What types of construction photography do you offer — progress documentation, completion shots, drone/aerial, or team on-site?
+3. Can you photograph an active job site safely, and what do you need from us to coordinate access?
+4. Do you offer ongoing progress photography packages for multi-phase or long-duration builds?
+5. Can drone or aerial photography be added to a construction shoot?
+6. How are the final photos delivered, and what usage rights do we get for marketing, permitting, and social media?
+
 ---
 
 ## Video
@@ -136,6 +144,14 @@ Most long-tail FAQ phrases register 0/mo in Ahrefs CA individually — this is n
 4. How long does it take to shoot and edit a music video?
 5. Do you handle creative direction, location scouting, and casting?
 6. Can you work within indie or low-budget music video budgets?
+
+### Construction Video
+1. How much does a construction company marketing video cost?
+2. What types of construction videos do you produce — brand/marketing, progress documentation, or timelapse?
+3. Can you produce a construction timelapse video, and how does the scheduling work?
+4. How do you film safely and efficiently on an active construction site?
+5. What is the difference between a construction progress video and a brand video for our company?
+6. How long does it take to deliver a finished construction video after the shoot?
 
 ---
 

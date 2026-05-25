@@ -131,11 +131,37 @@ Boudoir photography is deferred per user direction and not included.
 
 ### Construction photography
 
+#### Suggested FAQ questions
+
+> Ordered by commercial intent (highest-intent questions first). Questions only — no answers at this stage.
+
+1. How much does construction photography cost in Canada?
+2. What types of construction photography do you offer — progress documentation, completion shots, drone/aerial, or team on-site?
+3. Can you photograph an active job site safely, and what do you need from us to coordinate access?
+4. Do you offer ongoing progress photography packages for multi-phase or long-duration builds?
+5. Can drone or aerial photography be added to a construction shoot?
+6. How are the final photos delivered, and what usage rights do we get for marketing, permitting, and social media?
+
+> **Research note:** `construction photography rates` (20/mo) and `construction photo documentation` (10/mo) are the only question-signal terms with measurable CA volume — the cluster is too niche for Ahrefs to surface full question-match data. Questions 1, 3, 4, and 6 are grounded directly in those signals; questions 2 and 5 are inferred from the `aerial construction photography` cluster (40/mo) and the B2B buyer's standard pre-hire concerns.
+
 - **Primary:** `construction photography` (50 / KD 0)
 - **Secondary:** `construction progress photography` (80 / KD n/a) · `construction site photography` (30 / KD 0) · `construction photographer` (10 / KD 0) · `industrial photography` (100 / KD 0) · `aerial construction photography` (40 / KD n/a) · `construction drone photography` (20 / KD n/a)
 - **Rationale:** `construction photography` is the most direct hire-intent term with confirmed KD 0 and a SERP that a low-authority page can actually enter — position 1 is held by robertlowdon.com at DR 33 with just 68 backlinks; position 6 is mkfoto.ca at DR 9. No aggregator or stock site owns the commercial layer. `construction progress photography` (80/mo) is the highest-volume term in the cluster and belongs in the copy/H2s even though Ahrefs has no SERP or KD data for it yet — it signals the documentation use case (developer/contractor progress docs) that is likely Tony's most common construction client scenario. `industrial photography` (100/mo, KD 0) is the best-volume adjacent term and has a similarly weak commercial SERP (Robert Lowdon ranks #1 with an informational post at DR 33; a dedicated service page would be an anomaly and get rewarded). Include it in copy and meta to pull both the construction and broader industrial client audience.
 
 ### Construction video
+
+#### Suggested FAQ questions
+
+> Ordered by commercial intent. Questions only — no answers at this stage.
+
+1. How much does a construction company marketing video cost?
+2. What types of construction videos do you produce — brand/marketing, progress documentation, or timelapse?
+3. Can you produce a construction timelapse video, and how does the scheduling work?
+4. How do you film safely and efficiently on an active construction site?
+5. What is the difference between a construction progress video and a brand video for our company?
+6. How long does it take to deliver a finished construction video after the shoot?
+
+> **Research note:** `construction timelapse camera` (20/mo, CPC $300, commercial intent confirmed) is the strongest commercial signal in the video cluster — it indicates buyers actively researching timelapse as a service (question 3). `construction video marketing` and `construction companies video marketing` (30/mo and 20/mo respectively) ground question 1 and 5. Questions 4 and 6 are inferred from standard B2B videography buyer concerns (site safety/access coordination and production turnaround), which are consistent pre-hire blockers in the corporate video cluster.
 
 - **Primary:** `construction videography` (30 / KD n/a)
 - **Secondary:** `construction video production` (30 / KD n/a) · `industrial video production` (60 / KD n/a, commercial intent confirmed) · `construction video marketing` (30 / KD n/a) · `construction time lapse video` (10 / KD n/a) · `construction marketing video` (20 / KD n/a)

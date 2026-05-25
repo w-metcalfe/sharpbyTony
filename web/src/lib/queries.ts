@@ -154,6 +154,7 @@ export type ProjectDetail = {
 export type Service = {
   _id: string
   title: string
+  navLabel?: string
   slug: SlugValue
   category: 'video' | 'photography' | 'design'
   summary: string
@@ -386,6 +387,7 @@ export const SERVICES_BY_CATEGORY_QUERY = defineQuery(`
   *[_type == "service" && category == $category] | order(order asc) {
     _id,
     title,
+    navLabel,
     slug,
     category,
     summary,

@@ -160,6 +160,54 @@ const FALLBACK_BENEFITS = [
 const benefits = service.benefits && service.benefits.length > 0
   ? service.benefits.map((b, i) => ({...b, icon: b.icon ?? FALLBACK_ICONS[i] ?? FALLBACK_ICONS[0]}))
   : FALLBACK_BENEFITS
+
+// JSON-LD structured data — Service + FAQPage
+const canonicalUrl = `https://sharpbytony.com/video/${slug}`
+const serviceLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: stegaClean(service.title),
+  description: stegaClean(service.seo?.metaDescription ?? service.summary ?? ''),
+  serviceType: 'Video Production',
+  ...(ogImageUrl ? {image: ogImageUrl} : {}),
+  url: canonicalUrl,
+  provider: {
+    '@type': 'ProfessionalService',
+    name: 'Sharp by Tony',
+    url: 'https://sharpbytony.com',
+    ...(settings?.contactEmail ? {email: stegaClean(settings.contactEmail)} : {}),
+    ...(settings?.contactPhone ? {telephone: stegaClean(settings.contactPhone)} : {}),
+    ...(settings?.address?.locality || settings?.address?.region
+      ? {
+          address: {
+            '@type': 'PostalAddress',
+            ...(settings.address.locality ? {addressLocality: stegaClean(settings.address.locality)} : {}),
+            ...(settings.address.region ? {addressRegion: stegaClean(settings.address.region)} : {}),
+          },
+        }
+      : {}),
+  },
+  areaServed: [
+    {'@type': 'City', name: 'London, Ontario'},
+    {'@type': 'City', name: 'Toronto'},
+    {'@type': 'AdministrativeArea', name: 'Ontario'},
+  ],
+}
+
+const faqLd = service.faq && service.faq.length > 0
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: service.faq.map((f) => ({
+        '@type': 'Question',
+        name: stegaClean(f.question),
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: stegaClean(f.answer),
+        },
+      })),
+    }
+  : null
 ---
 
 <BaseLayout
@@ -172,6 +220,11 @@ const benefits = service.benefits && service.benefits.length > 0
   contactPhone={settings?.contactPhone}
   address={settings?.address}
 >
+  <Fragment slot="head">
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(serviceLd)} />
+    {faqLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(faqLd)} />}
+  </Fragment>
+
   <Header currentPath={`/video/${slug}`} settings={settings} />
 
   <main id="main-content">

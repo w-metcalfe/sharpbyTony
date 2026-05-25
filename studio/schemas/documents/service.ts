@@ -21,6 +21,12 @@ export const serviceType = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'navLabel',
+      title: 'Nav Dropdown Label',
+      type: 'string',
+      description: 'Optional short label for the header dropdown. Falls back to a derived label from the title if empty.',
+    }),
+    defineField({
       name: 'category',
       title: 'Category',
       type: 'string',
