@@ -3,6 +3,7 @@ import '~/styles/global.css'
 import SanityVisualEditing from '~/components/SanityVisualEditing'
 import DisableDraftMode from '~/components/DisableDraftMode'
 import {perspectiveCookieName} from '@sanity/preview-url-secret/constants'
+import {stegaClean} from '@sanity/client/stega'
 
 interface Props {
   title?: string
@@ -34,14 +35,14 @@ const jsonLd = {
   '@type': 'ProfessionalService',
   name: 'Sharp by Tony',
   url: 'https://sharpbytony.com',
-  ...(contactPhone ? {telephone: contactPhone} : {}),
-  ...(contactEmail ? {email: contactEmail} : {}),
+  ...(contactPhone ? {telephone: stegaClean(contactPhone)} : {}),
+  ...(contactEmail ? {email: stegaClean(contactEmail)} : {}),
   ...(address?.locality || address?.region
     ? {
         address: {
           '@type': 'PostalAddress',
-          ...(address.locality ? {addressLocality: address.locality} : {}),
-          ...(address.region ? {addressRegion: address.region} : {}),
+          ...(address.locality ? {addressLocality: stegaClean(address.locality)} : {}),
+          ...(address.region ? {addressRegion: stegaClean(address.region)} : {}),
         },
       }
     : {}),

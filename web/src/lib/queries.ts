@@ -38,17 +38,20 @@ export type Seo = {
 }
 
 export type FaqItem = {
+  _key: string
   question: string
   answer: string
 }
 
 export type BenefitItem = {
+  _key: string
   headline: string
   body: string
   icon?: string
 }
 
 export type ProcessStep = {
+  _key: string
   label: string
   body: string
   image?: SanityImageCroppable
@@ -86,7 +89,7 @@ export type SiteSettings = {
   contactPhone: string
   contactHeading?: string
   address?: {locality?: string; region?: string}
-  socialLinks?: Array<{platform: string; url: string}>
+  socialLinks?: Array<{_key: string; platform: string; url: string}>
   serviceArea?: string[]
   footerBackground?: SanityImageCroppable
 }
@@ -231,7 +234,7 @@ export const SITE_SETTINGS_QUERY = defineQuery(`
     contactPhone,
     contactHeading,
     address { locality, region },
-    socialLinks[] { platform, url },
+    socialLinks[] { _key, platform, url },
     serviceArea,
     footerBackground { asset, alt, hotspot, crop }
   }
@@ -359,11 +362,11 @@ export const SERVICE_BY_SLUG_QUERY = defineQuery(`
     benefitsHeading,
     processHeading,
     processIntro,
-    processSteps[] { label, body, image { asset, alt, hotspot, crop } },
+    processSteps[] { _key, label, body, image { asset, alt, hotspot, crop } },
     testimonialsHeading,
     body,
-    benefits[] { headline, body, icon },
-    faq[] { question, answer },
+    benefits[] { _key, headline, body, icon },
+    faq[] { _key, question, answer },
     seo { metaTitle, metaDescription, ogImage { asset, alt }, noIndex }
   }
 `)
@@ -407,7 +410,7 @@ export const PAGE_BY_SLUG_QUERY = defineQuery(`
     kicker,
     heroBackground { asset, alt, hotspot, crop },
     portrait { asset, alt, hotspot, crop },
-    processStepImages[] { asset, alt, hotspot, crop },
+    processStepImages[] { _key, asset, alt, hotspot, crop },
     body,
     seo { metaTitle, metaDescription, ogImage { asset, alt }, noIndex }
   }

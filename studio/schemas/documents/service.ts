@@ -18,7 +18,17 @@ export const serviceType = defineType({
       title: 'Slug',
       type: 'slug',
       options: {source: 'title'},
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.required().custom(async (slug, context) => {
+          if (!slug?.current) return true
+          const client = context.getClient({apiVersion: '2026-04-26'})
+          const id = context.document?._id?.replace(/^drafts\./, '')
+          const count = await client.fetch<number>(
+            `count(*[_type == "service" && slug.current == $slug && _id != $id])`,
+            {slug: slug.current, id},
+          )
+          return count === 0 || 'A service with this slug already exists'
+        }),
     }),
     defineField({
       name: 'navLabel',
@@ -132,7 +142,7 @@ export const serviceType = defineType({
               ],
             }),
           ],
-          preview: {select: {title: 'label'}},
+          preview: {select: {title: 'label', media: 'image'}},
         }),
       ],
     }),

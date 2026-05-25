@@ -19,7 +19,7 @@ export default defineConfig({
     presentationTool({
       resolve,
       previewUrl: {
-        initial: 'https://sharpbytony.com',
+        initial: 'http://localhost:4321',
         previewMode: {
           enable: '/api/draft-mode/enable',
         },

@@ -1,5 +1,5 @@
 import {CogIcon} from '@sanity/icons'
-import {defineField, defineArrayMember, defineType} from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
 
 export const siteSettingsType = defineType({
   name: 'siteSettings',
@@ -161,7 +161,7 @@ export const siteSettingsType = defineType({
       name: 'serviceArea',
       title: 'Service Area',
       type: 'array',
-      of: [{type: 'string'}],
+      of: [defineArrayMember({type: 'string'})],
       description: 'e.g. "London, ON", "Southwestern Ontario" — used for local SEO copy',
     }),
   ],
