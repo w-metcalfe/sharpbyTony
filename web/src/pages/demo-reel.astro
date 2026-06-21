@@ -44,9 +44,13 @@ const pageDescription =
   'Watch the Sharp by Tony demo reel — sharp, strategic video production in London, Ontario.'
 const ogImageUrl = page?.seo?.ogImage?.asset
   ? imageUrl(page.seo.ogImage, {width: 1200, height: 630, quality: 85})
-  : undefined
+  : settings?.defaultOgImage?.asset
+    ? imageUrl(settings.defaultOgImage, {width: 1200, height: 630, quality: 85})
+    : undefined
 const noIndex = page?.seo?.noIndex ?? false
 const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
+const logoUrl = settings?.logo?.asset ? imageUrl(settings.logo, {width: 400}) : undefined
+const sameAs = settings?.socialLinks?.length ? settings.socialLinks.map((l) => stegaClean(l.url)) : undefined
 
 const reel = homePage?.primaryReelVideo
 let embedUrl: string | null = null
@@ -61,6 +65,18 @@ if (reel?.provider === 'youtube') {
 const posterFrameUrl = reel?.posterFrame?.asset
   ? imageUrl(reel.posterFrame, {width: 1920, quality: 85})
   : null
+
+const embedUrlClean = embedUrl?.replace('&autoplay=1', '') ?? null
+const videoLd = reel
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'VideoObject',
+      name: 'Sharp by Tony – Demo Reel',
+      description: pageDescription,
+      ...(posterFrameUrl ? {thumbnailUrl: posterFrameUrl} : {}),
+      ...(embedUrlClean ? {embedUrl: embedUrlClean} : {}),
+    }
+  : null
 ---
 
 <BaseLayout
@@ -72,7 +88,14 @@ const posterFrameUrl = reel?.posterFrame?.asset
   contactEmail={settings?.contactEmail}
   contactPhone={settings?.contactPhone}
   address={settings?.address}
+  logoUrl={logoUrl}
+  sameAs={sameAs}
 >
+  {videoLd && (
+    <Fragment slot="head">
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(videoLd)} />
+    </Fragment>
+  )}
   <Header currentPath="/demo-reel" settings={settings} />
 
   <main id="main-content">
@@ -129,6 +152,29 @@ const posterFrameUrl = reel?.posterFrame?.asset
         })
       }
     </script>
+
+    <!-- ──────────────────────── ABOUT THE REEL ──────────────────────── -->
+    <section class="bg-black py-14">
+      <div class="max-w-3xl mx-auto px-6 text-center">
+        <p class="text-[12px] font-bold tracking-[0.3em] uppercase mb-4" style="color: #F5C645;">
+          SHARP BY TONY
+        </p>
+        <h2 class="text-white text-[28px] md:text-[36px] font-bold tracking-tight mb-5">
+          Video Production in London, Ontario
+        </h2>
+        <p class="text-neutral-400 text-[16px] md:text-[18px] leading-relaxed">
+          This reel showcases video work across construction, lifestyle, and luxury verticals — from FPV drone footage to cinematic brand films. Every project is built around detailed pre-production planning, on-set precision, and polished post-production delivery.
+        </p>
+        <div class="mt-8">
+          <a
+            href="#contact-form"
+            class="inline-block bg-[#F5C645] text-black text-[13px] font-bold tracking-widest uppercase px-8 py-3.5 transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
+          >
+            Start Your Project
+          </a>
+        </div>
+      </div>
+    </section>
 
     <!-- ──────────────────────── CONTACT ──────────────────────── -->
     <ContactSection settings={settings} />

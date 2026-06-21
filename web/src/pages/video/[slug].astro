@@ -100,6 +100,8 @@ const ogImageUrl = service.seo?.ogImage?.asset
     : undefined
 const noIndex = service.seo?.noIndex ?? false
 const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
+const logoUrl = settings?.logo?.asset ? imageUrl(settings.logo, {width: 400}) : undefined
+const sameAs = settings?.socialLinks?.length ? settings.socialLinks.map((l) => stegaClean(l.url)) : undefined
 
 const heroBg = service.heroImage?.asset
   ? imageUrl(service.heroImage, {width: 1920, height: 800, quality: 85})
@@ -131,10 +133,9 @@ const processSteps = (service?.processSteps && service.processSteps.length > 0)
   ? service.processSteps.map((s) => ({
       label: s.label,
       body: s.body,
-      img: s.image?.asset ? imageUrl(s.image, {width: 560, height: 360, quality: 80}) : null,
-      imgAlt: s.image?.alt ?? s.label,
+      icon: getProcessStepIcon(s.label),
     }))
-  : FALLBACK_PROCESS_STEPS.map((s) => ({...s, img: null as string | null, imgAlt: s.label}))
+  : FALLBACK_PROCESS_STEPS.map((s) => ({...s, icon: getProcessStepIcon(s.label)}))
 
 // Service body (below process)
 const serviceBody = service.body ?? []
@@ -147,6 +148,17 @@ const FALLBACK_ICONS = [
   `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />`,
   `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />`,
 ]
+
+function getProcessStepIcon(label: string): string {
+  const l = label.toUpperCase()
+  if (l.includes('PLAN') || l.includes('PRE') || l.includes('BRIEF') || l.includes('CONSULT') || l.includes('STRATEG'))
+    return `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />`
+  if (l.includes('EDIT') || l.includes('DELIV') || l.includes('POST') || l.includes('FINISH') || l.includes('FINAL'))
+    return `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />`
+  if (l.includes('PRODUC') || l.includes('FILM') || l.includes('SHOOT') || l.includes('VIDEO') || l.includes('WEDDING'))
+    return `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />`
+  return `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />`
+}
 
 const FALLBACK_BENEFITS = [
   {headline: 'Detailed Pre-Production', body: 'Coming soon.', icon: FALLBACK_ICONS[0]},
@@ -208,21 +220,35 @@ const faqLd = service.faq && service.faq.length > 0
       })),
     }
   : null
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {'@type': 'ListItem', position: 1, name: 'Home', item: 'https://sharpbytony.com'},
+    {'@type': 'ListItem', position: 2, name: 'Videos', item: 'https://sharpbytony.com/videos'},
+    {'@type': 'ListItem', position: 3, name: stegaClean(service.title), item: canonicalUrl},
+  ],
+}
 ---
 
 <BaseLayout
   title={pageTitle}
   description={pageDescription}
   ogImage={ogImageUrl}
+  ogType="article"
   favicon={favicon}
   noIndex={noIndex}
   contactEmail={settings?.contactEmail}
   contactPhone={settings?.contactPhone}
   address={settings?.address}
+  logoUrl={logoUrl}
+  sameAs={sameAs}
 >
   <Fragment slot="head">
     <script is:inline type="application/ld+json" set:html={JSON.stringify(serviceLd)} />
     {faqLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(faqLd)} />}
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
   </Fragment>
 
   <Header currentPath={`/video/${slug}`} settings={settings} />
@@ -407,17 +433,10 @@ const faqLd = service.faq && service.faq.length > 0
         >
           {processSteps.map((step, i) => (
             <div class="flex flex-col" data-animate data-delay={i * 120}>
-              <div class="aspect-video overflow-hidden mb-5 bg-neutral-900">
-                {step.img && (
-                  <img
-                    src={step.img}
-                    alt={step.imgAlt}
-                    width="560"
-                    height="360"
-                    class="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                )}
+              <div class="flex items-center justify-center bg-neutral-900 h-36 mb-5" aria-hidden="true">
+                <div style="color: #F5C645;">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" set:html={step.icon} />
+                </div>
               </div>
               <p class="text-[12px] font-bold tracking-[0.25em] mb-3" style="color: #F5C645;">
                 {step.label}

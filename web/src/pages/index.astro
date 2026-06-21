@@ -13,6 +13,7 @@ import Footer from '~/components/Footer.astro'
 import {loadQuery} from '~/lib/load-query'
 import {getDraftModeProps} from '~/lib/draft-mode'
 import {imageUrl} from '~/lib/imageUrl'
+import {stegaClean} from '@sanity/client/stega'
 import {
   SITE_SETTINGS_QUERY,
   HOME_PAGE_QUERY,
@@ -57,9 +58,11 @@ const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32
 const ogImageUrl = settings?.defaultOgImage?.asset
   ? imageUrl(settings.defaultOgImage, {width: 1200, height: 630, quality: 85})
   : undefined
+const logoUrl = settings?.logo?.asset ? imageUrl(settings.logo, {width: 400}) : undefined
+const sameAs = settings?.socialLinks?.length ? settings.socialLinks.map((l) => stegaClean(l.url)) : undefined
 ---
 
-<BaseLayout title={title} description={description} favicon={favicon} ogImage={ogImageUrl} contactEmail={settings?.contactEmail} contactPhone={settings?.contactPhone} address={settings?.address}>
+<BaseLayout title={title} description={description} favicon={favicon} ogImage={ogImageUrl} logoUrl={logoUrl} sameAs={sameAs} contactEmail={settings?.contactEmail} contactPhone={settings?.contactPhone} address={settings?.address}>
   <Header currentPath="/" settings={settings} />
 
   <main id="main-content">

@@ -7,6 +7,7 @@ import { getDraftModeProps } from '~/lib/draft-mode'
 import { createDataAttribute } from '@sanity/visual-editing'
 import { PAGE_BY_SLUG_QUERY, SITE_SETTINGS_QUERY, type Page, type SiteSettings } from '~/lib/queries'
 import { imageUrl } from '~/lib/imageUrl'
+import { stegaClean } from '@sanity/client/stega'
 
 const draftProps = getDraftModeProps(Astro.cookies)
 const [{ data: page }, { data: settings }] = await Promise.all([
@@ -23,6 +24,8 @@ const [{ data: page }, { data: settings }] = await Promise.all([
 ])
 
 const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
+const logoUrl = settings?.logo?.asset ? imageUrl(settings.logo, {width: 400}) : undefined
+const sameAs = settings?.socialLinks?.length ? settings.socialLinks.map((l) => stegaClean(l.url)) : undefined
 const heading = page?.heroHeading ?? 'Thanks for connecting!'
 const body =
   page?.heroSubheading ??
@@ -36,6 +39,8 @@ const body =
   noIndex={true}
   contactEmail={settings?.contactEmail}
   contactPhone={settings?.contactPhone}
+  logoUrl={logoUrl}
+  sameAs={sameAs}
   address={settings?.address}
 >
   <Header settings={settings} />

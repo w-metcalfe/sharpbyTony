@@ -2,4 +2,18 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://sharpbytony.com/sitemap-index.xml
+# AI crawlers — allowing improves chances of being cited as a source in AI responses
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# Google-Extended controls AI training use; allow to maximise AI citation coverage
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://sharpbytony.com/sitemap.xml

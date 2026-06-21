@@ -6,7 +6,6 @@ import path from 'path'
 import netlify from '@astrojs/netlify'
 import react from '@astrojs/react'
 import sanity from '@sanity/astro'
-import sitemap from '@astrojs/sitemap'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -21,9 +20,6 @@ export default defineConfig({
   output: 'server',
   adapter: netlify(),
   integrations: [
-    sitemap({
-      filter: (page) => !page.includes('/thank-you') && !page.includes('/api/'),
-    }),
     react(),
     sanity({
       projectId: SANITY_PROJECT_ID,

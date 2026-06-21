@@ -7,6 +7,7 @@ import Footer from '~/components/Footer.astro'
 import {loadQuery} from '~/lib/load-query'
 import {getDraftModeProps} from '~/lib/draft-mode'
 import {imageUrl} from '~/lib/imageUrl'
+import {stegaClean} from '@sanity/client/stega'
 import {createDataAttribute} from '@sanity/visual-editing'
 import {
   SITE_SETTINGS_QUERY,
@@ -51,6 +52,8 @@ const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32
 const heroBg = page?.heroBackground?.asset
   ? imageUrl(page.heroBackground, {width: 1920, height: 800, quality: 85})
   : null
+const logoUrl = settings?.logo?.asset ? imageUrl(settings.logo, {width: 400}) : undefined
+const sameAs = settings?.socialLinks?.length ? settings.socialLinks.map((l) => stegaClean(l.url)) : undefined
 ---
 
 <BaseLayout
@@ -62,6 +65,8 @@ const heroBg = page?.heroBackground?.asset
   contactEmail={settings?.contactEmail}
   contactPhone={settings?.contactPhone}
   address={settings?.address}
+  logoUrl={logoUrl}
+  sameAs={sameAs}
 >
   <Header currentPath="/photography" settings={settings} />
 
@@ -91,14 +96,12 @@ const heroBg = page?.heroBackground?.asset
           >
             {page?.title ?? 'PHOTO.'}
           </h1>
-          {page?.heroSubheading && (
-            <p
-              class="text-neutral-300 text-[16px] md:text-[18px] leading-relaxed max-w-xl mx-auto mt-6"
-              data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'heroSubheading'})() : undefined}
-            >
-              {page.heroSubheading}
-            </p>
-          )}
+          <p
+            class="text-neutral-300 text-[16px] md:text-[18px] leading-relaxed max-w-xl mx-auto mt-6"
+            data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'heroSubheading'})() : undefined}
+          >
+            {page?.heroSubheading ?? 'Professional photography in London, Ontario — sharp, strategic imagery for construction, lifestyle, and luxury brands.'}
+          </p>
         </div>
       </div>
     </section>

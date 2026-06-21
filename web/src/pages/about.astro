@@ -8,6 +8,7 @@ import {loadQuery} from '~/lib/load-query'
 import {getDraftModeProps} from '~/lib/draft-mode'
 import {imageUrl} from '~/lib/imageUrl'
 import {createDataAttribute} from '@sanity/visual-editing'
+import {stegaClean} from '@sanity/client/stega'
 import {
   SITE_SETTINGS_QUERY,
   HOME_PAGE_QUERY,
@@ -47,7 +48,9 @@ const pageDescription =
   'Antonio Martinez is a video director, photographer, and designer based in London, Ontario.'
 const ogImageUrl = page?.seo?.ogImage?.asset
   ? imageUrl(page.seo.ogImage, {width: 1200, height: 630, quality: 85})
-  : undefined
+  : settings?.defaultOgImage?.asset
+    ? imageUrl(settings.defaultOgImage, {width: 1200, height: 630, quality: 85})
+    : undefined
 const noIndex = page?.seo?.noIndex ?? false
 
 const portrait = homePage?.aboutPortrait?.asset
@@ -55,6 +58,8 @@ const portrait = homePage?.aboutPortrait?.asset
   : null
 
 const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
+const logoUrl = settings?.logo?.asset ? imageUrl(settings.logo, {width: 400}) : undefined
+const sameAs = settings?.socialLinks?.length ? settings.socialLinks.map((l) => stegaClean(l.url)) : undefined
 
 const FALLBACK_BIO_HEADING = "I'm Antonio, a creative problem solver."
 const FALLBACK_BIO_PARAGRAPHS = [
@@ -114,6 +119,22 @@ function renderBlocks(blocks: PortableTextBlock[]): string {
 }
 
 const bodyHtml = page?.body?.length ? renderBlocks(page.body) : null
+
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Antonio Martinez',
+  jobTitle: 'Video Director, Photographer & Designer',
+  url: 'https://sharpbytony.com/about',
+  worksFor: {
+    '@type': 'ProfessionalService',
+    name: 'Sharp by Tony',
+    url: 'https://sharpbytony.com',
+  },
+  ...(settings?.socialLinks?.length
+    ? {sameAs: settings.socialLinks.map((l) => stegaClean(l.url))}
+    : {}),
+}
 ---
 
 <BaseLayout
@@ -125,7 +146,12 @@ const bodyHtml = page?.body?.length ? renderBlocks(page.body) : null
   contactEmail={settings?.contactEmail}
   contactPhone={settings?.contactPhone}
   address={settings?.address}
+  logoUrl={logoUrl}
+  sameAs={sameAs}
 >
+  <Fragment slot="head">
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(personLd)} />
+  </Fragment>
   <Header currentPath="/about" settings={settings} />
 
   <main id="main-content">
