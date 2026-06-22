@@ -1,0 +1,301 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import Header from '~/components/Header.astro'
+import ContactSection from '~/components/ContactSection.astro'
+import Footer from '~/components/Footer.astro'
+
+import {loadQuery} from '~/lib/load-query'
+import {getDraftModeProps} from '~/lib/draft-mode'
+import {imageUrl} from '~/lib/imageUrl'
+import {stegaClean} from '@sanity/client/stega'
+import {
+  SITE_SETTINGS_QUERY,
+  BLOG_POST_BY_SLUG_QUERY,
+  type SiteSettings,
+  type BlogPostDetail,
+  type PortableTextBlock,
+} from '~/lib/queries'
+
+const {slug} = Astro.params
+if (!slug) return Astro.redirect('/blog')
+
+const draftProps = getDraftModeProps(Astro.cookies)
+
+const [{data: settings}, {data: post}] = await Promise.all([
+  loadQuery<SiteSettings | null>({query: SITE_SETTINGS_QUERY, ...draftProps}).catch(() => ({
+    data: null,
+    sourceMap: undefined,
+    perspective: 'published' as const,
+  })),
+  loadQuery<BlogPostDetail | null>({
+    query: BLOG_POST_BY_SLUG_QUERY,
+    params: {slug},
+    ...draftProps,
+  }).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
+])
+
+if (!post) return Astro.redirect('/blog')
+
+// SEO
+const pageTitle = post.seo?.metaTitle ?? `${post.title} | ${settings?.title ?? 'Sharp by Tony'}`
+const pageDescription = post.seo?.metaDescription ?? post.excerpt ?? ''
+const ogImageUrl = post.seo?.ogImage?.asset
+  ? imageUrl(post.seo.ogImage, {width: 1200, height: 630, quality: 85})
+  : undefined
+const noIndex = post.seo?.noIndex ?? false
+const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
+const logoUrl = settings?.logo?.asset ? imageUrl(settings.logo, {width: 400}) : undefined
+const sameAs = settings?.socialLinks?.length ? settings.socialLinks.map((l) => stegaClean(l.url)) : undefined
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-CA', {year: 'numeric', month: 'long', day: 'numeric'})
+}
+
+function estimateReadTime(body?: PortableTextBlock[]): number {
+  if (!body) return 1
+  const text = body
+    .filter((b) => b._type === 'block')
+    .flatMap((b) => b.children ?? [])
+    .map((c) => c.text)
+    .join(' ')
+  return Math.max(1, Math.ceil(text.split(/\s+/).filter(Boolean).length / 200))
+}
+
+const readTime = estimateReadTime(post.body)
+
+// Portable Text renderer helpers
+function renderMarks(text: string, marks: string[], markDefs?: Array<{_type: string; _key: string; href?: string; blank?: boolean}>): string {
+  let result = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+
+  for (const mark of marks) {
+    if (mark === 'strong') result = `<strong class="text-white font-semibold">${result}</strong>`
+    else if (mark === 'em') result = `<em>${result}</em>`
+    else if (mark === 'underline') result = `<u>${result}</u>`
+    else if (mark === 'strike-through') result = `<s>${result}</s>`
+    else if (mark === 'code') result = `<code class="bg-neutral-800 text-[#F5C645] px-1.5 py-0.5 rounded text-[0.875em] font-mono">${result}</code>`
+    else {
+      const def = markDefs?.find((d) => d._key === mark)
+      if (def?._type === 'link' && def.href) {
+        const attrs = def.blank ? ' target="_blank" rel="noopener noreferrer"' : ''
+        result = `<a href="${def.href}"${attrs} class="text-[#F5C645] underline underline-offset-2 hover:opacity-80 transition-opacity">${result}</a>`
+      }
+    }
+  }
+  return result
+}
+
+function renderBlock(block: PortableTextBlock): string {
+  if (block._type !== 'block') return ''
+
+  const children = (block.children ?? [])
+    .map((span) => renderMarks(span.text, span.marks ?? [], block.markDefs))
+    .join('')
+
+  if (block.listItem === 'bullet') {
+    return `<li class="text-neutral-300 text-[16px] leading-[1.8]">${children}</li>`
+  }
+  if (block.listItem === 'number') {
+    return `<li class="text-neutral-300 text-[16px] leading-[1.8]">${children}</li>`
+  }
+
+  switch (block.style) {
+    case 'h2':
+      return `<h2 class="text-white text-[28px] font-bold tracking-tight mt-12 mb-4 leading-tight">${children}</h2>`
+    case 'h3':
+      return `<h3 class="text-white text-[22px] font-semibold tracking-tight mt-8 mb-3 leading-snug">${children}</h3>`
+    case 'h4':
+      return `<h4 class="text-white text-[18px] font-semibold mt-6 mb-2">${children}</h4>`
+    case 'blockquote':
+      return `<blockquote class="border-l-4 pl-6 my-8 italic text-neutral-300 text-[18px] leading-[1.7]" style="border-color: #F5C645;">${children}</blockquote>`
+    default:
+      return children.trim()
+        ? `<p class="text-neutral-300 text-[16px] leading-[1.8] mb-6">${children}</p>`
+        : ''
+  }
+}
+
+function renderBody(body?: PortableTextBlock[]): string {
+  if (!body) return ''
+
+  const output: string[] = []
+  let i = 0
+
+  while (i < body.length) {
+    const block = body[i]
+    if (block._type !== 'block') { i++; continue }
+
+    if (block.listItem === 'bullet') {
+      const items: string[] = []
+      while (i < body.length && body[i].listItem === 'bullet') {
+        items.push(renderBlock(body[i]))
+        i++
+      }
+      output.push(`<ul class="list-disc pl-6 mb-6 space-y-2">${items.join('')}</ul>`)
+      continue
+    }
+
+    if (block.listItem === 'number') {
+      const items: string[] = []
+      while (i < body.length && body[i].listItem === 'number') {
+        items.push(renderBlock(body[i]))
+        i++
+      }
+      output.push(`<ol class="list-decimal pl-6 mb-6 space-y-2">${items.join('')}</ol>`)
+      continue
+    }
+
+    output.push(renderBlock(block))
+    i++
+  }
+
+  return output.join('\n')
+}
+
+const bodyHtml = renderBody(post.body)
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: 'https://sharpbytony.com',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Blog',
+      item: 'https://sharpbytony.com/blog',
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: post.title,
+      item: `https://sharpbytony.com/blog/${post.slug.current}`,
+    },
+  ],
+}
+
+const blogPostingJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.title,
+  description: post.excerpt ?? '',
+  datePublished: post.publishedAt,
+  author: {
+    '@type': 'Person',
+    name: 'Tony',
+    url: 'https://sharpbytony.com/about',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: settings?.title ?? 'Sharp by Tony',
+    url: 'https://sharpbytony.com',
+  },
+  url: `https://sharpbytony.com/blog/${post.slug.current}`,
+}
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  ogImage={ogImageUrl}
+  favicon={favicon}
+  noIndex={noIndex}
+  contactEmail={settings?.contactEmail}
+  contactPhone={settings?.contactPhone}
+  address={settings?.address}
+  logoUrl={logoUrl}
+  sameAs={sameAs}
+>
+  <Fragment slot="head">
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(blogPostingJsonLd)} />
+  </Fragment>
+
+  <Header currentPath={`/blog/${post.slug.current}`} settings={settings} />
+
+  <main id="main-content">
+
+    <!-- ─────────────────────────── POST HERO ─────────────────────────── -->
+    <section
+      class="relative w-full bg-black flex items-center justify-center"
+      style="min-height: clamp(320px, 55vh, 640px);"
+      aria-label="Blog post hero"
+    >
+      <div class="absolute inset-0 bg-neutral-950" aria-hidden="true" />
+      <div class="relative z-10 flex flex-col items-center justify-center h-full px-6 py-20 text-center">
+        <div class="hero-text max-w-3xl mx-auto">
+          <p class="text-[12px] font-bold tracking-[0.3em] uppercase mb-3" style="color: #F5C645;">
+            {post.category ? `${post.category} | SHARP BY TONY` : 'BLOG | SHARP BY TONY'}
+          </p>
+          <h1 class="text-white text-[40px] md:text-[60px] font-bold tracking-tight leading-tight mb-5">
+            {post.title}
+          </h1>
+          <p class="text-neutral-500 text-[13px] font-bold tracking-[0.2em] uppercase mb-6">
+            {formatDate(post.publishedAt)} &nbsp;·&nbsp; {readTime} min read
+          </p>
+          {post.excerpt && (
+            <p class="text-neutral-300 text-[16px] md:text-[18px] leading-relaxed max-w-xl mx-auto">
+              {post.excerpt}
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────── POST BODY ─────────────────────────── -->
+    <section class="bg-black py-16 md:py-24">
+      <div class="max-w-2xl mx-auto px-6">
+
+        <!-- Breadcrumb -->
+        <nav class="mb-12 flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase text-neutral-500" aria-label="Breadcrumb">
+          <a href="/" class="hover:text-[#F5C645] transition-colors">Home</a>
+          <span aria-hidden="true">/</span>
+          <a href="/blog" class="hover:text-[#F5C645] transition-colors">Blog</a>
+          <span aria-hidden="true">/</span>
+          <span class="text-neutral-600 truncate max-w-[200px]">{post.title}</span>
+        </nav>
+
+        <!-- Body -->
+        <article class="prose-blog" set:html={bodyHtml} />
+
+        <!-- Back link -->
+        <div class="mt-16 pt-8 border-t border-neutral-800">
+          <a
+            href="/blog"
+            class="inline-flex items-center gap-2 text-[12px] font-bold tracking-[0.25em] uppercase transition-colors hover:text-[#F5C645] focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm"
+            style="color: #F5C645;"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Back to Blog
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────── CONTACT ──────────────────────── -->
+    <ContactSection settings={settings} />
+  </main>
+
+  <Footer settings={settings} />
+</BaseLayout>
+
+<style>
+  @keyframes fade-up {
+    from {opacity: 0; transform: translateY(24px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-text {
+      animation: fade-up 0.6s ease-out both;
+    }
+  }
+</style>

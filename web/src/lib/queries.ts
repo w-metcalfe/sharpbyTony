@@ -461,6 +461,50 @@ export const VIDEO_PROJECTS_QUERY = defineQuery(`
   }
 `)
 
+// ---------------------------------------------------------------------------
+// Blog
+// ---------------------------------------------------------------------------
+
+export type BlogPost = {
+  _id: string
+  title: string
+  slug: SlugValue
+  publishedAt: string
+  excerpt?: string
+  category?: string
+}
+
+export type BlogPostDetail = {
+  _id: string
+  title: string
+  slug: SlugValue
+  publishedAt: string
+  excerpt?: string
+  category?: string
+  body?: PortableTextBlock[]
+  seo?: Seo
+}
+
+/** Paginated blog post list. Pass `{ offset: number, limit: number }`. */
+export const BLOG_POSTS_QUERY = defineQuery(`
+  *[_type == "blogPost"] | order(publishedAt desc) [$offset...$offset + $limit] {
+    _id, title, slug, publishedAt, excerpt, category
+  }
+`)
+
+/** Total count of published blog posts for pagination. */
+export const BLOG_POSTS_COUNT_QUERY = defineQuery(`
+  count(*[_type == "blogPost"])
+`)
+
+/** Full blog post by slug. Pass `{ slug: "post-slug" }`. Returns null if not found. */
+export const BLOG_POST_BY_SLUG_QUERY = defineQuery(`
+  *[_type == "blogPost" && slug.current == $slug][0] {
+    _id, title, slug, publishedAt, excerpt, category, body,
+    seo { metaTitle, metaDescription, ogImage { asset, alt }, noIndex }
+  }
+`)
+
 /** Testimonials flagged as featured, sorted by manual order. */
 export const FEATURED_TESTIMONIALS_QUERY = defineQuery(`
   *[_type == "testimonial" && featured == true] | order(order asc) {

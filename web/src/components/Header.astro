@@ -30,6 +30,7 @@ const logo = settings?.logo?.asset ? imageUrl(settings.logo, {width: 110, height
 
 const isVideoActive = currentPath === '/videos' || currentPath.startsWith('/video/')
 const isPhotoActive = currentPath === '/photography' || currentPath.startsWith('/photography/')
+const isBlogActive = currentPath === '/blog' || currentPath.startsWith('/blog/')
 
 function shortNavLabel(title: string, category: 'video' | 'photography'): string {
   if (category === 'video') {
@@ -145,6 +146,14 @@ function shortNavLabel(title: string, category: 'video' | 'photography'): string
 
         <li>
           <a
+            href="/blog"
+            class:list={['text-[14px] font-bold tracking-widest uppercase transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm', isBlogActive ? 'text-[#F5C645]' : 'text-white hover:text-[#F5C645]']}
+            aria-current={isBlogActive ? 'page' : undefined}
+          >BLOG</a>
+        </li>
+
+        <li>
+          <a
             href="/demo-reel"
             class:list={['text-[14px] font-bold tracking-widest uppercase transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black rounded-sm', currentPath === '/demo-reel' ? 'text-[#F5C645]' : 'text-white hover:text-[#F5C645]']}
             aria-current={currentPath === '/demo-reel' ? 'page' : undefined}
@@ -252,6 +261,14 @@ function shortNavLabel(title: string, category: 'video' | 'photography'): string
               ))}
             </ul>
           )}
+        </li>
+
+        <li class="py-2.5">
+          <a
+            href="/blog"
+            class:list={['text-[13px] font-bold tracking-widest uppercase block focus:outline-none focus:ring-2 focus:ring-[#F5C645] rounded-sm', isBlogActive ? 'text-[#F5C645]' : 'text-white']}
+            aria-current={isBlogActive ? 'page' : undefined}
+          >BLOG</a>
         </li>
 
         <li class="py-2.5">

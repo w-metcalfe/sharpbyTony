@@ -1,0 +1,281 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import Header from '~/components/Header.astro'
+import ContactSection from '~/components/ContactSection.astro'
+import Footer from '~/components/Footer.astro'
+
+import {loadQuery} from '~/lib/load-query'
+import {getDraftModeProps} from '~/lib/draft-mode'
+import {imageUrl} from '~/lib/imageUrl'
+import {stegaClean} from '@sanity/client/stega'
+import {createDataAttribute} from '@sanity/visual-editing'
+import {
+  SITE_SETTINGS_QUERY,
+  PAGE_BY_SLUG_QUERY,
+  BLOG_POSTS_QUERY,
+  BLOG_POSTS_COUNT_QUERY,
+  type SiteSettings,
+  type Page,
+  type BlogPost,
+} from '~/lib/queries'
+
+const draftProps = getDraftModeProps(Astro.cookies)
+
+const POSTS_PER_PAGE = 12
+const pageParam = Math.max(1, Number(Astro.url.searchParams.get('page') ?? '1'))
+const offset = (pageParam - 1) * POSTS_PER_PAGE
+
+const [{data: settings}, {data: page}, {data: posts}, {data: totalCount}] = await Promise.all([
+  loadQuery<SiteSettings | null>({query: SITE_SETTINGS_QUERY, ...draftProps}).catch(() => ({
+    data: null,
+    sourceMap: undefined,
+    perspective: 'published' as const,
+  })),
+  loadQuery<Page | null>({
+    query: PAGE_BY_SLUG_QUERY,
+    params: {slug: 'blog'},
+    ...draftProps,
+  }).catch(() => ({data: null, sourceMap: undefined, perspective: 'published' as const})),
+  loadQuery<BlogPost[]>({
+    query: BLOG_POSTS_QUERY,
+    params: {offset, limit: POSTS_PER_PAGE},
+    ...draftProps,
+  }).catch(() => ({data: [], sourceMap: undefined, perspective: 'published' as const})),
+  loadQuery<number>({
+    query: BLOG_POSTS_COUNT_QUERY,
+    ...draftProps,
+  }).catch(() => ({data: 0, sourceMap: undefined, perspective: 'published' as const})),
+])
+
+const totalPages = Math.max(1, Math.ceil((totalCount ?? 0) / POSTS_PER_PAGE))
+
+// SEO
+const pageTitle =
+  page?.seo?.metaTitle ?? `Blog | ${settings?.title ?? 'Sharp by Tony'}`
+const pageDescription =
+  page?.seo?.metaDescription ??
+  'Insights, tips, and behind-the-scenes stories from Sharp by Tony — London, Ontario video production and photography.'
+const ogImageUrl = page?.seo?.ogImage?.asset
+  ? imageUrl(page.seo.ogImage, {width: 1200, height: 630, quality: 85})
+  : undefined
+const noIndex = page?.seo?.noIndex ?? false
+const favicon = settings?.favicon?.asset ? imageUrl(settings.favicon, {width: 32, height: 32}) : undefined
+
+const heroBg = page?.heroBackground?.asset
+  ? imageUrl(page.heroBackground, {width: 1920, height: 800, quality: 85})
+  : null
+const logoUrl = settings?.logo?.asset ? imageUrl(settings.logo, {width: 400}) : undefined
+const sameAs = settings?.socialLinks?.length ? settings.socialLinks.map((l) => stegaClean(l.url)) : undefined
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-CA', {year: 'numeric', month: 'long', day: 'numeric'})
+}
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  ogImage={ogImageUrl}
+  favicon={favicon}
+  noIndex={noIndex}
+  contactEmail={settings?.contactEmail}
+  contactPhone={settings?.contactPhone}
+  address={settings?.address}
+  logoUrl={logoUrl}
+  sameAs={sameAs}
+>
+  <Header currentPath="/blog" settings={settings} />
+
+  <main id="main-content">
+
+    <!-- ─────────────────────────── BLOG HERO ─────────────────────────── -->
+    <section
+      class="relative w-full bg-black overflow-hidden flex items-center justify-center"
+      style="min-height: clamp(320px, 50vh, 560px);"
+      aria-label="Blog hero"
+    >
+      {heroBg && (
+        <img
+          src={heroBg}
+          alt="Sharp by Tony blog"
+          fetchpriority="high"
+          width="1920"
+          height="800"
+          class="absolute inset-0 w-full h-full object-cover object-center"
+        />
+      )}
+      <div class="absolute inset-0 bg-black/60" aria-hidden="true" />
+      <div class="relative z-10 flex flex-col items-center justify-center h-full px-6 py-20 text-center">
+        <div class="hero-text">
+          <p class="text-[12px] font-bold tracking-[0.3em] uppercase mb-3" style="color: #F5C645;">
+            {page?.kicker ?? 'BLOG | SHARP BY TONY'}
+          </p>
+          <h1
+            class="text-white text-[48px] md:text-[72px] font-bold tracking-tight leading-none"
+            data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'title'})() : undefined}
+          >
+            {page?.title ?? 'BLOG.'}
+          </h1>
+          {(page?.heroSubheading) && (
+            <p
+              class="text-neutral-300 text-[16px] md:text-[18px] leading-relaxed max-w-xl mx-auto mt-6"
+              data-sanity={page ? createDataAttribute({id: page._id, type: 'page', path: 'heroSubheading'})() : undefined}
+            >
+              {page.heroSubheading}
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────── BLOG GRID ─────────────────────────── -->
+    <section id="blog-posts" class="bg-black py-20">
+      <div class="max-w-5xl mx-auto px-6">
+
+        {posts && posts.length > 0 ? (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {(posts as BlogPost[]).map((post, i) => (
+              <a
+                href={`/blog/${post.slug.current}`}
+                class="group block border border-neutral-800 p-6 transition-colors duration-300 hover:border-[#F5C645]/40 focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black"
+                data-animate
+                data-delay={i * 60}
+              >
+                <p class="text-[11px] font-bold tracking-[0.3em] uppercase mb-3" style="color: #F5C645;">
+                  {post.category ? `${post.category} · ` : ''}{formatDate(post.publishedAt)}
+                </p>
+                <h2 class="text-white text-[20px] font-bold tracking-tight leading-snug mb-3 group-hover:text-neutral-100 transition-colors duration-150">
+                  {post.title}
+                </h2>
+                {post.excerpt && (
+                  <p class="text-neutral-400 text-[14px] leading-[1.7] mb-5 line-clamp-3">
+                    {post.excerpt}
+                  </p>
+                )}
+                <div class="flex items-center gap-2 mt-auto">
+                  <span class="text-[11px] font-bold tracking-[0.25em] uppercase" style="color: #F5C645;">
+                    Read More
+                  </span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#F5C645"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
+                    aria-hidden="true"
+                  >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </div>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p class="text-neutral-500 text-center text-[14px]">No posts yet — check back soon.</p>
+        )}
+
+        <!-- ── Pagination ── -->
+        {totalPages > 1 && (
+          <nav class="mt-16 flex items-center justify-center gap-4" aria-label="Blog pagination">
+            {pageParam > 1 ? (
+              <a
+                href={`/blog?page=${pageParam - 1}`}
+                class="inline-flex items-center gap-2 text-[12px] font-bold tracking-[0.25em] uppercase px-5 py-2.5 border border-neutral-700 text-white transition-colors hover:border-[#F5C645] hover:text-[#F5C645] focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5" aria-hidden="true">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+                Prev
+              </a>
+            ) : (
+              <span class="inline-flex items-center gap-2 text-[12px] font-bold tracking-[0.25em] uppercase px-5 py-2.5 border border-neutral-800 text-neutral-600 cursor-not-allowed select-none" aria-disabled="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5" aria-hidden="true">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+                Prev
+              </span>
+            )}
+
+            <span class="text-neutral-400 text-[12px] font-bold tracking-widest uppercase">
+              Page {pageParam} of {totalPages}
+            </span>
+
+            {pageParam < totalPages ? (
+              <a
+                href={`/blog?page=${pageParam + 1}`}
+                class="inline-flex items-center gap-2 text-[12px] font-bold tracking-[0.25em] uppercase px-5 py-2.5 border border-neutral-700 text-white transition-colors hover:border-[#F5C645] hover:text-[#F5C645] focus:outline-none focus:ring-2 focus:ring-[#F5C645] focus:ring-offset-2 focus:ring-offset-black"
+              >
+                Next
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5" aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </a>
+            ) : (
+              <span class="inline-flex items-center gap-2 text-[12px] font-bold tracking-[0.25em] uppercase px-5 py-2.5 border border-neutral-800 text-neutral-600 cursor-not-allowed select-none" aria-disabled="true">
+                Next
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5" aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </span>
+            )}
+          </nav>
+        )}
+
+      </div>
+    </section>
+
+    <!-- ──────────────────────── CONTACT ──────────────────────── -->
+    <ContactSection settings={settings} />
+  </main>
+
+  <Footer settings={settings} />
+</BaseLayout>
+
+<style>
+  @keyframes fade-up {
+    from {opacity: 0; transform: translateY(24px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-text {
+      animation: fade-up 0.6s ease-out both;
+    }
+  }
+
+  [data-animate] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  [data-animate].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-animate] {opacity: 1; transform: none; transition: none;}
+  }
+</style>
+
+<script>
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (!prefersReduced) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement
+            const delay = el.dataset.delay ? parseInt(el.dataset.delay) : 0
+            setTimeout(() => el.classList.add('is-visible'), delay)
+            observer.unobserve(el)
+          }
+        })
+      },
+      {threshold: 0.12},
+    )
+    document.querySelectorAll('[data-animate]').forEach((el) => observer.observe(el))
+  }
+</script>
