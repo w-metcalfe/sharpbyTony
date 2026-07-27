@@ -1,0 +1,26 @@
+---
+// Prerendered so Netlify's build-time form parser can find and register
+// the "contact" form — the real form in ContactSection.astro is only ever
+// server-rendered (output: 'server'), so it never appears in the static
+// build output Netlify scans for form detection.
+export const prerender = true
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Forms</title>
+  </head>
+  <body>
+    <form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="contact" />
+      <input name="bot-field" />
+      <input name="name" type="text" />
+      <input name="email" type="email" />
+      <input name="phone" type="tel" />
+      <textarea name="message"></textarea>
+    </form>
+  </body>
+</html>
