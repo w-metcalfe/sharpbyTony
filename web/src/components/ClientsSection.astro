@@ -14,11 +14,15 @@ const sanityClients = (clients ?? []).filter((c) => c.logo?.asset)
 
 const imgClass =
   'max-h-[40px] w-auto object-contain opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-200'
+
+// Keep scroll speed constant regardless of logo count (fixed duration made
+// it speed up as more logos were added).
+const marqueeDuration = `${Math.max(sanityClients.length, 1) * 4.5}s`
 ---
 
 <section class="bg-neutral-100 py-10 overflow-hidden">
   <div class="marquee-track">
-    <div class="marquee-inner">
+    <div class="marquee-inner" style={`animation-duration: ${marqueeDuration}`}>
       {
         [...sanityClients, ...sanityClients].map((c) => (
           <a
