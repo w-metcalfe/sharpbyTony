@@ -14,15 +14,11 @@ const sanityClients = (clients ?? []).filter((c) => c.logo?.asset)
 
 const imgClass =
   'max-h-[40px] w-auto object-contain opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-200'
-
-// Keep scroll speed constant regardless of logo count (fixed duration made
-// it speed up as more logos were added).
-const marqueeDuration = `${Math.max(sanityClients.length, 1) * 4.5}s`
 ---
 
 <section class="bg-neutral-100 py-10 overflow-hidden">
   <div class="marquee-track">
-    <div class="marquee-inner" style={`animation-duration: ${marqueeDuration}`}>
+    <div class="marquee-inner">
       {
         [...sanityClients, ...sanityClients].map((c) => (
           <a
@@ -57,19 +53,44 @@ const marqueeDuration = `${Math.max(sanityClients.length, 1) * 4.5}s`
     align-items: center;
     gap: 4rem;
     width: max-content;
-    animation: marquee 35s linear infinite;
-  }
-
-  .marquee-inner:hover {
-    animation-play-state: paused;
-  }
-
-  @keyframes marquee {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
   }
 </style>
+
+<script>
+  // Driven by rAF + elapsed wall-clock time rather than a CSS animation:
+  // CSS animation-duration has been observed to run faster on high-refresh-rate
+  // displays (common on Windows, rare on Mac), so a fixed-duration keyframe
+  // animation scrolls at different speeds depending on the monitor's Hz.
+  const PIXELS_PER_SECOND = 60
+
+  document.querySelectorAll<HTMLElement>('.marquee-inner').forEach((track) => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) return
+
+    let offset = 0
+    let paused = false
+    let lastTimestamp: number | null = null
+
+    track.addEventListener('mouseenter', () => (paused = true))
+    track.addEventListener('mouseleave', () => (paused = false))
+
+    function step(timestamp: number) {
+      if (lastTimestamp === null) lastTimestamp = timestamp
+      const deltaSeconds = (timestamp - lastTimestamp) / 1000
+      lastTimestamp = timestamp
+
+      // Track content is duplicated once, so half its width is one full loop.
+      const halfWidth = track.scrollWidth / 2
+
+      if (!paused && halfWidth > 0) {
+        offset += PIXELS_PER_SECOND * deltaSeconds
+        if (offset >= halfWidth) offset -= halfWidth
+        track.style.transform = `translateX(-${offset}px)`
+      }
+
+      requestAnimationFrame(step)
+    }
+
+    requestAnimationFrame(step)
+  })
+</script>
